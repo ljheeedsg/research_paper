@@ -1,0 +1,35 @@
+import csv
+import json
+
+# ================== 配置 ==================
+CSV_FILE = "vehicles.csv"       # 你之前生成的车辆轨迹文件
+JSON_FILE = "worker_segments.json"  # 要输出的JSON文件
+REGIONS = list(range(6))       # 0~5 共6个区域
+
+# ================== 初始化分组字典 ==================
+worker_segments = {f"region_{r}": [] for r in REGIONS}
+
+# ================== 读取CSV并分组 ==================
+with open(CSV_FILE, "r", encoding="utf-8") as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        region_id = int(row["region_id"])
+        # 构造单条轨迹的JSON对象
+        segment = {
+            "vehicle_id": row["vehicle_id"],
+            "start_time": int(row["start_time"]),
+            "end_time": int(row["end_time"]),
+            "cost": float(row["cost"]),
+            "is_trusted": row["is_trusted"].lower() == "true"  # 转成bool
+        }
+        # 加入对应区域的列表
+        worker_segments[f"region_{region_id}"].append(segment)
+
+# ================== 写入JSON文件 ==================
+with open(JSON_FILE, "w", encoding="utf-8") as f:
+    json.dump(worker_segments, f, indent=2, ensure_ascii=False)
+
+print(f"✅ 处理完成！已生成 {JSON_FILE}")
+print(f"📊 各区域轨迹数量：")
+for r in REGIONS:
+    print(f"   region_{r}: {len(worker_segments[f'region_{r}'])} 条")
