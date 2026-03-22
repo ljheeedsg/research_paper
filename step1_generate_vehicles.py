@@ -69,7 +69,7 @@ def generate_car(hour, car_seq):
 
 
 # ================== 生成完整CSV文件（无任何验证） ==================
-def generate_vehicles_csv(filename="vehicles.csv"):
+def generate_vehicles_csv(filename="step1_vehicles.csv"):
     all_data = []
     # 遍历6个小时，生成每小时150辆车
     for hour in range(TOTAL_HOURS):

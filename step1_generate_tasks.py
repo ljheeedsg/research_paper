@@ -37,7 +37,7 @@ def generate_region_tasks(region_id):
 
 
 # ================== 生成完整tasks.csv ==================
-def generate_tasks_csv(filename="tasks.csv"):
+def generate_tasks_csv(filename="step1_tasks.csv"):
     all_tasks = []
     # 遍历6个区域，每个区域生成20个任务
     for region_id in range(REGION_COUNT):

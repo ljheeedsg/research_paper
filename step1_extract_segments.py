@@ -2,8 +2,8 @@ import csv
 import json
 
 # ================== 配置 ==================
-CSV_FILE = "vehicles.csv"       # 你之前生成的车辆轨迹文件
-JSON_FILE = "worker_segments.json"  # 要输出的JSON文件
+CSV_FILE = "step1_vehicles.csv"       # 你之前生成的车辆轨迹文件
+JSON_FILE = "step1_worker_segments.json"  # 要输出的JSON文件
 REGIONS = list(range(6))       # 0~5 共6个区域
 
 # ================== 初始化分组字典 ==================

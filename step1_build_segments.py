@@ -2,8 +2,8 @@ import csv
 import json
 
 # ================== 配置 ==================
-CSV_FILE = "tasks.csv"            # 你之前生成的任务集合文件
-JSON_FILE = "task_segments.json" # 要输出的JSON文件
+CSV_FILE = "step1_tasks.csv"            # 你之前生成的任务集合文件
+JSON_FILE = "step1_task_segments.json" # 要输出的JSON文件
 REGIONS = list(range(6))          # 0~5 共6个区域
 
 # ================== 初始化分组字典 ==================

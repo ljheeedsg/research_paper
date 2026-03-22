@@ -1,5 +1,5 @@
 # 1. 车辆模拟数据生成
-## 1. vehicles.csv（车辆原始轨迹）字段说明
+## 1. step1_vehicles.csv（车辆原始轨迹）字段说明
 
 | 字段 | 类型 | 说明 |
 |---|---|---|
@@ -47,7 +47,7 @@ v00_001,3,560,800,8.3,False
 
 # 2. 任务模拟数据生成
 
-## 2.1 tasks.csv 字段说明
+## 2.1 step1_tasks.csv 字段说明
 
 | 字段 | 类型 | 说明 |
 |---|---|---|
@@ -82,7 +82,7 @@ t00_01,0,500,4100,1
 t01_00,1,3600,7200,2
 ...```
 
-## 三、worker_segments.json（轨迹时空段）
+## 三、step1_worker_segments.json（轨迹时空段）
 
 **作用**：算法输入——按区域分组的车辆轨迹
 
@@ -122,7 +122,7 @@ t01_00,1,3600,7200,2
 - 每个 segment 的 `start_time < end_time`
 - `start_time`/`end_time` 均在 [0, 21599] 范围内
 
-## 四、task_segments.json（任务时空段）
+## 四、step1_task_segments.json（任务时空段）
 
 **作用**：算法输入——按区域分组的任务窗口
 
@@ -153,15 +153,9 @@ t01_00,1,3600,7200,2
 
 1. 先运行 `generate_vehicles.py` 生成 `vehicles.csv`。
 2. 再运行 `generate_tasks.py` 生成 `tasks.csv`。
-3. 运行 `build_segments.py` 将两者分别转换成 `worker_segments.json`、`task_segments.json`。
+3. 运行 `extract_segments.py`\ `build_segments.py` 将两者分别转换成 `worker_segments.json`、`task_segments.json`。
 4. 将两个JSON输入调度算法进行匹配决策。
 
 ---
 
-> ✅ 已完成全部 Markdown 美化：
-> - 统一标题结构
-> - 统一表格格式
-> - 增加规则/验收标准
-> - 补上算法输入 JSON 示例
 
-如果你还要我把这个文档转为 PPT 风格备注（每一节一幻灯片）我可以继续做。
