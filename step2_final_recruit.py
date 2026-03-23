@@ -2,8 +2,9 @@ import json
 import math
 
 # ========== 可调参数 ==========
-B = 116409          # 总预算（请确保 ≥ 所有工人成本之和，否则初始化会失败）
+B = 118000          # 总预算（请确保 ≥ 所有工人成本之和，否则初始化会失败）
 K = 3               # 每轮招募人数（贪心阶段每轮选K人）
+MAX_ROUNDS = 15      # 贪心阶段最大轮数（达到此轮数即停止，无论预算）
 # =============================
 
 def load_json(filepath):
@@ -28,9 +29,9 @@ def ucb_quality(worker, total_learned_counts):
     exploration = math.sqrt((K + 1) * math.log(total_learned_counts) / worker['n_i'])
     return worker['avg_quality'] + exploration
 
-def greedy_recruit(worker_options, task_weights, B, K):
+def greedy_recruit(worker_options, task_weights, B, K, max_rounds):
     """
-    论文 Algorithm 1 实现
+    论文 Algorithm 1 实现，增加最大轮数限制，任务覆盖需达到 required_workers
     """
     # 过滤掉没有覆盖任务的工人
     workers = [w for w in worker_options if w['covered_tasks']]
@@ -46,7 +47,10 @@ def greedy_recruit(worker_options, task_weights, B, K):
             'covered_task_count': 0
         }
 
-    task_covered = {task_id: False for task_id in task_weights.keys()}
+    # 任务覆盖计数：每个任务当前已被多少个工人覆盖
+    task_covered_count = {task_id: 0 for task_id in task_weights.keys()}
+    # 记录每个任务所需工人数（从 task_weights 获取）
+    required_workers = task_weights  # 字典 {task_id: required_workers}
 
     total_cost = 0
     remaining_budget = B
@@ -86,23 +90,29 @@ def greedy_recruit(worker_options, task_weights, B, K):
     # ---------- 贪心选择阶段 ----------
     round_idx = 1
     while True:
+        # 达到最大轮数则停止
+        if round_idx > max_rounds:
+            print(f"已达到最大轮数限制 {max_rounds}，停止招募。")
+            break
+
         # 检查剩余预算是否还能支付任何工人
         min_cost = min(w['total_cost'] for w in workers)
         if remaining_budget < min_cost:
             print(f"第{round_idx}轮：剩余预算 {remaining_budget:.2f} 不足以支付任何工人，停止招募。")
             break
 
-        # 检查是否还有未覆盖任务
+        # 检查是否还有未完成的任务（即当前覆盖计数 < required_workers）
         max_gain = 0
         for w in workers:
             gain = 0.0
             for task in w['covered_tasks']:
-                if not task_covered[task['task_id']]:
-                    gain += task_weights[task['task_id']] * task['quality']
+                tid = task['task_id']
+                if task_covered_count[tid] < required_workers[tid]:
+                    gain += required_workers[tid] * task['quality']
             if gain > max_gain:
                 max_gain = gain
         if max_gain == 0:
-            print(f"第{round_idx}轮：所有工人已无新增任务覆盖，停止招募。")
+            print(f"第{round_idx}轮：所有工人已无新增任务增益，停止招募。")
             break
 
         round_selected = []
@@ -120,11 +130,12 @@ def greedy_recruit(worker_options, task_weights, B, K):
                     continue
                 # 计算该工人的 UCB 质量
                 ucb_q = ucb_quality(w, total_learned_counts)
-                # 计算边际增益（UCB质量下的加权任务质量）
+                # 计算边际增益（UCB质量下的加权任务质量，只考虑未完成的任务）
                 gain = 0.0
                 for task in w['covered_tasks']:
-                    if not task_covered[task['task_id']]:
-                        gain += task_weights[task['task_id']] * ucb_q
+                    tid = task['task_id']
+                    if task_covered_count[tid] < required_workers[tid]:
+                        gain += required_workers[tid] * ucb_q
                 if gain <= 0:
                     ratio = 0
                 else:
@@ -141,9 +152,11 @@ def greedy_recruit(worker_options, task_weights, B, K):
             total_cost += best_worker['total_cost']
             remaining_budget -= best_worker['total_cost']
 
-            # 更新任务覆盖状态
+            # 更新任务覆盖计数
             for task in best_worker['covered_tasks']:
-                task_covered[task['task_id']] = True
+                tid = task['task_id']
+                if task_covered_count[tid] < required_workers[tid]:
+                    task_covered_count[tid] += 1
 
             # 更新工人档案
             learned_tasks = len(best_worker['covered_tasks'])
@@ -166,17 +179,26 @@ def greedy_recruit(worker_options, task_weights, B, K):
         greedy_selected_workers.extend(round_selected)
         all_selected_workers.extend(round_selected)
         greedy_rounds += 1
-        covered_now = sum(task_covered.values())
-        print(f"第{round_idx}轮：选择了 {len(round_selected)} 个工人，当前总花费={total_cost:.2f}, 剩余预算={remaining_budget:.2f}, 覆盖任务数={covered_now}")
+
+        # 计算已完成任务数（计数达到 required_workers 的任务）
+        completed_tasks = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
+        print(f"第{round_idx}轮：选择了 {len(round_selected)} 个工人，当前总花费={total_cost:.2f}, 剩余预算={remaining_budget:.2f}, 已完成任务数={completed_tasks}")
 
         # 再次检查剩余预算是否还能支付任何工人
         if remaining_budget < min_cost:
             print("本轮结束后剩余预算不足以支付任何工人，停止招募。")
             break
 
+        # 如果所有任务都已完成，停止
+        if completed_tasks == len(required_workers):
+            print("所有任务已完成，停止招募。")
+            break
+
         round_idx += 1
 
-    covered_task_count = sum(task_covered.values())
+    # 最终统计已完成任务数
+    covered_task_count = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
+
     return {
         'total_rounds': greedy_rounds,
         'total_cost': total_cost,
@@ -194,7 +216,7 @@ def main():
     worker_options = worker_options_data['worker_options']
     task_weights = task_weights_data['task_weights']
 
-    result = greedy_recruit(worker_options, task_weights, B, K)
+    result = greedy_recruit(worker_options, task_weights, B, K, MAX_ROUNDS)
 
     print("\n=== 最终结果 ===")
     print(f"实际贪心轮数: {result['total_rounds']}")
