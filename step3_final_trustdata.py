@@ -287,6 +287,9 @@ def greedy_recruit(worker_options, task_weights, task_grid_map, B, K, max_rounds
 
     covered_task_count = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
 
+    # 最终可信工人列表
+    trusted_workers_list = list(Uc_ids)
+
     return {
         'total_rounds': greedy_rounds,
         'total_cost': total_cost,
@@ -297,7 +300,8 @@ def greedy_recruit(worker_options, task_weights, task_grid_map, B, K, max_rounds
         'covered_task_count': covered_task_count,
         'trusted_count': len(Uc_ids),
         'malicious_count': len(Um_ids),
-        'unknown_count': len(Uu_ids)
+        'unknown_count': len(Uu_ids),
+        'trusted_workers_list': trusted_workers_list   # 新增字段
     }
 
 def main():
@@ -325,8 +329,21 @@ def main():
         print(f"可信工人数: {result['trusted_count']}")
         print(f"恶意工人数: {result['malicious_count']}")
         print(f"未知工人数: {result['unknown_count']}")
+        print(f"可信工人列表（前10个）: {result['trusted_workers_list'][:10]}")
 
-        save_json(result, 'step3_final_recruit_with_trust.json')
+        save_json({
+            'total_rounds': result['total_rounds'],
+            'total_cost': result['total_cost'],
+            'remaining_budget': result['remaining_budget'],
+            'selected_workers': result['selected_workers'],
+            'init_select': result['init_select'],
+            'later_select': result['later_select'],
+            'covered_task_count': result['covered_task_count'],
+            'trusted_count': result['trusted_count'],
+            'malicious_count': result['malicious_count'],
+            'unknown_count': result['unknown_count'],
+            'trusted_workers_list': result['trusted_workers_list']   # 保存到JSON
+        }, 'step3_final_recruit_with_trust.json')
         print("结果已保存至 step3_final_recruit_with_trust.json")
     else:
         print("算法未能成功运行。")
