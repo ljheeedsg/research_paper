@@ -81,10 +81,24 @@ def generate_task_weights(tasks):
     """生成任务权重字典，权重 = required_workers"""
     return {task['task_id']: task['required_workers'] for task in tasks}
 
-def main():
+def generate_worker_options_and_task_weights(
+    worker_segments_path,
+    task_segments_path,
+    output_worker_options_path,
+    output_task_weights_path
+):
+    """
+    从 worker_segments.json 和 task_segments.json 生成工人选项和任务权重。
+    
+    参数:
+        worker_segments_path (str): 输入工人段JSON路径
+        task_segments_path (str): 输入任务段JSON路径
+        output_worker_options_path (str): 输出工人选项JSON路径
+        output_task_weights_path (str): 输出任务权重JSON路径
+    """
     # 加载输入数据
-    worker_segments = load_json('step1_worker_segments.json')
-    task_segments = load_json('step1_task_segments.json')
+    worker_segments = load_json(worker_segments_path)
+    task_segments = load_json(task_segments_path)
 
     workers = parse_worker_segments(worker_segments)
     tasks = parse_tasks(task_segments)
@@ -96,10 +110,16 @@ def main():
     task_weights = generate_task_weights(tasks)
 
     # 保存结果
-    save_json({'worker_options': worker_options}, 'step2_worker_option_set.json')
-    save_json({'task_weights': task_weights}, 'step2_task_weight_list.json')
+    save_json({'worker_options': worker_options}, output_worker_options_path)
+    save_json({'task_weights': task_weights}, output_task_weights_path)
 
-    print("step2_worker_option_set.json 和 step2_task_weight_list.json 已生成。")
+    print(f"✅ {output_worker_options_path} 和 {output_task_weights_path} 已生成。")
 
 if __name__ == '__main__':
-    main()
+    # 独立运行时使用默认路径
+    generate_worker_options_and_task_weights(
+        worker_segments_path='step1_worker_segments.json',
+        task_segments_path='step1_task_segments.json',
+        output_worker_options_path='step2_worker_option_set.json',
+        output_task_weights_path='step2_task_weight_list.json'
+    )

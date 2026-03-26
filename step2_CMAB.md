@@ -1,4 +1,4 @@
-
+# CMAB复现
 # 第一步：计算工人可选项集合与任务权重 step2_generate_options_and_taskweight.py
 ## 输入
 - 两组原始数据：`step1_task_segments.json` 和 `step1_worker_segments.json`
@@ -50,7 +50,7 @@
   ]
 }
 ```
-
+- 注意：这里就算是没有覆盖任务的工人也会被记录
 ### 2. 任务权重列表 `step2_task_weight_list.json`
 ```json
 {

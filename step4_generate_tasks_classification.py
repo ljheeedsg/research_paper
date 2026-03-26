@@ -2,7 +2,7 @@ import json
 import random
 
 def generate_task_classification(
-    t=0.3,                      # 会员任务比例
+    t=0.5,                      # 会员任务比例
     member_multiplier=1.5,      # 会员任务报酬倍数
     normal_multiplier=1.0,      # 普通任务报酬倍数
     member_cost_range=(0.4, 0.6),   # 会员任务成本占报酬的比例范围

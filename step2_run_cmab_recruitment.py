@@ -1,12 +1,7 @@
 import json
 import math
 
-# ========== 可调参数 ==========
-B = 118000          # 总预算（请确保 ≥ 所有工人成本之和，否则初始化会失败）
-K = 3               # 每轮招募人数（贪心阶段每轮选K人）
-MAX_ROUNDS = 15      # 贪心阶段最大轮数（达到此轮数即停止，无论预算）
-# =============================
-
+# ========== 可调参数（作为函数参数） ==========
 def load_json(filepath):
     with open(filepath, 'r', encoding='utf-8') as f:
         return json.load(f)
@@ -22,7 +17,7 @@ def compute_avg_quality(worker):
     total_q = sum(task['quality'] for task in worker['covered_tasks'])
     return total_q / len(worker['covered_tasks'])
 
-def ucb_quality(worker, total_learned_counts):
+def ucb_quality(worker, total_learned_counts, K):
     """计算工人的 UCB 质量值（论文公式10）"""
     if worker['n_i'] == 0:
         return 1.0  # 从未学习，取最大上界
@@ -129,7 +124,7 @@ def greedy_recruit(worker_options, task_weights, B, K, max_rounds):
                 if w['total_cost'] > remaining_budget:
                     continue
                 # 计算该工人的 UCB 质量
-                ucb_q = ucb_quality(w, total_learned_counts)
+                ucb_q = ucb_quality(w, total_learned_counts, K)
                 # 计算边际增益（UCB质量下的加权任务质量，只考虑未完成的任务）
                 gain = 0.0
                 for task in w['covered_tasks']:
@@ -209,16 +204,37 @@ def greedy_recruit(worker_options, task_weights, B, K, max_rounds):
         'covered_task_count': covered_task_count
     }
 
-def main():
-    worker_options_data = load_json('step2_worker_option_set.json')
-    task_weights_data = load_json('step2_task_weight_list.json')
+def run_cmab_recruitment(
+    worker_options_path,
+    task_weights_path,
+    output_path,
+    B=118000,
+    K=3,
+    max_rounds=15
+):
+    """
+    执行 CMAB 招募算法，从输入文件读取数据，输出结果到 JSON 文件。
+    
+    参数:
+        worker_options_path (str): 工人选项文件路径 (step2_worker_option_set.json)
+        task_weights_path (str): 任务权重文件路径 (step2_task_weight_list.json)
+        output_path (str): 输出结果文件路径 (step2_final_recruit.json)
+        B (float): 总预算
+        K (int): 每轮招募人数
+        max_rounds (int): 最大贪心轮数
+    返回:
+        dict: 结果字典，包含 total_rounds, total_cost, remaining_budget, selected_workers, 
+              init_select, later_select, covered_task_count
+    """
+    worker_options_data = load_json(worker_options_path)
+    task_weights_data = load_json(task_weights_path)
 
     worker_options = worker_options_data['worker_options']
     task_weights = task_weights_data['task_weights']
 
-    result = greedy_recruit(worker_options, task_weights, B, K, MAX_ROUNDS)
+    result = greedy_recruit(worker_options, task_weights, B, K, max_rounds)
 
-    print("\n=== 最终结果 ===")
+    print("\n=== CMAB 招募结果 ===")
     print(f"实际贪心轮数: {result['total_rounds']}")
     print(f"总成本: {result['total_cost']:.2f}")
     print(f"剩余预算: {result['remaining_budget']:.2f}")
@@ -234,8 +250,18 @@ def main():
         'init_select': result['init_select'],
         'later_select': result['later_select'],
         'covered_task_count': result['covered_task_count']
-    }, 'step2_final_recruit.json')
-    print("结果已保存至 step2_final_recruit.json")
+    }, output_path)
+    print(f"结果已保存至 {output_path}")
+
+    return result
 
 if __name__ == '__main__':
-    main()
+    # 独立运行时使用默认参数
+    run_cmab_recruitment(
+        worker_options_path='step2_worker_option_set.json',
+        task_weights_path='step2_task_weight_list.json',
+        output_path='step2_final_recruit.json',
+        B=118000,
+        K=3,
+        max_rounds=15
+    )
