@@ -15,12 +15,11 @@ import math
 from collections import defaultdict
 
 # ========== 参数配置 ==========
-# 数据准备参数
 RANDOM_SEED = 42
 
 # 预算与招募参数
 BUDGET = 10000          # 总预算
-K = 5                    # 每轮招募人数
+K = 3                    # 每轮招募人数
 R = 6                    # 总轮数（6小时）
 M_VERIFY = 3             # 每轮验证任务数
 
@@ -30,16 +29,16 @@ THETA_HIGH = 0.8         # 可信阈值
 THETA_LOW = 0.2          # 恶意阈值
 
 # PGRD 参数
-ALPHA = 0.1              # 历史报酬权重
-BETA = 0.9               # 平均报酬权重
+ALPHA = 0.7              # 历史报酬权重
+BETA = 0.3               # 平均报酬权重
 ZETA = 1.0               # 差异敏感度
 LAMBDA = 2.25            # 损失厌恶系数
 SIGMA = 0.88             # 价值函数曲率
 PSI_TH = 0.5             # 会员概率阈值
-FEE = 3                 # 会费
+FEE = 2                  # 会费
 
 # 任务分类参数
-MEMBER_RATIO = 0.3
+MEMBER_RATIO = 0.7
 MEMBER_MULTIPLIER = 1.5
 NORMAL_MULTIPLIER = 1.0
 MEMBER_COST_RANGE = (0.4, 0.6)
@@ -356,17 +355,18 @@ def update_trust(workers, validation_tasks, task_grid_map, Uc, Uu, Um, round_idx
                     w['category'] = 'malicious'
     return Uc, Uu, Um
 
-# ========== 修改后的 pgrd_decision 函数（确保会费累计） ==========
 def pgrd_decision(workers, task_class, R_m, R_n, round_idx, fee, alpha, beta, zeta, lam, sigma, psi_th):
     """
     PGRD 会员决策，返回投标任务字典、会员集合、会费总收入。
     """
+    # 构建任务信息映射
     task_type = {t['task_id']: t['type'] for t in task_class}
     task_cost = {t['task_id']: t['worker_cost'] for t in task_class}
+    # 只考虑本轮可用的工人
     available_workers = [w for w in workers if int(w['worker_id'][1:3]) == round_idx]
 
     bid_tasks = {}
-    members = set()
+    member_set = set()
     total_fee = 0.0
 
     for w in available_workers:
@@ -410,30 +410,30 @@ def pgrd_decision(workers, task_class, R_m, R_n, round_idx, fee, alpha, beta, ze
         exp_n = math.exp(zeta * U_nor)
         psi = exp_m / (exp_m + exp_n) if (exp_m + exp_n) > 0 else 0.0
         if psi >= psi_th:
-            members.add(wid)
+            member_set.add(wid)
             bid_tasks[wid] = member_tasks
-            total_fee += fee          # 累加会费
-            # 可选：打印调试信息
-            # print(f"Worker {wid} becomes member, fee {fee}, total_fee now {total_fee}")
+            total_fee += fee
         else:
             bid_tasks[wid] = normal_tasks
-    return bid_tasks, members, total_fee
+    return bid_tasks, member_set, total_fee
 
-# ========== 修改后的 cmab_round 函数（增加系统收益累计） ==========
 def cmab_round(workers, task_covered_count, required_workers, remaining_budget, K, total_learned_counts, round_idx, bid_tasks, task_system_income_map):
     """
     执行一轮 CMAB 招募，工人只能从 bid_tasks 中选择任务。
     返回: (round_selected, remaining_budget, task_covered_count, total_learned_counts, round_cost, round_system_income)
     """
+    # 当前轮可用工人（且其投标任务非空）
     candidates = [w for w in workers if int(w['worker_id'][1:3]) == round_idx and bid_tasks.get(w['worker_id'])]
     if not candidates:
         return [], remaining_budget, task_covered_count, total_learned_counts, 0.0, 0.0
 
+    # 当前轮可用任务（从 bid_tasks 中收集）
     available_tasks = set()
     for w in candidates:
         for tid in bid_tasks[w['worker_id']]:
             available_tasks.add(tid)
 
+    # 去除已完成的可用任务
     unfinished_available = [tid for tid in available_tasks if task_covered_count[tid] < required_workers[tid]]
     if not unfinished_available:
         return [], remaining_budget, task_covered_count, total_learned_counts, 0.0, 0.0
@@ -447,6 +447,7 @@ def cmab_round(workers, task_covered_count, required_workers, remaining_budget, 
         best_ratio = -1
         best_worker = None
         for w in candidates:
+            # 工人投标任务的总成本 = 投标任务数 × 工人报价
             cost_w = len(bid_tasks[w['worker_id']]) * w['covered_tasks'][0]['task_price']
             if cost_w > remaining_budget:
                 continue
@@ -472,11 +473,6 @@ def cmab_round(workers, task_covered_count, required_workers, remaining_budget, 
         for tid in bid_tasks[best_worker['worker_id']]:
             if task_covered_count[tid] < required_workers[tid]:
                 task_covered_count[tid] += 1
-                # 累计系统收益（仅当任务第一次完成？实际上每个任务可能被多次覆盖，但系统收益只应计一次？论文中是任务完成后平台获得收益，通常任务只完成一次，这里按任务完成时累加一次）
-                # 这里简化：每次覆盖增加计数，但系统收益只在任务刚完成时累加（即从未完成变为完成）。
-                # 由于任务可能被多个工人覆盖，只有达到所需工人数才真正完成，所以系统收益应该在达到所需工人数时累加。
-                # 但为简单，我们可以在任务计数达到 required_workers 时累加一次 system_income。
-                # 这里我们实现为：当任务覆盖计数刚好达到 required_workers 时，累加 system_income。
                 if task_covered_count[tid] == required_workers[tid]:
                     round_system_income += task_system_income_map[tid]
         # 更新工人档案
@@ -491,15 +487,13 @@ def cmab_round(workers, task_covered_count, required_workers, remaining_budget, 
         candidates.remove(best_worker)
     return round_selected, remaining_budget, task_covered_count, total_learned_counts, round_cost, round_system_income
 
-# ========== 修改后的 greedy_recruitment 函数（加入系统收益累计和效用计算） ==========
 def greedy_recruitment(workers, task_covered_count, required_workers, total_learned_counts, Uc, Uu, Um, R_m, R_n, B, K, R, task_grid_map, M_VERIFY, ETA, THETA_HIGH, THETA_LOW, PGRD_PARAMS, task_system_income_map):
     total_cost = 0
     remaining_budget = B
-    all_selected = []
     greedy_selected = []
     greedy_rounds = 0
     total_fee = 0.0
-    total_system_income = 0.0
+    round_details = []  # 存储每轮的会员集合、非会员集合及平均报酬
 
     for r in range(R):
         print(f"\n--- 第 {r} 轮 ---")
@@ -517,24 +511,23 @@ def greedy_recruitment(workers, task_covered_count, required_workers, total_lear
             break
 
         # PGRD 决策
-        bid_tasks, members, fee_income = pgrd_decision(
+        bid_tasks, member_set, fee_income = pgrd_decision(
             workers, PGRD_PARAMS['task_class'], R_m, R_n, r,
             PGRD_PARAMS['fee'], PGRD_PARAMS['alpha'], PGRD_PARAMS['beta'],
             PGRD_PARAMS['zeta'], PGRD_PARAMS['lam'], PGRD_PARAMS['sigma'], PGRD_PARAMS['psi_th']
         )
         total_fee += fee_income
-        print(f"会员人数: {len(members)}，会费收入: {fee_income:.2f}")
+        print(f"会员人数: {len(member_set)}，会费收入: {fee_income:.2f}")
 
         # 生成验证任务
         validation_tasks = generate_validation_tasks(workers, task_grid_map, Uc, Uu, r, M_VERIFY)
         print(f"验证任务: {validation_tasks}")
 
         # CMAB 招募
-        round_selected, remaining_budget, task_covered_count, total_learned_counts, round_cost, round_system_income = cmab_round(
+        round_selected, remaining_budget, task_covered_count, total_learned_counts, round_cost, _ = cmab_round(
             workers, task_covered_count, required_workers, remaining_budget, K, total_learned_counts, r, bid_tasks, task_system_income_map
         )
         total_cost += round_cost
-        total_system_income += round_system_income
         if not round_selected:
             print("本轮未选中任何工人")
         else:
@@ -561,22 +554,32 @@ def greedy_recruitment(workers, task_covered_count, required_workers, total_lear
             w['hist_reward_n'] = reward_n
 
         # 更新平均报酬 R_m, R_n
-        member_rewards = [w['hist_reward_m'] for w in workers if w['worker_id'] in members and w['hist_reward_m'] > 0]
-        normal_rewards = [w['hist_reward_n'] for w in workers if w['worker_id'] not in members and w['hist_reward_n'] > 0]
-        if member_rewards:
-            R_m = sum(member_rewards) / len(member_rewards)
-        if normal_rewards:
-            R_n = sum(normal_rewards) / len(normal_rewards)
+        member_rewards_updated = [w['hist_reward_m'] for w in workers if w['worker_id'] in member_set and w['hist_reward_m'] > 0]
+        normal_rewards_updated = [w['hist_reward_n'] for w in workers if w['worker_id'] not in member_set and w['hist_reward_n'] > 0]
+        if member_rewards_updated:
+            R_m = sum(member_rewards_updated) / len(member_rewards_updated)
+        if normal_rewards_updated:
+            R_n = sum(normal_rewards_updated) / len(normal_rewards_updated)
 
+        # 记录本轮详情
+        non_member_set = [wid for w in available_workers if w['worker_id'] not in member_set]
+        round_details.append({
+            'round': r,
+            'member_set': list(member_set),
+            'non_member_set': non_member_set,
+            'R_m': R_m,
+            'R_n': R_n,
+            'member_count': len(member_set),
+            'non_member_count': len(non_member_set)
+        })
+
+        # 统计
         completed = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
         print(f"总成本: {total_cost:.2f}, 剩余预算: {remaining_budget:.2f}, 已完成任务: {completed}/{len(required_workers)}")
-        print(f"本轮系统收益: {round_system_income:.2f}, 累计系统收益: {total_system_income:.2f}")
         print(f"可信: {len(Uc)}, 未知: {len(Uu)}, 恶意: {len(Um)}")
+        print(f"平均报酬: 会员任务 R_m={R_m:.2f}, 普通任务 R_n={R_n:.2f}")
 
     covered_task_count = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
-    platform_utility = total_system_income + total_fee - total_cost
-    user_utility = total_cost - total_fee  # 简化：工人总报酬减去会费（因为成本已包含在报酬中，但这里total_cost是支付给工人的总报酬，工人实际成本未统计，可再计算工人成本）
-    # 更准确的用户效用 = 工人报酬 - 工人成本 - 会费，但工人成本需要从任务数据中获取，暂时简化。
 
     result = {
         'total_rounds': greedy_rounds,
@@ -591,14 +594,11 @@ def greedy_recruitment(workers, task_covered_count, required_workers, total_lear
         'unknown_count': len(Uu),
         'trusted_workers_list': list(Uc),
         'total_fee': total_fee,
-        'total_system_income': total_system_income,
-        'platform_utility': platform_utility,
-        'user_utility': user_utility
+        'round_details': round_details
     }
     return result
 
 # ========== 主函数 ==========
-# ========== 修改后的 main 函数（传递 task_system_income_map） ==========
 def main():
     # 第一阶段：数据准备
     generate_worker_options_and_task_weights(
@@ -648,11 +648,19 @@ def main():
     for k, v in result.items():
         if isinstance(v, list) and len(v) > 10:
             print(f"{k}: {v[:10]}... (共{len(v)})")
+        elif k == 'round_details':
+            print(f"{k}:")
+            for rd in v:
+                print(f"  轮次 {rd['round']}: 会员人数 {rd['member_count']}, 非会员人数 {rd['non_member_count']}, R_m={rd['R_m']:.2f}, R_n={rd['R_n']:.2f}")
+                if rd['member_set']:
+                    print(f"      会员名单（前10）: {rd['member_set'][:10]}{'...' if len(rd['member_set'])>10 else ''}")
+                if rd['non_member_set']:
+                    print(f"      非会员名单（前10）: {rd['non_member_set'][:10]}{'...' if len(rd['non_member_set'])>10 else ''}")
         else:
             print(f"{k}: {v}")
 
-    save_json(result, 'final_result.json')
-    print("结果已保存至 final_result.json")
+    save_json(result, 'step5_final_result.json')
+    print("结果已保存至 step5_final_result.json")
 
 if __name__ == '__main__':
     main()
