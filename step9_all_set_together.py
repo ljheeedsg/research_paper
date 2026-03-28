@@ -2,8 +2,8 @@
 群智感知双阶段工人招募与信任度验证算法（含 PGRD 会员激励 + LGSC 长期留存）
 完整实现：数据准备 + 初始化 + 贪心轮次（验证+招募+激励）
 输入：step6_worker_segments.json, step6_task_segments.json
-输出：step7_worker_option_set.json, step7_task_weight_list.json, step7_tasks_grid_num.json,
-      step7_tasks_classification.json, step7_lgsc_params.json, step7_final_result.json
+输出：step9_worker_option_set.json, step9_task_weight_list.json, step9_tasks_grid_num.json,
+      step9_tasks_classification.json, step9_lgsc_params.json, step9_final_result.json
 """
 
 import json
@@ -19,26 +19,26 @@ random.seed(RANDOM_SEED)
 BUDGET = 5000          # 总预算
 K = 10                    # 每轮招募人数
 R = 24                   # 总轮数（全天24小时）
-M_VERIFY = 10             # 每轮验证任务数
+M_VERIFY = 7             # 每轮验证任务数
 
 # 信任度参数
-ETA = 0.4                # 信任度更新步长
-THETA_HIGH = 0.8         # 可信阈值
-THETA_LOW = 0.2          # 恶意阈值
+ETA = 0.6                # 信任度更新步长
+THETA_HIGH = 0.75         # 可信阈值
+THETA_LOW = 0.3          # 恶意阈值
 
 # PGRD 参数
-ALPHA = 0.7              # 历史报酬权重
-BETA = 0.3               # 平均报酬权重
-ZETA = 1.0               # 差异敏感度
-LAMBDA = 2.25            # 损失厌恶系数
-SIGMA = 0.88             # 价值函数曲率
-PSI_TH = 0.5             # 会员概率阈值
-FEE = 3                 # 会费
-MEMBER_VALIDITY = 5      # 会员有效期（轮数）
+ALPHA = 0.6              # 历史报酬权重
+BETA = 0.4               # 平均报酬权重
+ZETA = 1.2               # 差异敏感度
+LAMBDA = 1.8            # 损失厌恶系数
+SIGMA = 0.85             # 价值函数曲率
+PSI_TH = 0.4             # 会员概率阈值
+FEE = 2                 # 会费
+MEMBER_VALIDITY = 24      # 会员有效期（轮数）
 
 # 任务分类参数
 MEMBER_RATIO = 0.9       # 会员任务比例
-MEMBER_MULTIPLIER = 1.5
+MEMBER_MULTIPLIER = 1.8
 NORMAL_MULTIPLIER = 1.0
 MEMBER_COST_RANGE = (0.4, 0.6)
 NORMAL_COST_RANGE = (0.7, 0.9)
@@ -46,7 +46,7 @@ PROFIT_RANGE = (1.2, 2.0)
 
 # LGSC 参数
 SUNK_THRESHOLD = 10     # 沉没阈值
-MEMBER_BONUS = 10       # 会员奖励金
+MEMBER_BONUS = 20       # 会员奖励金
 RHO_INIT = 1.0           # 沉没值初始累计率
 
 # ========== 工具函数 ==========
@@ -463,7 +463,7 @@ def pgrd_decision(workers, task_class, R_m, R_n, round_idx, fee, alpha, beta, ze
             new_member_set.add(wid)
             w['is_member'] = True
             w['member_until'] = round_idx + MEMBER_VALIDITY
-            bid_tasks[wid] = member_tasks
+            bid_tasks[wid] = member_tasks # 会员可做会员任务和普通任务
             total_fee += fee
         else:
             bid_tasks[wid] = normal_tasks

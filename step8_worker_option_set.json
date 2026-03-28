@@ -227,9 +227,9 @@
     },
     {
       "worker_id": "018",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 191.39999999999998,
       "covered_tasks": [
         {
@@ -335,9 +335,9 @@
     },
     {
       "worker_id": "019",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 250.59999999999997,
       "covered_tasks": [
         {
@@ -614,9 +614,9 @@
     },
     {
       "worker_id": "030",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 59.400000000000006,
       "covered_tasks": [
         {
@@ -1253,9 +1253,9 @@
     },
     {
       "worker_id": "075",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 19.9,
       "covered_tasks": [
         {
@@ -1676,9 +1676,9 @@
     },
     {
       "worker_id": "120",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 22.6,
       "covered_tasks": [
         {
@@ -1838,9 +1838,9 @@
     },
     {
       "worker_id": "139",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 54.599999999999994,
       "covered_tasks": [
         {
@@ -1937,9 +1937,9 @@
     },
     {
       "worker_id": "147",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 161.0,
       "covered_tasks": [
         {
@@ -2081,9 +2081,9 @@
     },
     {
       "worker_id": "150",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 167.4,
       "covered_tasks": [
         {
@@ -2324,9 +2324,9 @@
     },
     {
       "worker_id": "052",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 108.0,
       "covered_tasks": [
         {
@@ -3440,9 +3440,9 @@
     },
     {
       "worker_id": "008",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 41.5,
       "covered_tasks": [
         {
@@ -3809,9 +3809,9 @@
     },
     {
       "worker_id": "045",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 46.199999999999996,
       "covered_tasks": [
         {
@@ -3998,9 +3998,9 @@
     },
     {
       "worker_id": "070",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 12.1,
       "covered_tasks": [
         {
@@ -4016,9 +4016,9 @@
     },
     {
       "worker_id": "078",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 161.6,
       "covered_tasks": [
         {
@@ -4169,9 +4169,9 @@
     },
     {
       "worker_id": "083",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 17.2,
       "covered_tasks": [
         {
@@ -4196,9 +4196,9 @@
     },
     {
       "worker_id": "085",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 152.0,
       "covered_tasks": [
         {
@@ -4376,9 +4376,9 @@
     },
     {
       "worker_id": "090",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 143.1,
       "covered_tasks": [
         {
@@ -4547,9 +4547,9 @@
     },
     {
       "worker_id": "110",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 136.5,
       "covered_tasks": [
         {
@@ -5572,9 +5572,9 @@
     },
     {
       "worker_id": "151",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 52.5,
       "covered_tasks": [
         {
@@ -5707,9 +5707,9 @@
     },
     {
       "worker_id": "002",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 0.0,
       "covered_tasks": []
     },
@@ -5733,9 +5733,9 @@
     },
     {
       "worker_id": "007",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 0.0,
       "covered_tasks": []
     },
@@ -6182,9 +6182,9 @@
     },
     {
       "worker_id": "043",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 180.0,
       "covered_tasks": [
         {
@@ -6272,9 +6272,9 @@
     },
     {
       "worker_id": "048",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 119.39999999999999,
       "covered_tasks": [
         {
@@ -6388,9 +6388,9 @@
     },
     {
       "worker_id": "027",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 29.4,
       "covered_tasks": [
         {
@@ -6577,9 +6577,9 @@
     },
     {
       "worker_id": "058",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 85.5,
       "covered_tasks": [
         {
@@ -6946,9 +6946,9 @@
     },
     {
       "worker_id": "014",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 70.8,
       "covered_tasks": [
         {
@@ -6991,9 +6991,9 @@
     },
     {
       "worker_id": "031",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 93.8,
       "covered_tasks": [
         {
@@ -7459,9 +7459,9 @@
     },
     {
       "worker_id": "051",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 471.2,
       "covered_tasks": [
         {
@@ -7873,9 +7873,9 @@
     },
     {
       "worker_id": "060",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 114.79999999999998,
       "covered_tasks": [
         {
@@ -7945,9 +7945,9 @@
     },
     {
       "worker_id": "061",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 116.89999999999999,
       "covered_tasks": [
         {
@@ -8233,9 +8233,9 @@
     },
     {
       "worker_id": "076",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 46.4,
       "covered_tasks": [
         {
@@ -8404,9 +8404,9 @@
     },
     {
       "worker_id": "080",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 36.599999999999994,
       "covered_tasks": [
         {
@@ -8809,9 +8809,9 @@
     },
     {
       "worker_id": "112",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 41.300000000000004,
       "covered_tasks": [
         {
@@ -8881,9 +8881,9 @@
     },
     {
       "worker_id": "116",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 208.5,
       "covered_tasks": [
         {
@@ -9025,9 +9025,9 @@
     },
     {
       "worker_id": "119",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 139.0,
       "covered_tasks": [
         {
@@ -9349,9 +9349,9 @@
     },
     {
       "worker_id": "138",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 85.8,
       "covered_tasks": [
         {
@@ -9689,9 +9689,9 @@
     },
     {
       "worker_id": "005",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 58.10000000000001,
       "covered_tasks": [
         {
@@ -9812,9 +9812,9 @@
     },
     {
       "worker_id": "017",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 10.7,
       "covered_tasks": [
         {
@@ -9864,9 +9864,9 @@
     },
     {
       "worker_id": "010",
-      "is_trusted": true,
-      "trust": 1.0,
-      "category": "trusted",
+      "is_trusted": false,
+      "trust": 0.5,
+      "category": "unknown",
       "total_cost": 17.1,
       "covered_tasks": [
         {

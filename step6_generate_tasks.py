@@ -62,7 +62,7 @@ def main():
             start = random.randint(TIME_MIN, TIME_MAX)
             end = start + 3600
             # 随机所需工人数 1~3
-            required = random.randint(1, 2)
+            required = random.randint(1, 1)
             tasks.append((region, start, end, required))
             task_counter[region] += 1
 
