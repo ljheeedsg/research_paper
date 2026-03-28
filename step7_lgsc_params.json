@@ -1,0 +1,5 @@
+{
+  "sunk_threshold": 10,
+  "member_bonus": 10,
+  "rho_init": 1.0
+}

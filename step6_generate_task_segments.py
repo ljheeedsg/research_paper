@@ -47,7 +47,7 @@ for region, num_tasks in tasks_per_region.items():
         # 随机起始时间（保证 end_time ≤ 86400）
         start = random.randint(TIME_MIN, TIME_MAX)
         end = start + 3600
-        required = random.randint(1, 3)
+        required = random.randint(1, 1)
         # 生成 task_id
         seq = seq_counter[region]
         task_id = f"t{region:02d}_{seq:02d}"
