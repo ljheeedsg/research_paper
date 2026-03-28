@@ -209,7 +209,7 @@ def run_cmab_recruitment(
     task_weights_path,
     output_path,
     B=118000,
-    K=3,
+    K=5,
     max_rounds=15
 ):
     """
