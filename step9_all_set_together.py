@@ -235,8 +235,8 @@ def data_preparation(worker_segments_path, task_segments_path,
         'member_bonus': MEMBER_BONUS,
         'rho_init': RHO_INIT
     }
-    save_json(lgsc_params, 'step7_lgsc_params.json')
-    print("已保存 LGSC 参数 step7_lgsc_params.json")
+    save_json(lgsc_params, 'step9_lgsc_params.json')
+    print("已保存 LGSC 参数 step9_lgsc_params.json")
 
     return worker_options, tasks, task_weights, task_grid
 
@@ -463,7 +463,7 @@ def pgrd_decision(workers, task_class, R_m, R_n, round_idx, fee, alpha, beta, ze
             new_member_set.add(wid)
             w['is_member'] = True
             w['member_until'] = round_idx + MEMBER_VALIDITY
-            bid_tasks[wid] = member_tasks # 会员可做会员任务和普通任务
+            bid_tasks[wid] = member_tasks + normal_tasks # 会员可做会员任务和普通任务
             total_fee += fee
         else:
             bid_tasks[wid] = normal_tasks
@@ -750,7 +750,7 @@ def main():
     # 第二阶段
     workers, task_covered_count, required_workers, total_learned_counts, \
     Uc, Uu, Um, R_m, R_n, task_time_map = initialize_cmab(
-        OUTPUT_WORKER_OPTIONS, OUTPUT_TASK_WEIGHTS, OUTPUT_TASK_CLASS, 'step7_lgsc_params.json'
+        OUTPUT_WORKER_OPTIONS, OUTPUT_TASK_WEIGHTS, OUTPUT_TASK_CLASS, 'step9_lgsc_params.json'
     )
 
     # 准备 PGRD 和 LGSC 参数
