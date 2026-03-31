@@ -1,0 +1,153 @@
+{
+  "covered": 154,
+  "Uc": 111,
+  "Um": 30,
+  "Uu": 15,
+  "cost": 1490.2,
+  "cover_records": [
+    {
+      "round": 0,
+      "completed": 3,
+      "total": 178,
+      "rate": 0.016853932584269662
+    },
+    {
+      "round": 1,
+      "completed": 7,
+      "total": 178,
+      "rate": 0.03932584269662921
+    },
+    {
+      "round": 2,
+      "completed": 17,
+      "total": 178,
+      "rate": 0.09550561797752809
+    },
+    {
+      "round": 3,
+      "completed": 28,
+      "total": 178,
+      "rate": 0.15730337078651685
+    },
+    {
+      "round": 4,
+      "completed": 36,
+      "total": 178,
+      "rate": 0.20224719101123595
+    },
+    {
+      "round": 5,
+      "completed": 45,
+      "total": 178,
+      "rate": 0.25280898876404495
+    },
+    {
+      "round": 6,
+      "completed": 48,
+      "total": 178,
+      "rate": 0.2696629213483146
+    },
+    {
+      "round": 7,
+      "completed": 55,
+      "total": 178,
+      "rate": 0.3089887640449438
+    },
+    {
+      "round": 8,
+      "completed": 63,
+      "total": 178,
+      "rate": 0.3539325842696629
+    },
+    {
+      "round": 9,
+      "completed": 69,
+      "total": 178,
+      "rate": 0.38764044943820225
+    },
+    {
+      "round": 10,
+      "completed": 75,
+      "total": 178,
+      "rate": 0.42134831460674155
+    },
+    {
+      "round": 11,
+      "completed": 81,
+      "total": 178,
+      "rate": 0.4550561797752809
+    },
+    {
+      "round": 12,
+      "completed": 88,
+      "total": 178,
+      "rate": 0.4943820224719101
+    },
+    {
+      "round": 13,
+      "completed": 101,
+      "total": 178,
+      "rate": 0.5674157303370787
+    },
+    {
+      "round": 14,
+      "completed": 106,
+      "total": 178,
+      "rate": 0.5955056179775281
+    },
+    {
+      "round": 15,
+      "completed": 112,
+      "total": 178,
+      "rate": 0.6292134831460674
+    },
+    {
+      "round": 16,
+      "completed": 116,
+      "total": 178,
+      "rate": 0.651685393258427
+    },
+    {
+      "round": 17,
+      "completed": 119,
+      "total": 178,
+      "rate": 0.6685393258426966
+    },
+    {
+      "round": 18,
+      "completed": 125,
+      "total": 178,
+      "rate": 0.702247191011236
+    },
+    {
+      "round": 19,
+      "completed": 132,
+      "total": 178,
+      "rate": 0.7415730337078652
+    },
+    {
+      "round": 20,
+      "completed": 140,
+      "total": 178,
+      "rate": 0.7865168539325843
+    },
+    {
+      "round": 21,
+      "completed": 149,
+      "total": 178,
+      "rate": 0.8370786516853933
+    },
+    {
+      "round": 22,
+      "completed": 154,
+      "total": 178,
+      "rate": 0.8651685393258427
+    },
+    {
+      "round": 23,
+      "completed": 154,
+      "total": 178,
+      "rate": 0.8651685393258427
+    }
+  ]
+}

@@ -6,6 +6,8 @@ import math
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.patches import Patch
+from matplotlib.patches import Circle
 
 # ==================== 配置参数 ====================
 VEHICLE_FILE = 'step6_vehicle.csv'          # 车辆轨迹文件
@@ -58,7 +60,7 @@ def main():
 
     for region, num in tasks_per_region.items():
         for _ in range(num):
-            # 随机起始时间（保证 end_time ≤ 86400）
+            # 随机起始时间（保证 end_time <= 86400）
             start = random.randint(TIME_MIN, TIME_MAX)
             end = start + 3600
             # 随机所需工人数 1~3
@@ -79,22 +81,6 @@ def main():
     print(f"已生成 {TASK_FILE}，共 {len(tasks)} 个任务，涉及 {len(tasks_per_region)} 个区域。")
 
     # 4. 绘制复合图：热力图（工人密度） + 散点（任务）
-    # 需要获取经纬度范围（从原始数据中读取，或从 vehicle 文件中推导）
-    # 这里我们用车辆文件中的 region_id 映射到网格中心坐标。
-    # 由于我们只有 region_id，没有原始经纬度，需要根据网格划分规则重建网格。
-    # 假设网格划分与之前预处理时相同：grid_x_num=10, grid_y_num=10，经度范围已知。
-    # 我们需要从 step6_vehicle.csv 读取所有经纬度？实际上 vehicle 文件里没有经纬度。
-    # 简便方法：从车辆文件中获取所有 region_id，然后根据 region_id 反推网格索引（ix, iy），再计算网格中心。
-    # 但我们需要原始的经纬度范围 lon_min, lon_max, lat_min, lat_max。
-    # 这些信息在预处理时曾计算过，但当前脚本没有保存。我们可重新计算：遍历车辆文件中的 region_id 无法得到经纬度。
-    # 更合理的方式：在预处理脚本中保存这些范围到配置文件，或让任务生成脚本也访问原始点数据。
-    # 这里提供一个变通方案：假设我们已经知道这些范围（可从预处理日志中获取），或者直接从车辆文件中提取每个区域的一个代表点。
-    # 实际上车辆文件中没有经纬度，因此无法绘制精确位置。
-    # 替代方案：绘制网格热力图（区域索引）和任务数量叠加，但不显示实际地理坐标。
-    # 我采用简单方案：用区域编号（0-99）作为 x 轴，y 轴为密度，或绘制矩阵热力图。
-    # 更直观：绘制一个网格矩阵，每个格子颜色表示工人密度，格子内叠加圆形表示任务数量。
-    # 因此不需要经纬度，只需区域索引。
-
     # 构造网格矩阵 (grid_y_num, grid_x_num)
     GRID_X_NUM = 10
     GRID_Y_NUM = 10
@@ -114,14 +100,15 @@ def main():
         task_count_matrix[iy, ix] = num
 
     # 绘图
-    fig, ax = plt.subplots(figsize=(10, 8))
+    fig, ax = plt.subplots(figsize=(12, 9), dpi=120)  # 放大画布，更清晰
 
-    # 热力图：工人密度
+    # 热力图：工人密度（保留原YlOrRd，和你截图一致）
     im = ax.imshow(density_matrix, cmap='YlOrRd', interpolation='nearest', origin='lower')
-    plt.colorbar(im, ax=ax, label='Worker Activity (segments)')
+    cbar = plt.colorbar(im, ax=ax, label='Worker Activity (segments)')
+    cbar.ax.tick_params(labelsize=10)
 
-    # 叠加任务点：用圆形大小表示任务数量
-    # 为每个有任务的网格画一个圆，半径与任务数量成正比
+    # 【核心优化】高对比度任务圆 + 清晰数字
+    max_task = max(1, task_count_matrix.max())  # 避免除0
     for iy in range(GRID_Y_NUM):
         for ix in range(GRID_X_NUM):
             task_num = task_count_matrix[iy, ix]
@@ -129,27 +116,60 @@ def main():
                 # 网格中心坐标
                 x = ix
                 y = iy
-                # 半径与任务数成正比（可调整缩放）
-                radius = 0.2 * (task_num / max(1, task_count_matrix.max())) * 1.5
-                circle = plt.Circle((x, y), radius, color='blue', alpha=0.7, ec='black', linewidth=0.5)
+                # 优化圆的大小：按任务数比例缩放，最大圆不超过网格的80%
+                radius = 0.38 * (task_num / max_task)
+                # 高对比度深蓝色圆 + 白色边框，在黄/红背景上超清晰
+                circle = Circle(
+                    (x, y), radius, 
+                    color='#4A00E0',  # 深紫蓝色，和你截图一致
+                    alpha=0.9, 
+                    ec='white',  # 白色边框，进一步区分
+                    linewidth=1.2,
+                    zorder=3  # 保证圆在热力图上层
+                )
                 ax.add_patch(circle)
-                # 可选：标注任务数量
-                ax.text(x, y, str(int(task_num)), ha='center', va='center', fontsize=8, color='white', fontweight='bold')
+                
+                # 【关键优化】数字增强：添加黑色描边效果
+                # 方法：通过绘制多层偏移的黑色文字作为阴影，最后覆盖白色文字
+                num_str = str(int(task_num))
+                # 阴影参数
+                shadow_color = 'black'
+                shadow_alpha = 0.9
+                # 绘制4个方向的阴影文字（粗体）
+                ax.text(x+0.02, y, num_str, ha='center', va='center', fontsize=11, 
+                        color=shadow_color, fontweight='bold', alpha=shadow_alpha, zorder=3.5)
+                ax.text(x-0.02, y, num_str, ha='center', va='center', fontsize=11, 
+                        color=shadow_color, fontweight='bold', alpha=shadow_alpha, zorder=3.5)
+                ax.text(x, y+0.02, num_str, ha='center', va='center', fontsize=11, 
+                        color=shadow_color, fontweight='bold', alpha=shadow_alpha, zorder=3.5)
+                ax.text(x, y-0.02, num_str, ha='center', va='center', fontsize=11, 
+                        color=shadow_color, fontweight='bold', alpha=shadow_alpha, zorder=3.5)
+                # 绘制最上层的白色核心文字
+                ax.text(x, y, num_str, ha='center', va='center', fontsize=10, 
+                        color='white', fontweight='bold', zorder=4)
 
+    # 坐标轴优化
     ax.set_xticks(range(GRID_X_NUM))
     ax.set_yticks(range(GRID_Y_NUM))
-    ax.set_xlabel('Grid X (longitude direction)')
-    ax.set_ylabel('Grid Y (latitude direction)')
-    ax.set_title('Worker Activity (heatmap) and Task Count (blue circles)')
+    ax.set_xlabel('Grid X (longitude direction)', fontsize=11, fontweight='medium')
+    ax.set_ylabel('Grid Y (latitude direction)', fontsize=11, fontweight='medium')
+    ax.set_title('Worker Activity (heatmap) and Task Count (blue circles)', 
+                 fontsize=13, fontweight='bold', pad=15)
 
-    # 添加图例（示意）
-    from matplotlib.patches import Patch
-    legend_elements = [Patch(facecolor='blue', alpha=0.7, edgecolor='black', label='Task count (circle size proportional)')]
-    ax.legend(handles=legend_elements, loc='upper right')
+    # 图例优化
+    legend_elements = [
+        Patch(
+            facecolor='#4A00E0', 
+            alpha=0.9, 
+            edgecolor='white', 
+            label='Task count (circle size proportional)'
+        )
+    ]
+    ax.legend(handles=legend_elements, loc='upper right', fontsize=10)
 
     plt.tight_layout()
-    plt.savefig(PLOT_FILE, dpi=150)
-    print(f"已保存任务分布图至 {PLOT_FILE}")
+    plt.savefig(PLOT_FILE, dpi=150, bbox_inches='tight')
+    print(f"已保存优化后的任务分布图至 {PLOT_FILE}")
     plt.show()
 
 if __name__ == '__main__':
