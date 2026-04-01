@@ -3,8 +3,10 @@
 完整实现：数据准备 + 初始化 + 贪心轮次（验证+招募+激励）
 输入：step6_worker_segments.json, step6_task_segments.json
 输出：step9_worker_option_set.json, step9_task_weight_list.json, step9_tasks_grid_num.json,
-      step9_tasks_classification.json, step9_lgsc_params.json, step9_final_result.json,
-      expeiment1_ours_taskcover.json  # 新增任务覆盖输出文件
+      step9_tasks_classification.json, step9_lgsc_params.json, step9_final_result.json
+
+      可信工人初始比例为 0.5，未知工人初始比例为 0.5，恶意工人初始比例为 0。
+      每个任务的 required_workers 为1，即每个任务只需1个工人完成即可。
 """
 
 import json
@@ -18,7 +20,7 @@ random.seed(RANDOM_SEED)
 
 # 预算与招募参数
 BUDGET = 5000          # 总预算
-K = 10                    # 每轮招募人数
+K = 7                    # 每轮招募人数
 R = 24                   # 总轮数（全天24小时）
 M_VERIFY = 7             # 每轮验证任务数
 
@@ -38,7 +40,7 @@ FEE = 2                 # 会费
 MEMBER_VALIDITY = 6      # 会员有效期（轮数）
 
 # 任务分类参数
-MEMBER_RATIO = 0.9       # 会员任务比例
+MEMBER_RATIO = 0.5       # 会员任务比例
 MEMBER_MULTIPLIER = 1.8
 NORMAL_MULTIPLIER = 1.0
 MEMBER_COST_RANGE = (0.4, 0.6)
@@ -63,7 +65,7 @@ def save_json(data, filepath):
 def parse_worker_segments(segments_by_region):
     """按工人序号聚合，工人序号从 vehicle_id 提取（如 v00_000 -> 000）"""
     workers = defaultdict(list) # 创建一个默认值是空列表的字典
-    for region_key, seg_list in segments_by_region.items():
+    for region_key, seg_list in sorted(segments_by_region.items()):
         region = int(region_key.split('_')[1]) # 从 "region_0" 中提取数字部分作为区域ID
         for seg in seg_list:
             vid = seg['vehicle_id']
@@ -96,7 +98,7 @@ def parse_tasks(task_segments):
 
 def generate_worker_options(workers, tasks):
     worker_options = []
-    for worker_id, segs in workers.items():
+    for worker_id, segs in sorted(workers.items()):
         is_trusted = segs[0]['is_trusted']
         base_cost = segs[0]['cost']
         trust = 1.0 if is_trusted else 0.5
@@ -332,7 +334,7 @@ def generate_validation_tasks(workers, task_grid_map, task_time_map, Uc, Uu, rou
     grid_uu = defaultdict(int)
     grid_tasks = defaultdict(set)
 
-    for w in available_workers:
+    for w in sorted(available_workers, key=lambda x: x['worker_id']):
         wid = w['worker_id']
         for task in w['covered_tasks']:
             if task['task_start_time'] // 3600 != round_idx:
@@ -350,7 +352,7 @@ def generate_validation_tasks(workers, task_grid_map, task_time_map, Uc, Uu, rou
     valid_grids = [g for g in grid_uc if grid_uc[g] > 0]
     if not valid_grids:
         return []
-    valid_grids.sort(key=lambda g: grid_uu.get(g, 0), reverse=True)
+    valid_grids.sort(key=lambda g: (-grid_uu.get(g, 0), g))
     selected_grids = valid_grids[:M]
 
     validation_tasks = []
@@ -374,7 +376,7 @@ def update_trust(workers, validation_tasks, task_grid_map, Uc, Uu, Um, round_idx
             continue
         base = sorted(uc_data)[len(uc_data)//2]
 
-        for w in available_workers:
+        for w in sorted(available_workers, key=lambda x: x['worker_id']):
             wid = w['worker_id']
             if wid in Uu:
                 data = None
@@ -413,7 +415,7 @@ def pgrd_decision(workers, task_class, R_m, R_n, round_idx, fee, alpha, beta, ze
     new_member_set = set()
     total_fee = 0.0
 
-    for w in available_workers:
+    for w in sorted(available_workers, key=lambda x: x['worker_id']):
         wid = w['worker_id']
         if w['category'] == 'malicious':
             continue
@@ -677,69 +679,32 @@ def greedy_recruitment(workers, task_covered_count, required_workers, total_lear
     greedy_rounds = 0
     total_fee = 0.0
     total_bonus_paid = 0.0
+    # 任务系统收益映射（用于快速获取）
+    task_system_income_map = {t['task_id']: t['system_income'] for t in task_class}
+    total_system_income = 0.0
+
     round_details = []
-    
-    # ========== 新增：初始化任务覆盖记录 ==========
-    task_coverage_records = []  # 存储每轮的任务覆盖数据
-    total_task_num = len(required_workers)  # 总任务数
-    
+    # ========== 新增：覆盖率记录列表 ==========
+    task_coverage_records = []
+    category_records = []  # 用于记录每轮 Uc, Uu, Um 数量
+
+
     for r in range(R):
         print(f"\n--- 第 {r} 轮 ---")
         available_workers = [w for w in workers if r in w['available_rounds']]
         if not available_workers:
             print("当前轮无可用工人")
-            # ========== 新增：记录空轮次的覆盖数据 ==========
-            completed = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
-            task_coverage_records.append({
-                'round': r,
-                'completed_tasks': completed,
-                'total_tasks': total_task_num,
-                'coverage_rate': completed / total_task_num if total_task_num > 0 else 0.0
-            })
             continue
 
         # 检查预算
         min_cost = min(w['total_cost'] for w in available_workers)
         if remaining_budget < min_cost:
             print("预算不足，终止")
-            # ========== 新增：补充剩余轮次的覆盖数据（预算不足时） ==========
-            completed = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
-            task_coverage_records.append({
-                'round': r,
-                'completed_tasks': completed,
-                'total_tasks': total_task_num,
-                'coverage_rate': completed / total_task_num if total_task_num > 0 else 0.0
-            })
-            # 补充剩余轮次（如果有）
-            for remaining_r in range(r+1, R):
-                task_coverage_records.append({
-                    'round': remaining_r,
-                    'completed_tasks': completed,
-                    'total_tasks': total_task_num,
-                    'coverage_rate': completed / total_task_num if total_task_num > 0 else 0.0
-                })
             break
 
         # 检查所有任务是否完成
-        all_completed = all(cnt >= required_workers[tid] for tid, cnt in task_covered_count.items())
-        if all_completed:
+        if all(cnt >= required_workers[tid] for tid, cnt in task_covered_count.items()):
             print("所有任务已完成，终止")
-            # ========== 新增：记录完成轮次的覆盖数据，并补充剩余轮次 ==========
-            completed = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
-            task_coverage_records.append({
-                'round': r,
-                'completed_tasks': completed,
-                'total_tasks': total_task_num,
-                'coverage_rate': completed / total_task_num if total_task_num > 0 else 0.0
-            })
-            # 补充剩余轮次
-            for remaining_r in range(r+1, R):
-                task_coverage_records.append({
-                    'round': remaining_r,
-                    'completed_tasks': completed,
-                    'total_tasks': total_task_num,
-                    'coverage_rate': completed / total_task_num if total_task_num > 0 else 0.0
-                })
             break
 
         # PGRD 决策
@@ -759,8 +724,14 @@ def greedy_recruitment(workers, task_covered_count, required_workers, total_lear
         round_selected, remaining_budget, task_covered_count, total_learned_counts, round_cost, completed_tasks = cmab_round(
             workers, task_covered_count, required_workers, remaining_budget, K, total_learned_counts, r, bid_tasks
         )
+        
 
         total_cost += round_cost
+        # 累加本轮完成的系统收益
+        for w, task_list in completed_tasks:
+            for tid in task_list:
+                total_system_income += task_system_income_map[tid]
+
         if not round_selected:
             print("本轮未选中任何工人")
         else:
@@ -788,12 +759,27 @@ def greedy_recruitment(workers, task_covered_count, required_workers, total_lear
         completed = sum(1 
                 for tid, cnt in task_covered_count.items() 
                 if cnt >= required_workers[tid])
+        total_task_num = len(task_covered_count)   # 注意：此处计算总任务数，可以使用已有的变量
         print(f"总成本: {total_cost:.2f}, 剩余预算: {remaining_budget:.2f}, 已完成任务: {completed}/{len(required_workers)}")
         print(f"可信: {len(Uc)}, 未知: {len(Uu)}, 恶意: {len(Um)}")
         print(f"平均报酬: 会员任务 R_m={R_m:.2f}, 普通任务 R_n={R_n:.2f}")
         print(f"LGSC: 奖励金 {bonus_paid:.2f}, 平均沉没损失 {avg_sunk_loss:.2f}, 平均ROI {avg_roi:.2f}")
 
+        # ========== 新增：记录本轮覆盖率 ==========
+        task_coverage_records.append({
+            "round": r,
+            "completed_tasks": completed,
+            "total_tasks": total_task_num,
+            "coverage_rate": round(completed / total_task_num, 4) if total_task_num > 0 else 0.0
+        })
+        
         # 记录本轮详情
+        category_records.append({
+            "round": r,
+            "trusted_count": len(Uc),
+            "unknown_count": len(Uu),
+            "malicious_count": len(Um)
+        })
         round_details.append({
             'round': r,
             'member_set': list(new_member_set),   # 本轮新成为会员的工人
@@ -807,23 +793,13 @@ def greedy_recruitment(workers, task_covered_count, required_workers, total_lear
             'avg_roi_this_round': round(avg_roi, 2),
             'members_above_threshold': members_above
         })
-        
-        # ========== 新增：记录本轮任务覆盖数据 ==========
-        task_coverage_records.append({
-            'round': r,
-            'completed_tasks': completed,
-            'total_tasks': total_task_num,
-            'coverage_rate': completed / total_task_num if total_task_num > 0 else 0.0
-        })
-    
-    # ========== 新增：保存任务覆盖数据到指定文件 ==========
-    save_json(task_coverage_records, 'expeiment1_ours_taskcover.json')
-    print(f"\n✅ 任务覆盖数据已保存至 expeiment1_ours_taskcover.json")
-    
     # 最终统计
     covered_task_count = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
+    # ========== 新增：计算平台效用 ==========
+    platform_utility = total_system_income + total_fee - total_cost - total_bonus_paid
     result = {
         'total_rounds': greedy_rounds,
+        'platform_utility': platform_utility,
         # 构建任务价格映射
         'task_price_map': {t['task_id']: t['task_price'] for t in task_class},
         'total_cost': total_cost,
@@ -838,14 +814,21 @@ def greedy_recruitment(workers, task_covered_count, required_workers, total_lear
         'trusted_workers_list': list(Uc),
         'total_fee': total_fee,
         'total_bonus_paid': total_bonus_paid,
-        'round_details': round_details,
-        'task_coverage': task_coverage_records  # 可选：将覆盖数据也加入最终结果
+        'round_details': round_details
     }
+
+    # ========== 新增：保存覆盖率文件 ==========
+    save_json(task_coverage_records, "experiment1_step1_worker_taskcover.json")
+    save_json(category_records, "experiment1_step1_worker_category.json")
+    print(f"\n✅ 覆盖率文件已保存：experiment1_step1_worker_taskcover.json")
     return result
 
 # ========== 主函数 ==========
 def main():
     # 输入文件
+    random.seed(RANDOM_SEED)
+
+
     WORKER_SEGMENTS = 'step6_worker_segments.json'
     TASK_SEGMENTS = 'step6_task_segments.json'
 
@@ -854,7 +837,7 @@ def main():
     OUTPUT_TASK_WEIGHTS = 'step9_task_weight_list.json'
     OUTPUT_TASK_GRID = 'step9_tasks_grid_num.json'
     OUTPUT_TASK_CLASS = 'step9_tasks_classification.json'
-    OUTPUT_FINAL = 'step9_final_result.json'
+    OUTPUT_FINAL = 'step9_final_result_ours.json'
 
     # 第一阶段
     worker_options, tasks, task_weights, task_grid = data_preparation(

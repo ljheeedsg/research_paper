@@ -1,0 +1,140 @@
+[
+  {
+    "round": 0,
+    "completed_tasks": 2,
+    "total_tasks": 178,
+    "coverage_rate": 0.0112
+  },
+  {
+    "round": 1,
+    "completed_tasks": 6,
+    "total_tasks": 178,
+    "coverage_rate": 0.0337
+  },
+  {
+    "round": 2,
+    "completed_tasks": 11,
+    "total_tasks": 178,
+    "coverage_rate": 0.0618
+  },
+  {
+    "round": 3,
+    "completed_tasks": 19,
+    "total_tasks": 178,
+    "coverage_rate": 0.1067
+  },
+  {
+    "round": 4,
+    "completed_tasks": 25,
+    "total_tasks": 178,
+    "coverage_rate": 0.1404
+  },
+  {
+    "round": 5,
+    "completed_tasks": 32,
+    "total_tasks": 178,
+    "coverage_rate": 0.1798
+  },
+  {
+    "round": 6,
+    "completed_tasks": 36,
+    "total_tasks": 178,
+    "coverage_rate": 0.2022
+  },
+  {
+    "round": 7,
+    "completed_tasks": 42,
+    "total_tasks": 178,
+    "coverage_rate": 0.236
+  },
+  {
+    "round": 8,
+    "completed_tasks": 48,
+    "total_tasks": 178,
+    "coverage_rate": 0.2697
+  },
+  {
+    "round": 9,
+    "completed_tasks": 51,
+    "total_tasks": 178,
+    "coverage_rate": 0.2865
+  },
+  {
+    "round": 10,
+    "completed_tasks": 56,
+    "total_tasks": 178,
+    "coverage_rate": 0.3146
+  },
+  {
+    "round": 11,
+    "completed_tasks": 60,
+    "total_tasks": 178,
+    "coverage_rate": 0.3371
+  },
+  {
+    "round": 12,
+    "completed_tasks": 65,
+    "total_tasks": 178,
+    "coverage_rate": 0.3652
+  },
+  {
+    "round": 13,
+    "completed_tasks": 72,
+    "total_tasks": 178,
+    "coverage_rate": 0.4045
+  },
+  {
+    "round": 14,
+    "completed_tasks": 77,
+    "total_tasks": 178,
+    "coverage_rate": 0.4326
+  },
+  {
+    "round": 15,
+    "completed_tasks": 82,
+    "total_tasks": 178,
+    "coverage_rate": 0.4607
+  },
+  {
+    "round": 16,
+    "completed_tasks": 86,
+    "total_tasks": 178,
+    "coverage_rate": 0.4831
+  },
+  {
+    "round": 17,
+    "completed_tasks": 89,
+    "total_tasks": 178,
+    "coverage_rate": 0.5
+  },
+  {
+    "round": 18,
+    "completed_tasks": 93,
+    "total_tasks": 178,
+    "coverage_rate": 0.5225
+  },
+  {
+    "round": 19,
+    "completed_tasks": 98,
+    "total_tasks": 178,
+    "coverage_rate": 0.5506
+  },
+  {
+    "round": 20,
+    "completed_tasks": 105,
+    "total_tasks": 178,
+    "coverage_rate": 0.5899
+  },
+  {
+    "round": 21,
+    "completed_tasks": 111,
+    "total_tasks": 178,
+    "coverage_rate": 0.6236
+  },
+  {
+    "round": 22,
+    "completed_tasks": 114,
+    "total_tasks": 178,
+    "coverage_rate": 0.6404
+  }
+]

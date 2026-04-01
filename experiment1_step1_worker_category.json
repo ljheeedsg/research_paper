@@ -1,0 +1,140 @@
+[
+  {
+    "round": 0,
+    "trusted_count": 78,
+    "unknown_count": 75,
+    "malicious_count": 3
+  },
+  {
+    "round": 1,
+    "trusted_count": 81,
+    "unknown_count": 72,
+    "malicious_count": 3
+  },
+  {
+    "round": 2,
+    "trusted_count": 81,
+    "unknown_count": 70,
+    "malicious_count": 5
+  },
+  {
+    "round": 3,
+    "trusted_count": 82,
+    "unknown_count": 69,
+    "malicious_count": 5
+  },
+  {
+    "round": 4,
+    "trusted_count": 83,
+    "unknown_count": 66,
+    "malicious_count": 7
+  },
+  {
+    "round": 5,
+    "trusted_count": 87,
+    "unknown_count": 60,
+    "malicious_count": 9
+  },
+  {
+    "round": 6,
+    "trusted_count": 87,
+    "unknown_count": 60,
+    "malicious_count": 9
+  },
+  {
+    "round": 7,
+    "trusted_count": 88,
+    "unknown_count": 57,
+    "malicious_count": 11
+  },
+  {
+    "round": 8,
+    "trusted_count": 88,
+    "unknown_count": 56,
+    "malicious_count": 12
+  },
+  {
+    "round": 9,
+    "trusted_count": 90,
+    "unknown_count": 52,
+    "malicious_count": 14
+  },
+  {
+    "round": 10,
+    "trusted_count": 92,
+    "unknown_count": 50,
+    "malicious_count": 14
+  },
+  {
+    "round": 11,
+    "trusted_count": 92,
+    "unknown_count": 49,
+    "malicious_count": 15
+  },
+  {
+    "round": 12,
+    "trusted_count": 93,
+    "unknown_count": 46,
+    "malicious_count": 17
+  },
+  {
+    "round": 13,
+    "trusted_count": 95,
+    "unknown_count": 40,
+    "malicious_count": 21
+  },
+  {
+    "round": 14,
+    "trusted_count": 98,
+    "unknown_count": 33,
+    "malicious_count": 25
+  },
+  {
+    "round": 15,
+    "trusted_count": 100,
+    "unknown_count": 28,
+    "malicious_count": 28
+  },
+  {
+    "round": 16,
+    "trusted_count": 102,
+    "unknown_count": 26,
+    "malicious_count": 28
+  },
+  {
+    "round": 17,
+    "trusted_count": 104,
+    "unknown_count": 22,
+    "malicious_count": 30
+  },
+  {
+    "round": 18,
+    "trusted_count": 105,
+    "unknown_count": 21,
+    "malicious_count": 30
+  },
+  {
+    "round": 19,
+    "trusted_count": 107,
+    "unknown_count": 19,
+    "malicious_count": 30
+  },
+  {
+    "round": 20,
+    "trusted_count": 108,
+    "unknown_count": 18,
+    "malicious_count": 30
+  },
+  {
+    "round": 21,
+    "trusted_count": 108,
+    "unknown_count": 17,
+    "malicious_count": 31
+  },
+  {
+    "round": 22,
+    "trusted_count": 108,
+    "unknown_count": 17,
+    "malicious_count": 31
+  }
+]

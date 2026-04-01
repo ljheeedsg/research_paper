@@ -1,10 +1,9 @@
-
 """
-群智感知双阶段工人招募与信任度验证算法（B4 方案：CMAB + 信任 + PGRD，无 LGSC）
+群智感知双阶段工人招募算法（B2 方案：仅 CMAB 贪心招募，无信任验证、无 PGRD、无 LGSC）
 输入：step6_worker_segments.json, step6_task_segments.json
-输出：step9_worker_option_set_B4.json, step9_task_weight_list_B4.json, step9_tasks_grid_num_B4.json,
-      step9_tasks_classification_B4.json, step9_lgsc_params_B4.json（可不用）, step9_final_result_B4.json
-      experiment1_step1_B4_taskcover.json（覆盖率记录）
+输出：step9_worker_option_set_B2.json, step9_task_weight_list_B2.json, step9_tasks_grid_num_B2.json,
+      step9_tasks_classification_B2.json（占位）, step9_lgsc_params_B2.json（占位）, step9_final_result_B2.json
+      experiment1_step1_B2_taskcover.json（覆盖率记录）
 """
 
 import json
@@ -16,28 +15,16 @@ from collections import defaultdict
 RANDOM_SEED = 42
 random.seed(RANDOM_SEED)
 
-# 预算与招募参数
 BUDGET = 5000
 K = 7
 R = 24
-M_VERIFY = 7
 
-# 信任度参数
+# 信任度参数（B2 不使用，保留占位）
 ETA = 0.6
 THETA_HIGH = 0.75
 THETA_LOW = 0.3
 
-# PGRD 参数
-ALPHA = 0.6
-BETA = 0.4
-ZETA = 1.2
-LAMBDA = 1.8
-SIGMA = 0.85
-PSI_TH = 0.4
-FEE = 2
-MEMBER_VALIDITY = 6
-
-# 任务分类参数
+# 任务分类参数（B2 不使用 PGRD，但需生成任务数据占位）
 MEMBER_RATIO = 0.5
 MEMBER_MULTIPLIER = 1.8
 NORMAL_MULTIPLIER = 1.0
@@ -45,7 +32,7 @@ MEMBER_COST_RANGE = (0.4, 0.6)
 NORMAL_COST_RANGE = (0.7, 0.9)
 PROFIT_RANGE = (1.2, 2.0)
 
-# LGSC 参数（B4 不使用，但保留定义以免报错）
+# LGSC 参数（B2 不使用，占位）
 SUNK_THRESHOLD = 20
 MEMBER_BONUS = 20
 RHO_INIT = 1.0
@@ -142,6 +129,7 @@ def generate_task_grid_map(task_segments):
     return grid_map
 
 def generate_task_classification(worker_options_path, task_segments_path, output_path):
+    # B2 虽不使用 PGRD，但仍需生成任务分类文件以保持兼容（后续可能用不到）
     data = load_json(worker_options_path)
     worker_options = data['worker_options']
     task_segments = load_json(task_segments_path)
@@ -224,14 +212,14 @@ def data_preparation(worker_segments_path, task_segments_path,
 
     generate_task_classification(output_worker_options, task_segments_path, output_task_class)
 
-    # LGSC 参数文件（B4 不使用，但保留以兼容）
+    # 占位 LGSC 参数文件
     lgsc_params = {
         'sunk_threshold': SUNK_THRESHOLD,
         'member_bonus': MEMBER_BONUS,
         'rho_init': RHO_INIT
     }
-    save_json(lgsc_params, 'step9_lgsc_params_B4.json')
-    print("已保存 LGSC 参数 step9_lgsc_params_B4.json")
+    save_json(lgsc_params, 'step9_lgsc_params_B2.json')
+    print("已保存 LGSC 参数 step9_lgsc_params_B2.json（占位）")
 
     return worker_options, tasks, task_weights, task_grid
 
@@ -240,8 +228,8 @@ def initialize_cmab(worker_options_path, task_weights_path, task_class_path, lgs
     data = load_json(worker_options_path)
     workers = data['worker_options']
     task_weights = load_json(task_weights_path)['task_weights']
-    task_class = load_json(task_class_path)
-    lgsc = load_json(lgsc_params_path)
+    task_class = load_json(task_class_path)   # 占位，不使用
+    lgsc = load_json(lgsc_params_path)        # 占位
 
     task_time_map = {}
     for w in workers:
@@ -254,21 +242,18 @@ def initialize_cmab(worker_options_path, task_weights_path, task_class_path, lgs
         w['n_i'] = len(w['covered_tasks'])
         w['avg_quality'] = sum(t['quality'] for t in w['covered_tasks']) / w['n_i'] if w['n_i'] > 0 else 0.0
         w['judge_count'] = 1
-        w['hist_reward_m'] = 0.0
-        w['hist_reward_n'] = 0.0
         w['available_rounds'] = set()
         for t in w['covered_tasks']:
             hour = t['task_start_time'] // 3600
             w['available_rounds'].add(hour)
 
-        # 保留 LGSC 字段（B4 不使用但避免报错）
+        # 保留其他字段（虽然 B2 不使用）
+        w['hist_reward_m'] = 0.0
+        w['hist_reward_n'] = 0.0
         w['is_member'] = False
         w['member_until'] = -1
-        w['sunk_value'] = 0.0
-        w['sunk_rate'] = lgsc['rho_init']
-        w['bonus_count'] = 0
-        w['last_period_cost'] = 0.0
 
+    # 工人分类集合（B2 中虽然不用信任，但保留分类用于招募，招募时取 trusted+unknown）
     Uc = set()
     Uu = set()
     Um = set()
@@ -284,13 +269,11 @@ def initialize_cmab(worker_options_path, task_weights_path, task_class_path, lgs
     required_workers = {tid: task_weights[tid] for tid in task_time_map}
     total_learned_counts = sum(w['n_i'] for w in workers)
 
-    member_prices = [t['task_price'] for t in task_class if t['type'] == 'member']
-    normal_prices = [t['task_price'] for t in task_class if t['type'] == 'normal']
-    R_m = sum(member_prices) / len(member_prices) if member_prices else 0
-    R_n = sum(normal_prices) / len(normal_prices) if normal_prices else 0
+    # 平均报酬变量（B2 不使用）
+    R_m = 0.0
+    R_n = 0.0
 
     print(f"初始化完成，工人总数: {len(workers)}，可信: {len(Uc)}，未知: {len(Uu)}")
-    print(f"初始平均报酬 R_m={R_m:.2f}, R_n={R_n:.2f}")
 
     return workers, task_covered_count, required_workers, total_learned_counts, \
            Uc, Uu, Um, R_m, R_n, task_time_map
@@ -301,155 +284,6 @@ def ucb_quality(worker, total_learned_counts):
         return 1.0
     exploration = math.sqrt((K + 1) * math.log(total_learned_counts) / worker['n_i'])
     return worker['avg_quality'] + exploration
-
-def generate_validation_tasks(workers, task_grid_map, task_time_map, Uc, Uu, round_idx, M):
-    available_workers = [w for w in workers if round_idx in w['available_rounds']]
-    if not available_workers:
-        return []
-
-    grid_uc = defaultdict(int)
-    grid_uu = defaultdict(int)
-    grid_tasks = defaultdict(set)
-
-    for w in sorted(available_workers, key=lambda x: x['worker_id']):
-        wid = w['worker_id']
-        for task in w['covered_tasks']:
-            if task['task_start_time'] // 3600 != round_idx:
-                continue
-            tid = task['task_id']
-            gid = task_grid_map.get(tid)
-            if gid is None:
-                continue
-            grid_tasks[gid].add(tid)
-            if wid in Uc:
-                grid_uc[gid] += 1
-            elif wid in Uu:
-                grid_uu[gid] += 1
-
-    valid_grids = [g for g in grid_uc if grid_uc[g] > 0]
-    if not valid_grids:
-        return []
-    valid_grids.sort(key=lambda g: (-grid_uu.get(g, 0), g))
-    selected_grids = valid_grids[:M]
-
-    validation_tasks = []
-    for g in selected_grids:
-        if grid_tasks[g]:
-            validation_tasks.append(random.choice(list(grid_tasks[g])))
-    return validation_tasks
-
-def update_trust(workers, validation_tasks, task_grid_map, Uc, Uu, Um, round_idx, eta, theta_high, theta_low):
-    available_workers = [w for w in workers if round_idx in w['available_rounds']]
-    for vtask in validation_tasks:
-        uc_data = []
-        for w in available_workers:
-            if w['worker_id'] in Uc:
-                for task in w['covered_tasks']:
-                    if task['task_id'] == vtask:
-                        uc_data.append(task['task_data'])
-                        break
-        if not uc_data:
-            continue
-        base = sorted(uc_data)[len(uc_data)//2]
-
-        for w in sorted(available_workers, key=lambda x: x['worker_id']):
-            wid = w['worker_id']
-            if wid in Uu:
-                data = None
-                for task in w['covered_tasks']:
-                    if task['task_id'] == vtask:
-                        data = task['task_data']
-                        break
-                if data is None:
-                    continue
-                error = abs(data - base) / base if base != 0 else abs(data - base)
-                w['trust'] += eta * (1 - 2 * error)
-                w['trust'] = max(0.0, min(1.0, w['trust']))
-                if w['trust'] >= theta_high:
-                    Uc.add(wid)
-                    Uu.discard(wid)
-                    w['category'] = 'trusted'
-                elif w['trust'] <= theta_low:
-                    Um.add(wid)
-                    Uu.discard(wid)
-                    w['category'] = 'malicious'
-    return Uc, Uu, Um
-
-def pgrd_decision(workers, task_class, R_m, R_n, round_idx, fee, alpha, beta, zeta, lam, sigma, psi_th):
-    task_type = {t['task_id']: t['type'] for t in task_class}
-    task_cost = {t['task_id']: t['worker_cost'] for t in task_class}
-    available_workers = [w for w in workers if round_idx in w['available_rounds']]
-
-    bid_tasks = {}
-    new_member_set = set()
-    total_fee = 0.0
-
-    for w in sorted(available_workers, key=lambda x: x['worker_id']):
-        wid = w['worker_id']
-        if w['category'] == 'malicious':
-            continue
-
-        member_tasks = []
-        normal_tasks = []
-        for task in w['covered_tasks']:
-            if task['task_start_time'] // 3600 != round_idx:
-                continue
-            tid = task['task_id']
-            if task_type[tid] == 'member':
-                member_tasks.append(tid)
-            else:
-                normal_tasks.append(tid)
-
-        if w['is_member'] and w['member_until'] >= round_idx:
-            bid_tasks[wid] = member_tasks + normal_tasks
-            continue
-
-        if not member_tasks and not normal_tasks:
-            bid_tasks[wid] = []
-            continue
-
-        if w['category'] == 'unknown':
-            bid_tasks[wid] = normal_tasks
-            continue
-
-        if len(member_tasks) == 0:
-            bid_tasks[wid] = normal_tasks
-            continue
-
-        N_m = len(member_tasks)
-        N_n = len(normal_tasks)
-        b_m = alpha * w['hist_reward_m'] + beta * R_m
-        b_n = alpha * w['hist_reward_n'] + beta * R_n
-        delta = R_m - R_n
-        loss = lam * (delta ** sigma) if delta > 0 else 0.0
-        cost_m = sum(task_cost[tid] for tid in member_tasks) / N_m
-        cost_n = sum(task_cost[tid] for tid in normal_tasks) / N_n if N_n > 0 else 0.0
-
-        U_mem = N_m * (b_m + loss - cost_m) - fee
-        U_nor = N_n * (b_n - cost_n) if N_n > 0 else -1e9
-
-        U_mem = min(max(U_mem, -100), 100)
-        U_nor = min(max(U_nor, -100), 100)
-
-        exp_m = math.exp(zeta * U_mem)
-        exp_n = math.exp(zeta * U_nor)
-        psi = exp_m / (exp_m + exp_n) if (exp_m + exp_n) > 0 else 0.0
-
-        if psi >= psi_th:
-            new_member_set.add(wid)
-            if not w['is_member']:
-                w['sunk_value'] = 0.0
-                w['sunk_rate'] = RHO_INIT
-                w['bonus_count'] = 0
-                w['last_period_cost'] = 0.0
-            w['is_member'] = True
-            w['member_until'] = round_idx + MEMBER_VALIDITY
-            bid_tasks[wid] = member_tasks + normal_tasks
-            total_fee += fee
-        else:
-            bid_tasks[wid] = normal_tasks
-
-    return bid_tasks, new_member_set, total_fee
 
 def cmab_round(workers, task_covered_count, required_workers, remaining_budget, K, total_learned_counts, round_idx, bid_tasks):
     candidates = [w for w in workers if round_idx in w['available_rounds']
@@ -512,49 +346,16 @@ def cmab_round(workers, task_covered_count, required_workers, remaining_budget, 
 
     return round_selected, remaining_budget, task_covered_count, total_learned_counts, round_cost, completed_tasks_per_worker
 
-def update_history_and_avg(workers, member_set, completed_tasks_per_worker, task_class):
-    task_type = {t['task_id']: t['type'] for t in task_class}
-    task_price = {t['task_id']: t['task_price'] for t in task_class}
-    total_member_reward = 0.0
-    total_member_count = 0
-    total_normal_reward = 0.0
-    total_normal_count = 0
-
-    for w, task_list in completed_tasks_per_worker:
-        member_prices = []
-        normal_prices = []
-        for tid in task_list:
-            price = task_price[tid]
-            if task_type[tid] == 'member':
-                member_prices.append(price)
-                total_member_reward += price
-                total_member_count += 1
-            else:
-                normal_prices.append(price)
-                total_normal_reward += price
-                total_normal_count += 1
-
-        w['hist_reward_m'] = sum(member_prices) / len(member_prices) if member_prices else 0.0
-        w['hist_reward_n'] = sum(normal_prices) / len(normal_prices) if normal_prices else 0.0
-
-    R_m = total_member_reward / total_member_count if total_member_count > 0 else 0
-    R_n = total_normal_reward / total_normal_count if total_normal_count > 0 else 0
-    return R_m, R_n
-
-# ========== B4 主循环（无 LGSC）==========
-def greedy_recruitment_B4(workers, task_covered_count, required_workers, total_learned_counts,
-                          Uc, Uu, Um, R_m, R_n, B, K, R, task_grid_map, task_time_map,
-                          M_VERIFY, ETA, THETA_HIGH, THETA_LOW,
-                          PGRD_PARAMS, task_class):
-    """B4 方案：CMAB + 信任 + PGRD，无 LGSC"""
+# ========== B2 主循环 ==========
+def greedy_recruitment_B2(workers, task_covered_count, required_workers, total_learned_counts,
+                          Uc, Uu, Um, B, K, R, task_time_map,
+                          task_class):   # task_class 占位
+    """B2 方案：仅 CMAB 贪心招募，无信任、无 PGRD、无 LGSC"""
     total_cost = 0.0
     remaining_budget = B
     greedy_selected = []
     greedy_rounds = 0
-    total_fee = 0.0
     round_details = []
-
-    # ========== 新增 ==========
     task_system_income_map = {t['task_id']: t['system_income'] for t in task_class}
     total_system_income = 0.0
 
@@ -577,18 +378,14 @@ def greedy_recruitment_B4(workers, task_covered_count, required_workers, total_l
             print("所有任务已完成，终止")
             break
 
-        # PGRD 决策
-        bid_tasks, new_member_set, fee_income = pgrd_decision(
-            workers, task_class, R_m, R_n, r,
-            PGRD_PARAMS['fee'], PGRD_PARAMS['alpha'], PGRD_PARAMS['beta'],
-            PGRD_PARAMS['zeta'], PGRD_PARAMS['lam'], PGRD_PARAMS['sigma'], PGRD_PARAMS['psi_th']
-        )
-        total_fee += fee_income
-        print(f"新会员人数: {len(new_member_set)}，会费收入: {fee_income:.2f}")
-
-        # 生成验证任务
-        validation_tasks = generate_validation_tasks(workers, task_grid_map, task_time_map, Uc, Uu, r, M_VERIFY)
-        print(f"验证任务: {validation_tasks}")
+        # 生成投标任务：工人投标其所有可覆盖且属于当前轮次的任务
+        bid_tasks = {}
+        for w in available_workers:
+            tasks_this_round = []
+            for task in w['covered_tasks']:
+                if task['task_start_time'] // 3600 == r:
+                    tasks_this_round.append(task['task_id'])
+            bid_tasks[w['worker_id']] = tasks_this_round
 
         # CMAB 招募
         round_selected, remaining_budget, task_covered_count, total_learned_counts, round_cost, completed_tasks = cmab_round(
@@ -596,11 +393,10 @@ def greedy_recruitment_B4(workers, task_covered_count, required_workers, total_l
         )
 
         total_cost += round_cost
-        # ========== 新增 ==========
+        # 累加本轮完成的系统收益
         for w, task_list in completed_tasks:
             for tid in task_list:
                 total_system_income += task_system_income_map[tid]
-
         if not round_selected:
             print("本轮未选中任何工人")
         else:
@@ -608,19 +404,10 @@ def greedy_recruitment_B4(workers, task_covered_count, required_workers, total_l
             greedy_rounds += 1
             print(f"招募工人: {round_selected}")
 
-        # 信任度更新
-        if validation_tasks:
-            Uc, Uu, Um = update_trust(workers, validation_tasks, task_grid_map, Uc, Uu, Um, r, ETA, THETA_HIGH, THETA_LOW)
-
-        # 更新历史报酬与平均报酬
-        R_m, R_n = update_history_and_avg(workers, new_member_set, completed_tasks, task_class)
-
         # 统计
         completed = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
         total_task_num = len(required_workers)
         print(f"总成本: {total_cost:.2f}, 剩余预算: {remaining_budget:.2f}, 已完成任务: {completed}/{total_task_num}")
-        print(f"可信: {len(Uc)}, 未知: {len(Uu)}, 恶意: {len(Um)}")
-        print(f"平均报酬: 会员任务 R_m={R_m:.2f}, 普通任务 R_n={R_n:.2f}")
 
         # 记录本轮覆盖率
         task_coverage_records.append({
@@ -630,39 +417,30 @@ def greedy_recruitment_B4(workers, task_covered_count, required_workers, total_l
             "coverage_rate": round(completed / total_task_num, 4) if total_task_num > 0 else 0.0
         })
 
-        # 记录本轮详情（无 LGSC 字段）
+        # 记录本轮详情（简单）
         round_details.append({
             'round': r,
-            'member_set': list(new_member_set),
-            'non_member_set': [w['worker_id'] for w in available_workers if not w['is_member']],
-            'R_m': round(R_m, 2),
-            'R_n': round(R_n, 2),
-            'member_count': len([w for w in available_workers if w['is_member']]),
-            'non_member_count': len([w for w in available_workers if not w['is_member']])
+            'recruited_workers': round_selected,
+            'completed_tasks': completed
         })
 
     # 保存覆盖率文件
-    save_json(task_coverage_records, "experiment1_step1_B4_taskcover.json")
-    print(f"\n✅ 覆盖率文件已保存：experiment1_step1_B4_taskcover.json")
+    save_json(task_coverage_records, "experiment1_step1_B2_taskcover.json")
+    print(f"\n✅ 覆盖率文件已保存：experiment1_step1_B2_taskcover.json")
 
     covered_task_count = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
-    # ========== 新增 ==========
-    platform_utility = total_system_income + total_fee - total_cost
+    platform_utility = total_system_income - total_cost   # B2 无会费无奖励金
     result = {
         'total_rounds': greedy_rounds,
+        'platform_utility': platform_utility,
+         # 构建任务价格映射
         'total_cost': total_cost,
         'remaining_budget': remaining_budget,
         'selected_workers': greedy_selected,
         'init_select': len(workers),
         'later_select': len(greedy_selected),
         'covered_task_count': covered_task_count,
-        'trusted_count': len(Uc),
-        'malicious_count': len(Um),
-        'unknown_count': len(Uu),
-        'trusted_workers_list': list(Uc),
-        'total_fee': total_fee,
-        'round_details': round_details,
-        'platform_utility': platform_utility,   # 新增
+        'round_details': round_details
     }
     return result
 
@@ -673,12 +451,12 @@ def main():
     WORKER_SEGMENTS = 'step6_worker_segments.json'
     TASK_SEGMENTS = 'step6_task_segments.json'
 
-    # B4 专用输出文件名
-    OUTPUT_WORKER_OPTIONS = 'step9_worker_option_set_B4.json'
-    OUTPUT_TASK_WEIGHTS = 'step9_task_weight_list_B4.json'
-    OUTPUT_TASK_GRID = 'step9_tasks_grid_num_B4.json'
-    OUTPUT_TASK_CLASS = 'step9_tasks_classification_B4.json'
-    OUTPUT_FINAL = 'step9_final_result_B4.json'
+    # B2 专用输出文件名
+    OUTPUT_WORKER_OPTIONS = 'step9_worker_option_set_B2.json'
+    OUTPUT_TASK_WEIGHTS = 'step9_task_weight_list_B2.json'
+    OUTPUT_TASK_GRID = 'step9_tasks_grid_num_B2.json'
+    OUTPUT_TASK_CLASS = 'step9_tasks_classification_B2.json'
+    OUTPUT_FINAL = 'step9_final_result_B2.json'
 
     # 第一阶段
     worker_options, tasks, task_weights, task_grid = data_preparation(
@@ -689,30 +467,18 @@ def main():
 
     # 第二阶段
     workers, task_covered_count, required_workers, total_learned_counts, \
-    Uc, Uu, Um, R_m, R_n, task_time_map = initialize_cmab(
-        OUTPUT_WORKER_OPTIONS, OUTPUT_TASK_WEIGHTS, OUTPUT_TASK_CLASS, 'step9_lgsc_params_B4.json'
+    Uc, Uu, Um, _, _, task_time_map = initialize_cmab(
+        OUTPUT_WORKER_OPTIONS, OUTPUT_TASK_WEIGHTS, OUTPUT_TASK_CLASS, 'step9_lgsc_params_B2.json'
     )
 
-    # 准备 PGRD 参数
+    # 加载任务分类（占位）
     task_class = load_json(OUTPUT_TASK_CLASS)
-    PGRD_PARAMS = {
-        'fee': FEE,
-        'alpha': ALPHA,
-        'beta': BETA,
-        'zeta': ZETA,
-        'lam': LAMBDA,
-        'sigma': SIGMA,
-        'psi_th': PSI_TH
-    }
 
-    # 第三阶段（B4）
-    task_grid_map = {item['task_id']: item['grid_id'] for item in task_grid}
-    result = greedy_recruitment_B4(
+    # 第三阶段（B2）
+    result = greedy_recruitment_B2(
         workers, task_covered_count, required_workers, total_learned_counts,
-        Uc, Uu, Um, R_m, R_n,
-        BUDGET, K, R, task_grid_map, task_time_map,
-        M_VERIFY, ETA, THETA_HIGH, THETA_LOW,
-        PGRD_PARAMS, task_class
+        Uc, Uu, Um,
+        BUDGET, K, R, task_time_map, task_class
     )
 
     save_json(result, OUTPUT_FINAL)
@@ -723,10 +489,6 @@ def main():
     for k, v in result.items():
         if isinstance(v, list) and len(v) > 10:
             print(f"{k}: {v[:10]}... (共{len(v)})")
-        elif k == 'round_details':
-            print(f"{k}:")
-            for rd in v[:3]:
-                print(f"  轮次 {rd['round']}: 会员人数 {rd['member_count']}, 非会员人数 {rd['non_member_count']}, R_m={rd['R_m']:.2f}, R_n={rd['R_n']:.2f}")
         else:
             print(f"{k}: {v}")
 
