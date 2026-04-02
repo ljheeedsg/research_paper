@@ -313,28 +313,28 @@
       "start_time": 36830,
       "end_time": 39600,
       "cost": 6.3,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v11_067",
       "start_time": 39600,
       "end_time": 43200,
       "cost": 6.3,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v12_067",
       "start_time": 43200,
       "end_time": 46800,
       "cost": 6.3,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v13_067",
       "start_time": 46800,
       "end_time": 48345,
       "cost": 6.3,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v23_072",
@@ -747,21 +747,21 @@
       "start_time": 40799,
       "end_time": 43200,
       "cost": 11.8,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v12_106",
       "start_time": 43200,
       "end_time": 46800,
       "cost": 11.8,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v13_106",
       "start_time": 46800,
       "end_time": 46834,
       "cost": 11.8,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v12_118",
@@ -803,21 +803,21 @@
       "start_time": 31510,
       "end_time": 32400,
       "cost": 8.6,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v09_123",
       "start_time": 32400,
       "end_time": 36000,
       "cost": 8.6,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v10_123",
       "start_time": 36000,
       "end_time": 36248,
       "cost": 8.6,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v06_124",
@@ -1099,28 +1099,28 @@
       "start_time": 33726,
       "end_time": 36000,
       "cost": 14.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v10_024",
       "start_time": 36000,
       "end_time": 39600,
       "cost": 14.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v11_024",
       "start_time": 39600,
       "end_time": 43200,
       "cost": 14.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v12_024",
       "start_time": 43200,
       "end_time": 43272,
       "cost": 14.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v19_028",
@@ -1148,21 +1148,21 @@
       "start_time": 10209,
       "end_time": 10800,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v03_046",
       "start_time": 10800,
       "end_time": 14400,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v04_046",
       "start_time": 14400,
       "end_time": 16863,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v04_052",
@@ -1316,14 +1316,14 @@
       "start_time": 58007,
       "end_time": 61200,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v17_126",
       "start_time": 61200,
       "end_time": 63029,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v16_127",
@@ -1598,7 +1598,7 @@
       "start_time": 51979,
       "end_time": 53909,
       "cost": 7.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v01_034",
@@ -1703,35 +1703,35 @@
       "start_time": 37200,
       "end_time": 39600,
       "cost": 6.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v11_053",
       "start_time": 39600,
       "end_time": 40455,
       "cost": 6.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v12_053",
       "start_time": 44986,
       "end_time": 46800,
       "cost": 6.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v13_053",
       "start_time": 46800,
       "end_time": 50400,
       "cost": 6.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v14_053",
       "start_time": 50400,
       "end_time": 51784,
       "cost": 6.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v16_056",
@@ -1983,21 +1983,21 @@
       "start_time": 27275,
       "end_time": 28800,
       "cost": 11.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v08_089",
       "start_time": 28800,
       "end_time": 32400,
       "cost": 11.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v09_089",
       "start_time": 32400,
       "end_time": 33432,
       "cost": 11.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v03_090",
@@ -2088,21 +2088,21 @@
       "start_time": 35980,
       "end_time": 36000,
       "cost": 11.8,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v10_106",
       "start_time": 36000,
       "end_time": 39600,
       "cost": 11.8,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v11_106",
       "start_time": 39600,
       "end_time": 40798,
       "cost": 11.8,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v18_110",
@@ -2165,21 +2165,21 @@
       "start_time": 63030,
       "end_time": 64800,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v18_126",
       "start_time": 64800,
       "end_time": 68400,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v19_126",
       "start_time": 68400,
       "end_time": 68998,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v00_128",
@@ -2489,28 +2489,28 @@
       "start_time": 74800,
       "end_time": 75600,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v21_046",
       "start_time": 75600,
       "end_time": 76695,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v21_046",
       "start_time": 76696,
       "end_time": 79200,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v22_046",
       "start_time": 79200,
       "end_time": 82396,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v15_066",
@@ -2531,126 +2531,126 @@
       "start_time": 2938,
       "end_time": 2968,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v00_074",
       "start_time": 2969,
       "end_time": 3600,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v01_074",
       "start_time": 3600,
       "end_time": 7200,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v02_074",
       "start_time": 7200,
       "end_time": 10800,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v03_074",
       "start_time": 10800,
       "end_time": 14400,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v04_074",
       "start_time": 14400,
       "end_time": 18000,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v05_074",
       "start_time": 18000,
       "end_time": 21600,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v06_074",
       "start_time": 21600,
       "end_time": 25200,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v07_074",
       "start_time": 25200,
       "end_time": 28800,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v08_074",
       "start_time": 28800,
       "end_time": 32400,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v09_074",
       "start_time": 32400,
       "end_time": 36000,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v10_074",
       "start_time": 36000,
       "end_time": 39600,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v11_074",
       "start_time": 39600,
       "end_time": 43200,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v12_074",
       "start_time": 43200,
       "end_time": 46800,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v13_074",
       "start_time": 46800,
       "end_time": 50400,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v14_074",
       "start_time": 50400,
       "end_time": 54000,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v15_074",
       "start_time": 54000,
       "end_time": 57600,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v16_074",
       "start_time": 57600,
       "end_time": 57684,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v00_083",
@@ -2678,35 +2678,35 @@
       "start_time": 64711,
       "end_time": 64800,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v18_094",
       "start_time": 64800,
       "end_time": 68400,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v19_094",
       "start_time": 68400,
       "end_time": 72000,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v20_094",
       "start_time": 72000,
       "end_time": 75600,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v21_094",
       "start_time": 75600,
       "end_time": 76389,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v00_101",
@@ -3454,35 +3454,35 @@
       "start_time": 40456,
       "end_time": 43200,
       "cost": 6.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v12_053",
       "start_time": 43200,
       "end_time": 43860,
       "cost": 6.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v08_067",
       "start_time": 29776,
       "end_time": 32400,
       "cost": 6.3,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v09_067",
       "start_time": 32400,
       "end_time": 36000,
       "cost": 6.3,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v10_067",
       "start_time": 36000,
       "end_time": 36829,
       "cost": 6.3,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v02_081",
@@ -3517,14 +3517,14 @@
       "start_time": 2150,
       "end_time": 2358,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v00_094",
       "start_time": 2359,
       "end_time": 2528,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v02_102",
@@ -3717,14 +3717,14 @@
       "start_time": 43422,
       "end_time": 46800,
       "cost": 14.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v13_024",
       "start_time": 46800,
       "end_time": 47744,
       "cost": 14.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v00_055",
@@ -4153,28 +4153,28 @@
       "start_time": 21596,
       "end_time": 21600,
       "cost": 19.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v06_012",
       "start_time": 21600,
       "end_time": 24026,
       "cost": 19.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v06_012",
       "start_time": 24027,
       "end_time": 25200,
       "cost": 19.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v07_012",
       "start_time": 25200,
       "end_time": 27341,
       "cost": 19.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v06_013",
@@ -4426,21 +4426,21 @@
       "start_time": 53910,
       "end_time": 54000,
       "cost": 7.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v15_029",
       "start_time": 54000,
       "end_time": 57600,
       "cost": 7.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v16_029",
       "start_time": 57600,
       "end_time": 57804,
       "cost": 7.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v03_031",
@@ -4482,63 +4482,63 @@
       "start_time": 79193,
       "end_time": 79200,
       "cost": 18.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v22_036",
       "start_time": 79200,
       "end_time": 82800,
       "cost": 18.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v23_036",
       "start_time": 82800,
       "end_time": 85856,
       "cost": 18.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v16_038",
       "start_time": 59276,
       "end_time": 61200,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v17_038",
       "start_time": 61200,
       "end_time": 62227,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v19_038",
       "start_time": 70687,
       "end_time": 72000,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v20_038",
       "start_time": 72000,
       "end_time": 75600,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v21_038",
       "start_time": 75600,
       "end_time": 79200,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v22_038",
       "start_time": 79200,
       "end_time": 80020,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v12_039",
@@ -4615,35 +4615,35 @@
       "start_time": 26146,
       "end_time": 28800,
       "cost": 6.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v08_047",
       "start_time": 28800,
       "end_time": 32400,
       "cost": 6.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v09_047",
       "start_time": 32400,
       "end_time": 36000,
       "cost": 6.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v10_047",
       "start_time": 36000,
       "end_time": 38567,
       "cost": 6.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v13_047",
       "start_time": 47055,
       "end_time": 50186,
       "cost": 6.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v09_050",
@@ -5119,42 +5119,42 @@
       "start_time": 21411,
       "end_time": 21600,
       "cost": 5.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v06_062",
       "start_time": 21600,
       "end_time": 25200,
       "cost": 5.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v07_062",
       "start_time": 25200,
       "end_time": 28800,
       "cost": 5.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v08_062",
       "start_time": 28800,
       "end_time": 30246,
       "cost": 5.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v08_062",
       "start_time": 30247,
       "end_time": 32400,
       "cost": 5.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v09_062",
       "start_time": 32400,
       "end_time": 33193,
       "cost": 5.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v02_064",
@@ -5385,21 +5385,21 @@
       "start_time": 60254,
       "end_time": 61200,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v17_074",
       "start_time": 61200,
       "end_time": 64800,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v18_074",
       "start_time": 64800,
       "end_time": 65366,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v17_076",
@@ -5546,63 +5546,63 @@
       "start_time": 3386,
       "end_time": 3600,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v01_088",
       "start_time": 3600,
       "end_time": 7200,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v02_088",
       "start_time": 7200,
       "end_time": 10800,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v03_088",
       "start_time": 10800,
       "end_time": 11397,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v21_088",
       "start_time": 78622,
       "end_time": 79200,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v22_088",
       "start_time": 79200,
       "end_time": 80134,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v09_089",
       "start_time": 34511,
       "end_time": 36000,
       "cost": 11.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v10_089",
       "start_time": 36000,
       "end_time": 39600,
       "cost": 11.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v11_089",
       "start_time": 39600,
       "end_time": 40695,
       "cost": 11.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v00_090",
@@ -5707,14 +5707,14 @@
       "start_time": 81825,
       "end_time": 82800,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v23_094",
       "start_time": 82800,
       "end_time": 83983,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v22_095",
@@ -5812,14 +5812,14 @@
       "start_time": 47360,
       "end_time": 50400,
       "cost": 11.8,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v14_106",
       "start_time": 50400,
       "end_time": 50405,
       "cost": 11.8,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v21_107",
@@ -6239,133 +6239,133 @@
       "start_time": 1874,
       "end_time": 3600,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v01_126",
       "start_time": 3600,
       "end_time": 7200,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v02_126",
       "start_time": 7200,
       "end_time": 10800,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v03_126",
       "start_time": 10800,
       "end_time": 14400,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v04_126",
       "start_time": 14400,
       "end_time": 18000,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v05_126",
       "start_time": 18000,
       "end_time": 21600,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v06_126",
       "start_time": 21600,
       "end_time": 25200,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v07_126",
       "start_time": 25200,
       "end_time": 28800,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v08_126",
       "start_time": 28800,
       "end_time": 32400,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v09_126",
       "start_time": 32400,
       "end_time": 36000,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v10_126",
       "start_time": 36000,
       "end_time": 39600,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v11_126",
       "start_time": 39600,
       "end_time": 43200,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v12_126",
       "start_time": 43200,
       "end_time": 46800,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v13_126",
       "start_time": 46800,
       "end_time": 50400,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v14_126",
       "start_time": 50400,
       "end_time": 54000,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v15_126",
       "start_time": 54000,
       "end_time": 57600,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v16_126",
       "start_time": 57600,
       "end_time": 58006,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v22_126",
       "start_time": 80191,
       "end_time": 82800,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v23_126",
       "start_time": 82800,
       "end_time": 83724,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v15_127",
@@ -6766,14 +6766,14 @@
       "start_time": 4801,
       "end_time": 7200,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v02_046",
       "start_time": 7200,
       "end_time": 10208,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v00_055",
@@ -7258,56 +7258,56 @@
       "start_time": 29414,
       "end_time": 32400,
       "cost": 19.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v09_012",
       "start_time": 32400,
       "end_time": 36000,
       "cost": 19.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v10_012",
       "start_time": 36000,
       "end_time": 39600,
       "cost": 19.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v11_012",
       "start_time": 39600,
       "end_time": 43200,
       "cost": 19.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v12_012",
       "start_time": 43200,
       "end_time": 44155,
       "cost": 19.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v12_012",
       "start_time": 44156,
       "end_time": 44259,
       "cost": 19.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v12_012",
       "start_time": 44260,
       "end_time": 46800,
       "cost": 19.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v13_012",
       "start_time": 46800,
       "end_time": 49771,
       "cost": 19.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v15_022",
@@ -7454,7 +7454,7 @@
       "start_time": 16864,
       "end_time": 17105,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v18_049",
@@ -7496,7 +7496,7 @@
       "start_time": 27560,
       "end_time": 27667,
       "cost": 6.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v16_057",
@@ -7587,252 +7587,252 @@
       "start_time": 13664,
       "end_time": 14400,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v04_088",
       "start_time": 14400,
       "end_time": 18000,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v05_088",
       "start_time": 18000,
       "end_time": 21600,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v06_088",
       "start_time": 21600,
       "end_time": 25200,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v07_088",
       "start_time": 25200,
       "end_time": 28800,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v08_088",
       "start_time": 28800,
       "end_time": 32400,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v09_088",
       "start_time": 32400,
       "end_time": 36000,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v10_088",
       "start_time": 36000,
       "end_time": 39600,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v11_088",
       "start_time": 39600,
       "end_time": 43200,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v12_088",
       "start_time": 43200,
       "end_time": 46800,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v13_088",
       "start_time": 46800,
       "end_time": 50400,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v14_088",
       "start_time": 50400,
       "end_time": 54000,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v15_088",
       "start_time": 54000,
       "end_time": 57600,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v16_088",
       "start_time": 57600,
       "end_time": 61200,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v17_088",
       "start_time": 61200,
       "end_time": 64800,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v18_088",
       "start_time": 64800,
       "end_time": 68400,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v19_088",
       "start_time": 68400,
       "end_time": 72000,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v20_088",
       "start_time": 72000,
       "end_time": 73021,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v00_094",
       "start_time": 2529,
       "end_time": 3600,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v01_094",
       "start_time": 3600,
       "end_time": 7200,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v02_094",
       "start_time": 7200,
       "end_time": 10800,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v03_094",
       "start_time": 10800,
       "end_time": 14400,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v04_094",
       "start_time": 14400,
       "end_time": 18000,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v05_094",
       "start_time": 18000,
       "end_time": 21600,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v06_094",
       "start_time": 21600,
       "end_time": 25200,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v07_094",
       "start_time": 25200,
       "end_time": 28800,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v08_094",
       "start_time": 28800,
       "end_time": 32400,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v09_094",
       "start_time": 32400,
       "end_time": 36000,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v10_094",
       "start_time": 36000,
       "end_time": 39600,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v11_094",
       "start_time": 39600,
       "end_time": 43200,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v12_094",
       "start_time": 43200,
       "end_time": 46800,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v13_094",
       "start_time": 46800,
       "end_time": 50400,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v14_094",
       "start_time": 50400,
       "end_time": 54000,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v15_094",
       "start_time": 54000,
       "end_time": 57600,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v16_094",
       "start_time": 57600,
       "end_time": 61200,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v17_094",
       "start_time": 61200,
       "end_time": 62694,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v14_097",
@@ -8114,14 +8114,14 @@
       "start_time": 49772,
       "end_time": 50400,
       "cost": 19.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v14_012",
       "start_time": 50400,
       "end_time": 50680,
       "cost": 19.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v11_013",
@@ -8184,21 +8184,21 @@
       "start_time": 26067,
       "end_time": 28800,
       "cost": 14.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v08_024",
       "start_time": 28800,
       "end_time": 32400,
       "cost": 14.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v09_024",
       "start_time": 32400,
       "end_time": 33725,
       "cost": 14.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v16_028",
@@ -8240,56 +8240,56 @@
       "start_time": 34866,
       "end_time": 36000,
       "cost": 14.8,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v10_037",
       "start_time": 36000,
       "end_time": 39600,
       "cost": 14.8,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v11_037",
       "start_time": 39600,
       "end_time": 43200,
       "cost": 14.8,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v12_037",
       "start_time": 43200,
       "end_time": 46410,
       "cost": 14.8,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v12_037",
       "start_time": 46411,
       "end_time": 46800,
       "cost": 14.8,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v13_037",
       "start_time": 46800,
       "end_time": 48150,
       "cost": 14.8,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v17_038",
       "start_time": 62228,
       "end_time": 64800,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v18_038",
       "start_time": 64800,
       "end_time": 66845,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v08_044",
@@ -8499,21 +8499,21 @@
       "start_time": 74823,
       "end_time": 75600,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v21_074",
       "start_time": 75600,
       "end_time": 79200,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v22_074",
       "start_time": 79200,
       "end_time": 82722,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v00_079",
@@ -8681,7 +8681,7 @@
       "start_time": 33433,
       "end_time": 34510,
       "cost": 11.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v19_093",
@@ -9089,7 +9089,7 @@
       "start_time": 30703,
       "end_time": 31011,
       "cost": 14.8,
-      "is_trusted": true
+      "is_trusted": false
     }
   ],
   "region_65": [
@@ -9126,7 +9126,7 @@
       "start_time": 43273,
       "end_time": 43421,
       "cost": 14.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v17_028",
@@ -9147,14 +9147,14 @@
       "start_time": 2593,
       "end_time": 3600,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v01_046",
       "start_time": 3600,
       "end_time": 4800,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v00_057",
@@ -9175,7 +9175,7 @@
       "start_time": 20465,
       "end_time": 21410,
       "cost": 5.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v14_065",
@@ -9231,7 +9231,7 @@
       "start_time": 46835,
       "end_time": 47359,
       "cost": 11.8,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v00_125",
@@ -9695,14 +9695,14 @@
       "start_time": 33194,
       "end_time": 36000,
       "cost": 5.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v10_062",
       "start_time": 36000,
       "end_time": 39475,
       "cost": 5.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v21_071",
@@ -9786,7 +9786,7 @@
       "start_time": 13454,
       "end_time": 13663,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v17_096",
@@ -9856,14 +9856,14 @@
       "start_time": 29131,
       "end_time": 32400,
       "cost": 11.8,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v09_106",
       "start_time": 32400,
       "end_time": 34438,
       "cost": 11.8,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v12_108",
@@ -10082,7 +10082,7 @@
       "start_time": 43861,
       "end_time": 44310,
       "cost": 6.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v02_057",
@@ -10250,14 +10250,14 @@
       "start_time": 28191,
       "end_time": 28800,
       "cost": 6.3,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v08_067",
       "start_time": 28800,
       "end_time": 29775,
       "cost": 6.3,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v17_076",
@@ -10313,7 +10313,7 @@
       "start_time": 34439,
       "end_time": 35979,
       "cost": 11.8,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v07_124",
@@ -10839,14 +10839,14 @@
       "start_time": 11398,
       "end_time": 11502,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v03_088",
       "start_time": 11503,
       "end_time": 13453,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v16_097",
@@ -10867,7 +10867,7 @@
       "start_time": 50406,
       "end_time": 50965,
       "cost": 11.8,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v19_112",
@@ -10902,28 +10902,28 @@
       "start_time": 68999,
       "end_time": 72000,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v20_126",
       "start_time": 72000,
       "end_time": 75600,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v21_126",
       "start_time": 75600,
       "end_time": 79200,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v22_126",
       "start_time": 79200,
       "end_time": 80190,
       "cost": 6.1,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v20_134",
@@ -11130,21 +11130,21 @@
       "start_time": 57685,
       "end_time": 60253,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v20_088",
       "start_time": 73588,
       "end_time": 75600,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v21_088",
       "start_time": 75600,
       "end_time": 78621,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v13_099",
@@ -11328,7 +11328,7 @@
       "start_time": 57805,
       "end_time": 60444,
       "cost": 7.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v06_033",
@@ -11356,7 +11356,7 @@
       "start_time": 218,
       "end_time": 2511,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v10_044",
@@ -11412,14 +11412,14 @@
       "start_time": 82723,
       "end_time": 82800,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v23_074",
       "start_time": 82800,
       "end_time": 83422,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v21_085",
@@ -11545,14 +11545,14 @@
       "start_time": 46362,
       "end_time": 46800,
       "cost": 8.6,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v13_123",
       "start_time": 46800,
       "end_time": 50157,
       "cost": 8.6,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v02_128",
@@ -11878,21 +11878,21 @@
       "start_time": 21290,
       "end_time": 21600,
       "cost": 6.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v06_053",
       "start_time": 21600,
       "end_time": 25200,
       "cost": 6.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v07_053",
       "start_time": 25200,
       "end_time": 27559,
       "cost": 6.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v10_069",
@@ -12085,119 +12085,119 @@
       "start_time": 2512,
       "end_time": 3600,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v01_038",
       "start_time": 3600,
       "end_time": 7200,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v02_038",
       "start_time": 7200,
       "end_time": 10800,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v03_038",
       "start_time": 10800,
       "end_time": 14400,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v04_038",
       "start_time": 14400,
       "end_time": 18000,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v05_038",
       "start_time": 18000,
       "end_time": 21600,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v06_038",
       "start_time": 21600,
       "end_time": 25200,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v07_038",
       "start_time": 25200,
       "end_time": 28800,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v08_038",
       "start_time": 28800,
       "end_time": 32400,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v09_038",
       "start_time": 32400,
       "end_time": 36000,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v10_038",
       "start_time": 36000,
       "end_time": 39600,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v11_038",
       "start_time": 39600,
       "end_time": 43200,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v12_038",
       "start_time": 43200,
       "end_time": 46800,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v13_038",
       "start_time": 46800,
       "end_time": 50400,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v14_038",
       "start_time": 50400,
       "end_time": 54000,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v15_038",
       "start_time": 54000,
       "end_time": 57600,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v16_038",
       "start_time": 57600,
       "end_time": 59275,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v00_055",
@@ -12225,21 +12225,21 @@
       "start_time": 65367,
       "end_time": 68400,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v19_074",
       "start_time": 68400,
       "end_time": 72000,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v20_074",
       "start_time": 72000,
       "end_time": 74822,
       "cost": 8.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v21_084",
@@ -12260,7 +12260,7 @@
       "start_time": 47874,
       "end_time": 48382,
       "cost": 11.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v22_091",
@@ -12430,119 +12430,119 @@
       "start_time": 17106,
       "end_time": 18000,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v05_046",
       "start_time": 18000,
       "end_time": 21600,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v06_046",
       "start_time": 21600,
       "end_time": 25200,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v07_046",
       "start_time": 25200,
       "end_time": 28800,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v08_046",
       "start_time": 28800,
       "end_time": 32400,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v09_046",
       "start_time": 32400,
       "end_time": 36000,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v10_046",
       "start_time": 36000,
       "end_time": 39600,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v11_046",
       "start_time": 39600,
       "end_time": 43200,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v12_046",
       "start_time": 43200,
       "end_time": 46800,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v13_046",
       "start_time": 46800,
       "end_time": 50400,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v14_046",
       "start_time": 50400,
       "end_time": 54000,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v15_046",
       "start_time": 54000,
       "end_time": 57600,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v16_046",
       "start_time": 57600,
       "end_time": 61200,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v17_046",
       "start_time": 61200,
       "end_time": 64800,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v18_046",
       "start_time": 64800,
       "end_time": 68400,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v19_046",
       "start_time": 68400,
       "end_time": 72000,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v20_046",
       "start_time": 72000,
       "end_time": 74799,
       "cost": 16.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v08_052",
@@ -12784,7 +12784,7 @@
       "start_time": 66846,
       "end_time": 67007,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v16_055",
@@ -13119,14 +13119,14 @@
       "start_time": 27342,
       "end_time": 28800,
       "cost": 19.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v08_012",
       "start_time": 28800,
       "end_time": 29413,
       "cost": 19.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v07_027",
@@ -13561,14 +13561,14 @@
       "start_time": 23404,
       "end_time": 25200,
       "cost": 11.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v07_089",
       "start_time": 25200,
       "end_time": 27274,
       "cost": 11.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v20_104",
@@ -13908,14 +13908,14 @@
       "start_time": 67008,
       "end_time": 68400,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v19_038",
       "start_time": 68400,
       "end_time": 70686,
       "cost": 18.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v22_057",
@@ -14080,28 +14080,28 @@
       "start_time": 27668,
       "end_time": 28800,
       "cost": 6.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v08_053",
       "start_time": 28800,
       "end_time": 32400,
       "cost": 6.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v09_053",
       "start_time": 32400,
       "end_time": 36000,
       "cost": 6.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v10_053",
       "start_time": 36000,
       "end_time": 37199,
       "cost": 6.7,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v11_068",
@@ -14831,21 +14831,21 @@
       "start_time": 60445,
       "end_time": 61200,
       "cost": 7.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v17_029",
       "start_time": 61200,
       "end_time": 64800,
       "cost": 7.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v18_029",
       "start_time": 64800,
       "end_time": 67669,
       "cost": 7.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v03_031",
@@ -14901,28 +14901,28 @@
       "start_time": 38568,
       "end_time": 39600,
       "cost": 6.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v11_047",
       "start_time": 39600,
       "end_time": 43200,
       "cost": 6.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v12_047",
       "start_time": 43200,
       "end_time": 46800,
       "cost": 6.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v13_047",
       "start_time": 46800,
       "end_time": 47054,
       "cost": 6.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v23_057",
@@ -14971,7 +14971,7 @@
       "start_time": 48346,
       "end_time": 49620,
       "cost": 6.3,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v18_072",
@@ -15090,14 +15090,14 @@
       "start_time": 44832,
       "end_time": 46800,
       "cost": 11.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v13_089",
       "start_time": 46800,
       "end_time": 47873,
       "cost": 11.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v18_090",
@@ -15118,14 +15118,14 @@
       "start_time": 76390,
       "end_time": 79200,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v22_094",
       "start_time": 79200,
       "end_time": 81824,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v19_112",
@@ -15202,28 +15202,28 @@
       "start_time": 36249,
       "end_time": 39600,
       "cost": 8.6,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v11_123",
       "start_time": 39600,
       "end_time": 43200,
       "cost": 8.6,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v12_123",
       "start_time": 43200,
       "end_time": 45846,
       "cost": 8.6,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v12_123",
       "start_time": 45847,
       "end_time": 46361,
       "cost": 8.6,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v20_129",
@@ -15472,14 +15472,14 @@
       "start_time": 22496,
       "end_time": 25200,
       "cost": 14.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v07_024",
       "start_time": 25200,
       "end_time": 26066,
       "cost": 14.5,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v06_045",
@@ -15656,14 +15656,14 @@
       "start_time": 40696,
       "end_time": 43200,
       "cost": 11.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v12_089",
       "start_time": 43200,
       "end_time": 44831,
       "cost": 11.4,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v18_099",
@@ -15884,21 +15884,21 @@
       "start_time": 39476,
       "end_time": 39600,
       "cost": 5.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v11_062",
       "start_time": 39600,
       "end_time": 43200,
       "cost": 5.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v12_062",
       "start_time": 43200,
       "end_time": 45390,
       "cost": 5.0,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v20_091",
@@ -15951,14 +15951,14 @@
       "start_time": 31012,
       "end_time": 32400,
       "cost": 14.8,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v09_037",
       "start_time": 32400,
       "end_time": 34865,
       "cost": 14.8,
-      "is_trusted": true
+      "is_trusted": false
     }
   ],
   "region_18": [
@@ -16117,7 +16117,7 @@
       "start_time": 44311,
       "end_time": 44985,
       "cost": 6.7,
-      "is_trusted": true
+      "is_trusted": false
     }
   ],
   "region_29": [
@@ -16707,7 +16707,7 @@
       "start_time": 73022,
       "end_time": 73587,
       "cost": 6.5,
-      "is_trusted": true
+      "is_trusted": false
     }
   ],
   "region_95": [
@@ -16716,7 +16716,7 @@
       "start_time": 82912,
       "end_time": 85819,
       "cost": 11.0,
-      "is_trusted": true
+      "is_trusted": false
     }
   ],
   "region_32": [
@@ -16725,14 +16725,14 @@
       "start_time": 62695,
       "end_time": 62945,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v17_094",
       "start_time": 62946,
       "end_time": 64710,
       "cost": 7.9,
-      "is_trusted": true
+      "is_trusted": false
     },
     {
       "vehicle_id": "v18_095",

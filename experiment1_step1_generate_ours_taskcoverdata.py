@@ -14,12 +14,13 @@ import random
 import math
 from collections import defaultdict
 
+
 # ========== 参数配置 ==========
 RANDOM_SEED = 42
 random.seed(RANDOM_SEED)
 
 # 预算与招募参数
-BUDGET = 5000          # 总预算
+BUDGET = 10000          # 总预算
 K = 7                    # 每轮招募人数
 R = 24                   # 总轮数（全天24小时）
 M_VERIFY = 7             # 每轮验证任务数
@@ -684,12 +685,10 @@ def greedy_recruitment(workers, task_covered_count, required_workers, total_lear
     total_system_income = 0.0
 
     round_details = []
-    # ========== 新增：覆盖率记录列表 ==========
-    task_coverage_records = []
-    category_records = []  # 用于记录每轮 Uc, Uu, Um 
-    task_completion_records = []   # 新增
-    trusted_ratio_per_round = []   # 记录每轮的可信任务占比
+    task_coverage_records = []      # 记录每轮覆盖率
+    category_records = []           # 记录每轮 Uc, Uu, Um 数量
 
+    quality_per_round = []   # 记录每轮可信任务占比
 
     for r in range(R):
         print(f"\n--- 第 {r} 轮 ---")
@@ -726,9 +725,23 @@ def greedy_recruitment(workers, task_covered_count, required_workers, total_lear
         round_selected, remaining_budget, task_covered_count, total_learned_counts, round_cost, completed_tasks = cmab_round(
             workers, task_covered_count, required_workers, remaining_budget, K, total_learned_counts, r, bid_tasks
         )
-        
 
         total_cost += round_cost
+        # ========== 统计本轮数据质量（可信任务占比） ==========
+        round_total = 0
+        round_trusted = 0
+        for w, task_list in completed_tasks:
+            is_trusted = (w['worker_id'] in Uc)   # 使用更新前的 Uc
+            for tid in task_list:
+                round_total += 1
+                if is_trusted:
+                    round_trusted += 1
+        quality = round_trusted / round_total if round_total > 0 else 0.0
+        quality_per_round.append({
+            "round": r,
+            "trusted_task_ratio": round(quality, 4)
+        })
+        print(f"本轮完成任务数: {round_total}, 其中可信工人完成: {round_trusted}, 占比: {round_trusted/round_total if round_total>0 else 0:.2%}")
         # 累加本轮完成的系统收益
         for w, task_list in completed_tasks:
             for tid in task_list:
@@ -748,31 +761,24 @@ def greedy_recruitment(workers, task_covered_count, required_workers, total_lear
         # 更新历史报酬与平均报酬
         R_m, R_n = update_history_and_avg(workers, new_member_set, completed_tasks, task_class)
 
-        # 在调用 lgsc_payment 前，构建任务价格映射
+        # 构建任务价格映射（用于 LGSC）
         task_price_map = {t['task_id']: t['task_price'] for t in task_class}
 
         # LGSC 支付
         bonus_paid, avg_sunk_loss, avg_roi, members_above = lgsc_payment(
-            workers, completed_tasks, task_class, LGSC_PARAMS['sunk_threshold'], LGSC_PARAMS['member_bonus'], task_price_map,round_idx=r
+            workers, completed_tasks, task_class, LGSC_PARAMS['sunk_threshold'], LGSC_PARAMS['member_bonus'], task_price_map, round_idx=r
         )
-        total_bonus_paid += bonus_paid # 累加总奖励金发放额
-        # 新增：记录本轮完成的任务
-        for w, task_list in completed_tasks:
-            is_trusted = (w['worker_id'] in Uc)   # 使用当前 Uc 集合
-            for tid in task_list:
-                task_completion_records.append((tid, w['worker_id'], is_trusted))
+        total_bonus_paid += bonus_paid
 
-        # 统计
-        completed = sum(1 
-                for tid, cnt in task_covered_count.items() 
-                if cnt >= required_workers[tid])
-        total_task_num = len(task_covered_count)   # 注意：此处计算总任务数，可以使用已有的变量
+        # 统计覆盖率
+        completed = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
+        total_task_num = len(task_covered_count)
         print(f"总成本: {total_cost:.2f}, 剩余预算: {remaining_budget:.2f}, 已完成任务: {completed}/{len(required_workers)}")
         print(f"可信: {len(Uc)}, 未知: {len(Uu)}, 恶意: {len(Um)}")
         print(f"平均报酬: 会员任务 R_m={R_m:.2f}, 普通任务 R_n={R_n:.2f}")
         print(f"LGSC: 奖励金 {bonus_paid:.2f}, 平均沉没损失 {avg_sunk_loss:.2f}, 平均ROI {avg_roi:.2f}")
 
-        # ========== 新增：记录本轮覆盖率 ==========
+        # 记录本轮覆盖率
         task_coverage_records.append({
             "round": r,
             "completed_tasks": completed,
@@ -780,56 +786,36 @@ def greedy_recruitment(workers, task_covered_count, required_workers, total_lear
             "coverage_rate": round(completed / total_task_num, 4) if total_task_num > 0 else 0.0
         })
 
-        # 统计本轮完成的任务中，由可信工人完成的比例
-        if completed_tasks:
-            round_total = 0
-            round_trusted = 0
-            for w, task_list in completed_tasks:
-                for tid in task_list:
-                    round_total += 1
-                    if w['worker_id'] in Uc:
-                        round_trusted += 1
-            ratio = round_trusted / round_total if round_total > 0 else 0.0
-        else:
-            ratio = 0.0
-        trusted_ratio_per_round.append({
-            "round": r,
-            "trusted_task_ratio": round(ratio, 4)
-        })
-        
-        # 记录本轮详情
+        # 记录工人分类变化
         category_records.append({
             "round": r,
             "trusted_count": len(Uc),
             "unknown_count": len(Uu),
             "malicious_count": len(Um)
         })
+
+        # 记录本轮详情（用于最终输出）
         round_details.append({
             'round': r,
-            'member_set': list(new_member_set),   # 本轮新成为会员的工人
-            'non_member_set': [w['worker_id'] for w in available_workers if not w['is_member']],  # 修复变量名
+            'member_set': list(new_member_set),
+            'non_member_set': [w['worker_id'] for w in available_workers if not w['is_member']],
             'R_m': round(R_m, 2),
             'R_n': round(R_n, 2),
-            'member_count': len([w for w in available_workers if w['is_member']]),   # 所有会员（包括老会员）
+            'member_count': len([w for w in available_workers if w['is_member']]),
             'non_member_count': len([w for w in available_workers if not w['is_member']]),
             'bonus_paid_this_round': bonus_paid,
             'avg_sunk_loss_this_round': avg_sunk_loss,
             'avg_roi_this_round': round(avg_roi, 2),
             'members_above_threshold': members_above
         })
+
     # 最终统计
     covered_task_count = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
-    # ========== 新增：计算平台效用 ==========
     platform_utility = total_system_income + total_fee - total_cost - total_bonus_paid
-    # 最终统计
-    total_tasks = len(task_completion_records)
-    trusted_tasks = sum(1 for _, _, is_trusted in task_completion_records if is_trusted)
-    trusted_task_ratio = trusted_tasks / total_tasks if total_tasks > 0 else 0.0
+
     result = {
         'total_rounds': greedy_rounds,
         'platform_utility': platform_utility,
-        'trusted_task_ratio': trusted_task_ratio,
-        # 构建任务价格映射
         'task_price_map': {t['task_id']: t['task_price'] for t in task_class},
         'total_cost': total_cost,
         'remaining_budget': remaining_budget,
@@ -846,12 +832,14 @@ def greedy_recruitment(workers, task_covered_count, required_workers, total_lear
         'round_details': round_details
     }
 
-    # ========== 新增：保存覆盖率文件 ==========
-    save_json(task_coverage_records, "experiment1_step1_worker_taskcover.json")
+    # 保存文件
+    save_json(task_coverage_records, "experiment1_step1_ours_taskcover.json")
     save_json(category_records, "experiment1_step1_worker_category.json")
-    save_json(trusted_ratio_per_round, "experiment1_step1_ours_trusted_ratio_per_round.json")
-    print(f"✅ 每轮可信任务占比文件已保存：experiment1_step1_ours_trusted_ratio_per_round.json")
-    print(f"\n✅ 覆盖率文件已保存：experiment1_step1_worker_taskcover.json")
+    print(f"✅ 覆盖率文件已保存：experiment1_step1_ours_taskcover.json")
+    print(f"✅ 工人分类变化文件已保存：experiment1_step1_worker_category.json")
+    save_json(quality_per_round, "experiment1_step1_ours_quality_per_round.json")
+    print(f"✅ 每轮数据质量（可信任务占比）已保存：experiment1_step1_ours_quality_per_round.json")
+
     return result
 
 # ========== 主函数 ==========

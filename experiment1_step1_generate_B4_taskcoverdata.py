@@ -17,7 +17,7 @@ RANDOM_SEED = 42
 random.seed(RANDOM_SEED)
 
 # 预算与招募参数
-BUDGET = 5000
+BUDGET = 10000
 K = 7
 R = 24
 M_VERIFY = 7
@@ -554,29 +554,33 @@ def greedy_recruitment_B4(workers, task_covered_count, required_workers, total_l
     total_fee = 0.0
     round_details = []
 
-    # ========== 新增 ==========
     task_system_income_map = {t['task_id']: t['system_income'] for t in task_class}
     total_system_income = 0.0
 
-    # 记录覆盖率
     task_coverage_records = []
-    task_completion_records = []   # 存储 (task_id, worker_id, is_trusted)
-    trusted_ratio_per_round = []   # 记录每轮的可信任务占比
+    task_completion_records = []
+
+    cumulative_total_tasks = 0
+    cumulative_trusted_tasks = 0
+    trusted_ratio_per_round = []
 
     for r in range(R):
         print(f"\n--- 第 {r} 轮 ---")
         available_workers = [w for w in workers if r in w['available_rounds']]
+        print(f"可用工人数: {len(available_workers)}")
         if not available_workers:
             print("当前轮无可用工人")
             continue
 
+        remaining_tasks = sum(1 for tid, cnt in task_covered_count.items() if cnt < required_workers[tid])
+        print(f"当前轮未完成任务数: {remaining_tasks}")
+        if remaining_tasks == 0:
+            print("所有任务已完成，终止")
+            break
+
         min_cost = min(w['total_cost'] for w in available_workers)
         if remaining_budget < min_cost:
             print("预算不足，终止")
-            break
-
-        if all(cnt >= required_workers[tid] for tid, cnt in task_covered_count.items()):
-            print("所有任务已完成，终止")
             break
 
         # PGRD 决策
@@ -598,23 +602,39 @@ def greedy_recruitment_B4(workers, task_covered_count, required_workers, total_l
         )
 
         total_cost += round_cost
-        # ========== 新增 ==========
         for w, task_list in completed_tasks:
             for tid in task_list:
                 total_system_income += task_system_income_map[tid]
 
-        # 记录本轮完成的任务
+        # 统计本轮完成情况（信任更新前）
+        round_total = 0
+        round_trusted = 0
         for w, task_list in completed_tasks:
             is_trusted = (w['worker_id'] in Uc)
             for tid in task_list:
+                round_total += 1
+                if is_trusted:
+                    round_trusted += 1
                 task_completion_records.append((tid, w['worker_id'], is_trusted))
 
-        if not round_selected:
-            print("本轮未选中任何工人")
+        print(f"本轮完成任务数: {round_total}, 其中可信工人完成: {round_trusted}, 占比: {round_trusted/round_total if round_total>0 else 0:.2%}")
+
+        # 更新累积统计
+        cumulative_total_tasks += round_total
+        cumulative_trusted_tasks += round_trusted
+        cumulative_ratio = cumulative_trusted_tasks / cumulative_total_tasks if cumulative_total_tasks > 0 else 0.0
+        print(f"累积可信任务占比: {cumulative_ratio:.2%}")
+        trusted_ratio_per_round.append({
+            "round": r,
+            "cumulative_trusted_ratio": round(cumulative_ratio, 4)
+        })
+
+        # 打印招募信息
+        if round_selected:
+            recruited_trusted = [wid for wid in round_selected if wid in Uc]
+            print(f"招募工人: {round_selected}, 其中可信: {recruited_trusted} (共{len(recruited_trusted)}人)")
         else:
-            greedy_selected.extend(round_selected)
-            greedy_rounds += 1
-            print(f"招募工人: {round_selected}")
+            print("本轮未选中任何工人")
 
         # 信任度更新
         if validation_tasks:
@@ -623,38 +643,22 @@ def greedy_recruitment_B4(workers, task_covered_count, required_workers, total_l
         # 更新历史报酬与平均报酬
         R_m, R_n = update_history_and_avg(workers, new_member_set, completed_tasks, task_class)
 
-        # 统计
+        # 统计覆盖率
         completed = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
         total_task_num = len(required_workers)
         print(f"总成本: {total_cost:.2f}, 剩余预算: {remaining_budget:.2f}, 已完成任务: {completed}/{total_task_num}")
         print(f"可信: {len(Uc)}, 未知: {len(Uu)}, 恶意: {len(Um)}")
         print(f"平均报酬: 会员任务 R_m={R_m:.2f}, 普通任务 R_n={R_n:.2f}")
 
-        # 记录本轮覆盖率
+        # 记录覆盖率
         task_coverage_records.append({
             "round": r,
             "completed_tasks": completed,
             "total_tasks": total_task_num,
             "coverage_rate": round(completed / total_task_num, 4) if total_task_num > 0 else 0.0
         })
-        # 统计本轮完成的任务中，由可信工人完成的比例
-        if completed_tasks:
-            round_total = 0
-            round_trusted = 0
-            for w, task_list in completed_tasks:
-                for tid in task_list:
-                    round_total += 1
-                    if w['worker_id'] in Uc:
-                        round_trusted += 1
-            ratio = round_trusted / round_total if round_total > 0 else 0.0
-        else:
-            ratio = 0.0
-        trusted_ratio_per_round.append({
-            "round": r,
-            "trusted_task_ratio": round(ratio, 4)
-        })
 
-        # 记录本轮详情（无 LGSC 字段）
+        # 记录详情
         round_details.append({
             'round': r,
             'member_set': list(new_member_set),
@@ -665,22 +669,20 @@ def greedy_recruitment_B4(workers, task_covered_count, required_workers, total_l
             'non_member_count': len([w for w in available_workers if not w['is_member']])
         })
 
-    # 保存覆盖率文件
+    # 保存文件
     save_json(task_coverage_records, "experiment1_step1_B4_taskcover.json")
     save_json(trusted_ratio_per_round, "experiment1_step1_B4_trusted_ratio_per_round.json")
-    print(f"✅ 每轮可信任务占比文件已保存：experiment1_step1_B4_trusted_ratio_per_round.json")
+    print(f"✅ 累积可信任务占比文件已保存：experiment1_step1_B4_trusted_ratio_per_round.json")
     print(f"\n✅ 覆盖率文件已保存：experiment1_step1_B4_taskcover.json")
 
     covered_task_count = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
-    # ========== 新增 ==========
     platform_utility = total_system_income + total_fee - total_cost
-
     total_tasks = len(task_completion_records)
     trusted_tasks = sum(1 for _, _, is_trusted in task_completion_records if is_trusted)
     trusted_task_ratio = trusted_tasks / total_tasks if total_tasks > 0 else 0.0
     result = {
-        'platform_utility': platform_utility,   # 新增
-        'trusted_task_ratio': trusted_task_ratio, # 新增
+        'platform_utility': platform_utility,
+        'trusted_task_ratio': trusted_task_ratio,
         'total_rounds': greedy_rounds,
         'total_cost': total_cost,
         'remaining_budget': remaining_budget,
@@ -694,7 +696,6 @@ def greedy_recruitment_B4(workers, task_covered_count, required_workers, total_l
         'trusted_workers_list': list(Uc),
         'total_fee': total_fee,
         'round_details': round_details,
-        
     }
     return result
 

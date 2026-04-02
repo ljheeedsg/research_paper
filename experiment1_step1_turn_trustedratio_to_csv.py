@@ -15,7 +15,7 @@ def load_trusted_ratio(filepath):
     ratio_dict = {}
     for item in data:
         round_num = item.get('round')
-        ratio = item.get('trusted_task_ratio')
+        ratio = item.get('cumulative_trusted_ratio')
         if round_num is not None and ratio is not None:
             ratio_dict[round_num] = ratio
     return ratio_dict

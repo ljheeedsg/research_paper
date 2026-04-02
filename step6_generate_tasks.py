@@ -14,7 +14,7 @@ VEHICLE_FILE = 'step6_vehicle.csv'          # 车辆轨迹文件
 TASK_FILE = 'step6_tasks.csv'               # 输出任务文件
 PLOT_FILE = 'step6_tasks_distribution.png'  # 输出图片
 
-TOTAL_TASKS = 200                           # 总任务数
+TOTAL_TASKS = 10                           # 总任务数
 TIME_MIN = 0                                 # 任务起始时间最小值（秒）
 TIME_MAX = 82800                             # 最大起始时间（23:00），保证窗口不跨午夜
 
@@ -64,7 +64,7 @@ def main():
             start = random.randint(TIME_MIN, TIME_MAX)
             end = start + 3600
             # 随机所需工人数 1~3
-            required = random.randint(1, 1)
+            required = random.randint(1, 3)
             tasks.append((region, start, end, required))
             task_counter[region] += 1
 

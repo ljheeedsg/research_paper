@@ -17,8 +17,8 @@ from collections import defaultdict
 RANDOM_SEED = 42
 
 # 预算与招募参数
-BUDGET = 100000          # 总预算
-K = 7                   # 每轮招募人数（增大以确保覆盖）
+BUDGET = 5000          # 总预算
+K = 20                   # 每轮招募人数（增大以确保覆盖）
 R = 24                   # 总轮数（全天24小时）
 M_VERIFY = 3             # 每轮验证任务数
 
