@@ -4,6 +4,7 @@ B1 方案：随机招募 + 固定工资（无 CMAB、无信任、无 PGRD、无 
 输出：step9_worker_option_set_B1.json, step9_task_weight_list_B1.json,
       step9_tasks_grid_num_B1.json, step9_tasks_classification_B1.json,
       step9_final_result_B1.json, experiment1_step1_B1_taskcover.json
+      experiment1_step1_B1_trusted_ratio_per_round.json（新增）
 """
 
 import json
@@ -211,6 +212,7 @@ def initialize(worker_options_path, task_weights_path, task_class_path):
     task_weights = load_json(task_weights_path)['task_weights']
     task_class = load_json(task_class_path)  # 用于后续平台效用，但初始化阶段不需要
 
+    # 构建任务时间映射
     task_time_map = {}
     for w in workers:
         for task in w['covered_tasks']:
@@ -218,6 +220,7 @@ def initialize(worker_options_path, task_weights_path, task_class_path):
             if tid not in task_time_map:
                 task_time_map[tid] = task['task_start_time']
 
+    # 初始化工人档案（仅保留必要字段）
     for w in workers:
         w['n_i'] = len(w['covered_tasks'])
         w['avg_quality'] = sum(t['quality'] for t in w['covered_tasks']) / w['n_i'] if w['n_i'] > 0 else 0.0
@@ -226,15 +229,19 @@ def initialize(worker_options_path, task_weights_path, task_class_path):
             hour = t['task_start_time'] // 3600
             w['available_rounds'].add(hour)
 
+    # 任务覆盖计数
     task_covered_count = {tid: 0 for tid in task_time_map}
     required_workers = {tid: task_weights[tid] for tid in task_time_map}
 
-    print(f"初始化完成，工人总数: {len(workers)}")
+    # 初始可信工人集合（用于计算可信任务占比）
+    initial_Uc = {w['worker_id'] for w in workers if w['category'] == 'trusted'}
 
-    return workers, task_covered_count, required_workers, task_time_map
+    print(f"初始化完成，工人总数: {len(workers)}，初始可信工人: {len(initial_Uc)}")
 
-# ========== B1 主循环：随机招募（含平台效用） ==========
-def greedy_recruitment_B1(workers, task_covered_count, required_workers, B, K, R, task_time_map, task_class):
+    return workers, task_covered_count, required_workers, task_time_map, initial_Uc
+
+# ========== B1 主循环：随机招募（含平台效用、总可信占比、每轮可信占比） ==========
+def greedy_recruitment_B1(workers, task_covered_count, required_workers, B, K, R, task_time_map, task_class, initial_Uc):
     total_cost = 0.0
     remaining_budget = B
     greedy_selected = []
@@ -244,6 +251,12 @@ def greedy_recruitment_B1(workers, task_covered_count, required_workers, B, K, R
     # 系统收益映射和累加变量
     task_system_income_map = {t['task_id']: t['system_income'] for t in task_class}
     total_system_income = 0.0
+
+    # 总可信任务记录（用于最终占比）
+    task_completion_records = []   # 存储 (task_id, worker_id, is_trusted)
+
+    # 新增：每轮可信任务占比记录
+    trusted_ratio_per_round = []
 
     task_coverage_records = []
 
@@ -297,14 +310,31 @@ def greedy_recruitment_B1(workers, task_covered_count, required_workers, B, K, R
         greedy_selected.extend([w['worker_id'] for w in selected_workers])
         greedy_rounds += 1
 
-        # 更新任务覆盖并累加系统收益
+        # 本轮可信任务统计（用于每轮占比）
+        round_total = 0
+        round_trusted = 0
+
+        # 更新任务覆盖、累加系统收益、记录总可信任务
         for w, tasks_this_round in zip(selected_workers, selected_bid_tasks):
+            is_trusted = (w['worker_id'] in initial_Uc)
             for tid in tasks_this_round:
                 if task_covered_count[tid] < required_workers[tid]:
                     task_covered_count[tid] += 1
                     total_system_income += task_system_income_map[tid]
+                    task_completion_records.append((tid, w['worker_id'], is_trusted))
+                    # 每轮统计
+                    round_total += 1
+                    if is_trusted:
+                        round_trusted += 1
 
-        # 统计
+        # 计算本轮可信任务占比
+        ratio = round_trusted / round_total if round_total > 0 else 0.0
+        trusted_ratio_per_round.append({
+            "round": r,
+            "trusted_task_ratio": round(ratio, 4)
+        })
+
+        # 统计覆盖率
         completed = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
         total_task_num = len(required_workers)
         print(f"总成本: {total_cost:.2f}, 剩余预算: {remaining_budget:.2f}, 已完成任务: {completed}/{total_task_num}")
@@ -328,15 +358,25 @@ def greedy_recruitment_B1(workers, task_covered_count, required_workers, B, K, R
     save_json(task_coverage_records, "experiment1_step1_B1_taskcover.json")
     print(f"\n✅ 覆盖率文件已保存：experiment1_step1_B1_taskcover.json")
 
+    # 保存每轮可信任务占比文件
+    save_json(trusted_ratio_per_round, "experiment1_step1_B1_trusted_ratio_per_round.json")
+    print(f"✅ 每轮可信任务占比文件已保存：experiment1_step1_B1_trusted_ratio_per_round.json")
+
     covered_task_count = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
 
     # 计算平台效用（无会费无奖励金）
     platform_utility = total_system_income - total_cost
 
+    # 计算总可信任务占比
+    total_tasks = len(task_completion_records)
+    trusted_tasks = sum(1 for _, _, is_trusted in task_completion_records if is_trusted)
+    trusted_task_ratio_total = trusted_tasks / total_tasks if total_tasks > 0 else 0.0
+
     result = {
         'total_rounds': greedy_rounds,
         'total_cost': total_cost,
         'platform_utility': platform_utility,
+        'trusted_task_ratio': trusted_task_ratio_total,
         'remaining_budget': remaining_budget,
         'selected_workers': greedy_selected,
         'init_select': len(workers),
@@ -367,7 +407,7 @@ def main():
     )
 
     # 第二阶段
-    workers, task_covered_count, required_workers, task_time_map = initialize(
+    workers, task_covered_count, required_workers, task_time_map, initial_Uc = initialize(
         OUTPUT_WORKER_OPTIONS, OUTPUT_TASK_WEIGHTS, OUTPUT_TASK_CLASS
     )
 
@@ -377,7 +417,7 @@ def main():
     # 第三阶段
     result = greedy_recruitment_B1(
         workers, task_covered_count, required_workers,
-        BUDGET, K, R, task_time_map, task_class
+        BUDGET, K, R, task_time_map, task_class, initial_Uc
     )
 
     save_json(result, OUTPUT_FINAL)

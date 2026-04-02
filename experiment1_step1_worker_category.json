@@ -31,110 +31,110 @@
   },
   {
     "round": 5,
-    "trusted_count": 87,
+    "trusted_count": 85,
     "unknown_count": 60,
-    "malicious_count": 9
-  },
-  {
-    "round": 6,
-    "trusted_count": 87,
-    "unknown_count": 60,
-    "malicious_count": 9
-  },
-  {
-    "round": 7,
-    "trusted_count": 88,
-    "unknown_count": 57,
     "malicious_count": 11
   },
   {
+    "round": 6,
+    "trusted_count": 85,
+    "unknown_count": 60,
+    "malicious_count": 11
+  },
+  {
+    "round": 7,
+    "trusted_count": 86,
+    "unknown_count": 58,
+    "malicious_count": 12
+  },
+  {
     "round": 8,
-    "trusted_count": 88,
-    "unknown_count": 56,
+    "trusted_count": 87,
+    "unknown_count": 57,
     "malicious_count": 12
   },
   {
     "round": 9,
-    "trusted_count": 90,
-    "unknown_count": 52,
+    "trusted_count": 89,
+    "unknown_count": 53,
     "malicious_count": 14
   },
   {
     "round": 10,
-    "trusted_count": 92,
-    "unknown_count": 50,
+    "trusted_count": 91,
+    "unknown_count": 51,
     "malicious_count": 14
   },
   {
     "round": 11,
-    "trusted_count": 92,
-    "unknown_count": 49,
+    "trusted_count": 91,
+    "unknown_count": 50,
     "malicious_count": 15
   },
   {
     "round": 12,
-    "trusted_count": 93,
-    "unknown_count": 46,
+    "trusted_count": 92,
+    "unknown_count": 47,
     "malicious_count": 17
   },
   {
     "round": 13,
-    "trusted_count": 95,
-    "unknown_count": 40,
+    "trusted_count": 94,
+    "unknown_count": 41,
     "malicious_count": 21
   },
   {
     "round": 14,
-    "trusted_count": 98,
-    "unknown_count": 33,
+    "trusted_count": 97,
+    "unknown_count": 34,
     "malicious_count": 25
   },
   {
     "round": 15,
-    "trusted_count": 100,
-    "unknown_count": 28,
+    "trusted_count": 99,
+    "unknown_count": 29,
     "malicious_count": 28
   },
   {
     "round": 16,
-    "trusted_count": 102,
-    "unknown_count": 26,
+    "trusted_count": 101,
+    "unknown_count": 27,
     "malicious_count": 28
   },
   {
     "round": 17,
-    "trusted_count": 104,
-    "unknown_count": 22,
+    "trusted_count": 103,
+    "unknown_count": 23,
     "malicious_count": 30
   },
   {
     "round": 18,
+    "trusted_count": 103,
+    "unknown_count": 23,
+    "malicious_count": 30
+  },
+  {
+    "round": 19,
     "trusted_count": 105,
     "unknown_count": 21,
     "malicious_count": 30
   },
   {
-    "round": 19,
+    "round": 20,
+    "trusted_count": 106,
+    "unknown_count": 20,
+    "malicious_count": 30
+  },
+  {
+    "round": 21,
     "trusted_count": 107,
     "unknown_count": 19,
     "malicious_count": 30
   },
   {
-    "round": 20,
-    "trusted_count": 108,
-    "unknown_count": 18,
-    "malicious_count": 30
-  },
-  {
-    "round": 21,
-    "trusted_count": 108,
-    "unknown_count": 17,
-    "malicious_count": 31
-  },
-  {
     "round": 22,
-    "trusted_count": 108,
-    "unknown_count": 17,
-    "malicious_count": 31
+    "trusted_count": 107,
+    "unknown_count": 19,
+    "malicious_count": 30
   }
 ]

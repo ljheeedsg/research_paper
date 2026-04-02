@@ -1,0 +1,94 @@
+[
+  {
+    "round": 0,
+    "trusted_task_ratio": 0.0
+  },
+  {
+    "round": 1,
+    "trusted_task_ratio": 0.5
+  },
+  {
+    "round": 2,
+    "trusted_task_ratio": 0.2
+  },
+  {
+    "round": 3,
+    "trusted_task_ratio": 0.25
+  },
+  {
+    "round": 4,
+    "trusted_task_ratio": 0.6667
+  },
+  {
+    "round": 5,
+    "trusted_task_ratio": 0.4286
+  },
+  {
+    "round": 6,
+    "trusted_task_ratio": 0.75
+  },
+  {
+    "round": 7,
+    "trusted_task_ratio": 0.6667
+  },
+  {
+    "round": 8,
+    "trusted_task_ratio": 1.0
+  },
+  {
+    "round": 9,
+    "trusted_task_ratio": 0.3333
+  },
+  {
+    "round": 10,
+    "trusted_task_ratio": 0.8
+  },
+  {
+    "round": 11,
+    "trusted_task_ratio": 0.5
+  },
+  {
+    "round": 12,
+    "trusted_task_ratio": 0.4
+  },
+  {
+    "round": 13,
+    "trusted_task_ratio": 0.5714
+  },
+  {
+    "round": 14,
+    "trusted_task_ratio": 0.4
+  },
+  {
+    "round": 15,
+    "trusted_task_ratio": 0.4
+  },
+  {
+    "round": 16,
+    "trusted_task_ratio": 0.25
+  },
+  {
+    "round": 17,
+    "trusted_task_ratio": 0.0
+  },
+  {
+    "round": 18,
+    "trusted_task_ratio": 0.0
+  },
+  {
+    "round": 19,
+    "trusted_task_ratio": 0.4
+  },
+  {
+    "round": 20,
+    "trusted_task_ratio": 0.5714
+  },
+  {
+    "round": 21,
+    "trusted_task_ratio": 0.1667
+  },
+  {
+    "round": 22,
+    "trusted_task_ratio": 1.0
+  }
+]

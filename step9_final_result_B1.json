@@ -2,6 +2,7 @@
   "total_rounds": 23,
   "total_cost": 2648.9,
   "platform_utility": 833.6099999999997,
+  "trusted_task_ratio": 0.4649122807017544,
   "remaining_budget": 2351.0999999999976,
   "selected_workers": [
     "129",
