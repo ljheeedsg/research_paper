@@ -18,7 +18,7 @@ random.seed(RANDOM_SEED)
 BUDGET = 10000
 K = 7
 R = 24
-M_VERIFY = 7
+M_VERIFY = 7 
 
 ETA = 0.6
 THETA_HIGH = 0.75
@@ -133,26 +133,32 @@ def generate_task_classification(worker_options_path, task_segments_path, output
     worker_options = data['worker_options']
     task_segments = load_json(task_segments_path)
 
+    # 收集所有任务ID（原始任务列表）
     all_task_ids = []
     for region_key, tasks in task_segments.items():
         for task in tasks:
             all_task_ids.append(task['task_id'])
 
+    # 统计每个任务被工人覆盖的原始报价
     task_prices = defaultdict(list)
     for w in worker_options:
         for task in w['covered_tasks']:
             tid = task['task_id']
-            task_prices[tid].append(task['task_price'])
+            task_prices[tid].append(task['task_price'])   # 原始报价
 
+    # 只保留有工人覆盖的任务（排除无覆盖的任务）
+    covered_task_ids = set(task_prices.keys())
+    if not covered_task_ids:
+        print("警告：没有任务被任何工人覆盖！")
+        return
+
+    # 构建任务信息列表，base_price 取平均
     tasks_info = []
-    default_price = 10.0
-    for tid in all_task_ids:
-        if tid in task_prices:
-            base_price = sum(task_prices[tid]) / len(task_prices[tid])
-        else:
-            base_price = default_price
+    for tid in covered_task_ids:
+        base_price = sum(task_prices[tid]) / len(task_prices[tid])
         tasks_info.append({'task_id': tid, 'base_price': base_price})
 
+    # 按原始价格降序排序，前 MEMBER_RATIO 比例的任务为会员任务
     tasks_info.sort(key=lambda x: x['base_price'], reverse=True)
     m = len(tasks_info)
     k = int(MEMBER_RATIO * m)
@@ -183,7 +189,7 @@ def generate_task_classification(worker_options_path, task_segments_path, output
         })
 
     save_json(final_tasks, output_path)
-    print(f"✅ 已生成任务分类 {output_path}，包含 {len(final_tasks)} 个任务")
+    print(f"✅ 已生成任务分类 {output_path}，包含 {len(final_tasks)} 个任务（仅覆盖有工人覆盖的任务）")
 
 def data_preparation(worker_segments_path, task_segments_path,
                      output_worker_options, output_task_weights,
@@ -358,53 +364,56 @@ def update_trust(workers, validation_tasks, task_grid_map, Uc, Uu, Um, round_idx
                     w['category'] = 'malicious'
     return Uc, Uu, Um
 
-def cmab_round(workers, task_covered_count, required_workers, remaining_budget, K, total_learned_counts, round_idx, bid_tasks):
+def cmab_round(workers, task_covered_count, required_workers, remaining_budget, K, total_learned_counts, round_idx, bid_tasks, task_price_map):
+    """CMAB 招募，使用任务分类后的价格计算成本"""
     candidates = [w for w in workers if round_idx in w['available_rounds']
                   and w['category'] in ('trusted', 'unknown')
                   and bid_tasks.get(w['worker_id'])]
     if not candidates:
+        print("CMAB: 无候选工人")
         return [], remaining_budget, task_covered_count, total_learned_counts, 0.0, []
 
+    print(f"\n=== CMAB 招募开始，候选工人数: {len(candidates)} ===")
     round_selected = []
     round_cost = 0.0
     completed_tasks_per_worker = []
 
-    for _ in range(K):
+    for step in range(K):
         if not candidates:
             break
         best_ratio = -1
         best_worker = None
         best_bid_tasks = None
+        best_cost = 0
         for w in candidates:
-            tid_list = bid_tasks[w['worker_id']]
+            wid = w['worker_id']
+            tid_list = bid_tasks[wid]
             actual_bid = [tid for tid in tid_list if task_covered_count[tid] < required_workers[tid]]
             if not actual_bid:
                 continue
-            cost = len(actual_bid) * w['covered_tasks'][0]['task_price']
+            # 使用任务分类后的价格计算成本
+            cost = sum(task_price_map[tid] for tid in actual_bid)
             if cost > remaining_budget:
                 continue
             ucb_q = ucb_quality(w, total_learned_counts)
-            gain = 0.0
-            for tid in actual_bid:
-                gain += required_workers[tid] * ucb_q
+            gain = sum(required_workers[tid] for tid in actual_bid) * ucb_q
             ratio = gain / cost if gain > 0 else 0
             if ratio > best_ratio:
                 best_ratio = ratio
                 best_worker = w
                 best_bid_tasks = actual_bid
-
+                best_cost = cost
         if best_worker is None:
             break
         round_selected.append(best_worker['worker_id'])
-        cost = len(best_bid_tasks) * best_worker['covered_tasks'][0]['task_price']
-        round_cost += cost
-        remaining_budget -= cost
+        round_cost += best_cost
+        remaining_budget -= best_cost
         completed_tasks_per_worker.append((best_worker, best_bid_tasks))
-
+        # 更新任务覆盖
         for tid in best_bid_tasks:
             if task_covered_count[tid] < required_workers[tid]:
                 task_covered_count[tid] += 1
-
+        # 更新工人档案
         learned = len(best_bid_tasks)
         if learned > 0:
             best_worker['n_i'] += learned
@@ -414,9 +423,7 @@ def cmab_round(workers, task_covered_count, required_workers, remaining_budget, 
             new_sum = prev_sum + observed * learned
             best_worker['avg_quality'] = new_sum / best_worker['n_i']
             total_learned_counts += learned
-
         candidates.remove(best_worker)
-
     return round_selected, remaining_budget, task_covered_count, total_learned_counts, round_cost, completed_tasks_per_worker
 
 # ========== B3 主循环 ==========
@@ -430,15 +437,18 @@ def greedy_recruitment_B3(workers, task_covered_count, required_workers, total_l
     greedy_rounds = 0
     round_details = []
 
+    # 任务价格映射（分类后的价格）和系统收益映射
+    task_price_map = {t['task_id']: t['task_price'] for t in task_class}
     task_system_income_map = {t['task_id']: t['system_income'] for t in task_class}
     total_system_income = 0.0
 
-    task_coverage_records = []
-    task_completion_records = []
-
+    # 数据质量统计（累积）
     cumulative_total_tasks = 0
     cumulative_trusted_tasks = 0
-    trusted_ratio_per_round = []
+    trusted_ratio_per_round = []      # 每轮非累积占比（可选）
+    cumulative_trusted_ratio = []     # 每轮累积占比
+
+    task_coverage_records = []
 
     for r in range(R):
         print(f"\n--- 第 {r} 轮 ---")
@@ -455,7 +465,20 @@ def greedy_recruitment_B3(workers, task_covered_count, required_workers, total_l
             print("所有任务已完成，终止")
             break
 
-        min_cost = min(w['total_cost'] for w in available_workers)
+        # 计算最小成本（基于分类后的任务价格）
+        min_cost = float('inf')
+        for w in available_workers:
+            for task in w['covered_tasks']:
+                if task['task_start_time'] // 3600 != r:
+                    continue
+                tid = task['task_id']
+                if task_covered_count[tid] < required_workers[tid]:
+                    price = task_price_map[tid]
+                    if price < min_cost:
+                        min_cost = price
+        if min_cost == float('inf'):
+            print("本轮没有可做的任务")
+            break
         if remaining_budget < min_cost:
             print("预算不足，终止")
             break
@@ -473,18 +496,19 @@ def greedy_recruitment_B3(workers, task_covered_count, required_workers, total_l
         validation_tasks = generate_validation_tasks(workers, task_grid_map, task_time_map, Uc, Uu, r, M_VERIFY)
         print(f"验证任务: {validation_tasks}")
 
-        # CMAB 招募
+        # CMAB 招募（传入 task_price_map）
         round_selected, remaining_budget, task_covered_count, total_learned_counts, round_cost, completed_tasks = cmab_round(
-            workers, task_covered_count, required_workers, remaining_budget, K, total_learned_counts, r, bid_tasks
+            workers, task_covered_count, required_workers, remaining_budget, K, total_learned_counts, r, bid_tasks, task_price_map
         )
 
         total_cost += round_cost
 
+        # 累加系统收益
         for w, task_list in completed_tasks:
             for tid in task_list:
                 total_system_income += task_system_income_map[tid]
 
-        # 统计本轮完成情况（信任更新前）
+        # 统计本轮完成情况（信任更新前，使用当前 Uc）
         round_total = 0
         round_trusted = 0
         for w, task_list in completed_tasks:
@@ -493,18 +517,25 @@ def greedy_recruitment_B3(workers, task_covered_count, required_workers, total_l
                 round_total += 1
                 if is_trusted:
                     round_trusted += 1
-                task_completion_records.append((tid, w['worker_id'], is_trusted))
 
+        # 打印本轮完成情况
         print(f"本轮完成任务数: {round_total}, 其中可信工人完成: {round_trusted}, 占比: {round_trusted/round_total if round_total>0 else 0:.2%}")
 
         # 更新累积统计
         cumulative_total_tasks += round_total
         cumulative_trusted_tasks += round_trusted
         cumulative_ratio = cumulative_trusted_tasks / cumulative_total_tasks if cumulative_total_tasks > 0 else 0.0
-        print(f"累积可信任务占比: {cumulative_ratio:.2%}")
-        trusted_ratio_per_round.append({
+        print(f"累积完成任务数: {cumulative_total_tasks}, 累积可信完成: {cumulative_trusted_tasks}, 累积占比: {cumulative_ratio:.2%}")
+
+        # 记录累积占比
+        cumulative_trusted_ratio.append({
             "round": r,
             "cumulative_trusted_ratio": round(cumulative_ratio, 4)
+        })
+        # 可选：记录每轮非累积占比
+        trusted_ratio_per_round.append({
+            "round": r,
+            "trusted_task_ratio": round(round_trusted/round_total if round_total>0 else 0.0, 4)
         })
 
         # 打印招募信息
@@ -545,16 +576,14 @@ def greedy_recruitment_B3(workers, task_covered_count, required_workers, total_l
     save_json(task_coverage_records, "experiment1_step1_B3_taskcover.json")
     print(f"\n✅ 覆盖率文件已保存：experiment1_step1_B3_taskcover.json")
     save_json(trusted_ratio_per_round, "experiment1_step1_B3_trusted_ratio_per_round.json")
-    print(f"✅ 累积可信任务占比文件已保存：experiment1_step1_B3_trusted_ratio_per_round.json")
+    print(f"✅ 每轮可信任务占比文件已保存：experiment1_step1_B3_trusted_ratio_per_round.json")
+    save_json(cumulative_trusted_ratio, "experiment1_step1_B3_cumulative_trusted_ratio.json")
+    print(f"✅ 累积可信任务占比文件已保存：experiment1_step1_B3_cumulative_trusted_ratio.json")
 
     covered_task_count = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
     platform_utility = total_system_income - total_cost
-    total_tasks = len(task_completion_records)
-    trusted_tasks = sum(1 for _, _, is_trusted in task_completion_records if is_trusted)
-    trusted_task_ratio = trusted_tasks / total_tasks if total_tasks > 0 else 0.0
     result = {
         'platform_utility': platform_utility,
-        'trusted_task_ratio': trusted_task_ratio,
         'total_rounds': greedy_rounds,
         'total_cost': total_cost,
         'remaining_budget': remaining_budget,

@@ -34,7 +34,7 @@ COST_MAX = 20.0
 TRUSTED_RATIO = 0.3               # 可信工人比例
 
 # 随机种子（保证可重复）
-random.seed(42)
+random.seed(1)
 # ==================================================
 
 def time_to_seconds(t_str):

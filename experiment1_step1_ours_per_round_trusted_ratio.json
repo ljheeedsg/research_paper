@@ -1,0 +1,98 @@
+[
+  {
+    "round": 0,
+    "trusted_ratio": 1.0
+  },
+  {
+    "round": 1,
+    "trusted_ratio": 0.8571
+  },
+  {
+    "round": 2,
+    "trusted_ratio": 0.6
+  },
+  {
+    "round": 3,
+    "trusted_ratio": 1.0
+  },
+  {
+    "round": 4,
+    "trusted_ratio": 1.0
+  },
+  {
+    "round": 5,
+    "trusted_ratio": 0.5455
+  },
+  {
+    "round": 6,
+    "trusted_ratio": 0.8889
+  },
+  {
+    "round": 7,
+    "trusted_ratio": 1.0
+  },
+  {
+    "round": 8,
+    "trusted_ratio": 0.7143
+  },
+  {
+    "round": 9,
+    "trusted_ratio": 0.7143
+  },
+  {
+    "round": 10,
+    "trusted_ratio": 0.7
+  },
+  {
+    "round": 11,
+    "trusted_ratio": 1.0
+  },
+  {
+    "round": 12,
+    "trusted_ratio": 1.0
+  },
+  {
+    "round": 13,
+    "trusted_ratio": 1.0
+  },
+  {
+    "round": 14,
+    "trusted_ratio": 0.875
+  },
+  {
+    "round": 15,
+    "trusted_ratio": 0.5
+  },
+  {
+    "round": 16,
+    "trusted_ratio": 0.875
+  },
+  {
+    "round": 17,
+    "trusted_ratio": 1.0
+  },
+  {
+    "round": 18,
+    "trusted_ratio": 1.0
+  },
+  {
+    "round": 19,
+    "trusted_ratio": 0.6667
+  },
+  {
+    "round": 20,
+    "trusted_ratio": 0.9
+  },
+  {
+    "round": 21,
+    "trusted_ratio": 1.0
+  },
+  {
+    "round": 22,
+    "trusted_ratio": 1.0
+  },
+  {
+    "round": 23,
+    "trusted_ratio": 1.0
+  }
+]

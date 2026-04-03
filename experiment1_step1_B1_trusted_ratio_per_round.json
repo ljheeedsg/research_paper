@@ -1,98 +1,78 @@
 [
   {
     "round": 0,
-    "cumulative_trusted_ratio": 0.3333
+    "trusted_task_ratio": 0.1667
   },
   {
     "round": 1,
-    "cumulative_trusted_ratio": 0.5556
+    "trusted_task_ratio": 0.0
   },
   {
     "round": 2,
-    "cumulative_trusted_ratio": 0.5
+    "trusted_task_ratio": 0.0
   },
   {
     "round": 3,
-    "cumulative_trusted_ratio": 0.4375
+    "trusted_task_ratio": 0.1667
   },
   {
     "round": 4,
-    "cumulative_trusted_ratio": 0.3182
+    "trusted_task_ratio": 0.6667
   },
   {
     "round": 5,
-    "cumulative_trusted_ratio": 0.2258
+    "trusted_task_ratio": 0.4444
   },
   {
     "round": 6,
-    "cumulative_trusted_ratio": 0.3158
+    "trusted_task_ratio": 0.625
   },
   {
     "round": 7,
-    "cumulative_trusted_ratio": 0.381
+    "trusted_task_ratio": 0.0
   },
   {
     "round": 8,
-    "cumulative_trusted_ratio": 0.4348
+    "trusted_task_ratio": 0.5
   },
   {
     "round": 9,
-    "cumulative_trusted_ratio": 0.4151
+    "trusted_task_ratio": 0.2727
   },
   {
     "round": 10,
-    "cumulative_trusted_ratio": 0.3833
+    "trusted_task_ratio": 0.5714
   },
   {
     "round": 11,
-    "cumulative_trusted_ratio": 0.4154
+    "trusted_task_ratio": 0.2727
   },
   {
     "round": 12,
-    "cumulative_trusted_ratio": 0.3803
+    "trusted_task_ratio": 0.6667
   },
   {
     "round": 13,
-    "cumulative_trusted_ratio": 0.36
+    "trusted_task_ratio": 0.1667
   },
   {
     "round": 14,
-    "cumulative_trusted_ratio": 0.3704
+    "trusted_task_ratio": 0.25
   },
   {
     "round": 15,
-    "cumulative_trusted_ratio": 0.3488
+    "trusted_task_ratio": 0.5714
   },
   {
     "round": 16,
-    "cumulative_trusted_ratio": 0.3846
+    "trusted_task_ratio": 0.375
   },
   {
     "round": 17,
-    "cumulative_trusted_ratio": 0.3814
+    "trusted_task_ratio": 0.4444
   },
   {
     "round": 18,
-    "cumulative_trusted_ratio": 0.3762
-  },
-  {
-    "round": 19,
-    "cumulative_trusted_ratio": 0.3889
-  },
-  {
-    "round": 20,
-    "cumulative_trusted_ratio": 0.3684
-  },
-  {
-    "round": 21,
-    "cumulative_trusted_ratio": 0.3583
-  },
-  {
-    "round": 22,
-    "cumulative_trusted_ratio": 0.3858
-  },
-  {
-    "round": 23,
-    "cumulative_trusted_ratio": 0.391
+    "trusted_task_ratio": 0.3
   }
 ]

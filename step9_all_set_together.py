@@ -36,7 +36,7 @@ ZETA = 1.2               # 差异敏感度
 LAMBDA = 1.8            # 损失厌恶系数
 SIGMA = 0.85             # 价值函数曲率
 PSI_TH = 0.2             # 会员概率阈值
-FEE = 2                 # 会费
+FEE = 10                 # 会费
 MEMBER_VALIDITY = 6      # 会员有效期（轮数）
 
 # 任务分类参数
@@ -501,77 +501,68 @@ def cmab_round(workers, task_covered_count, required_workers, remaining_budget, 
                   and w['category'] in ('trusted', 'unknown')
                   and bid_tasks.get(w['worker_id'])]
     if not candidates:
-        print("CMAB: 无候选工人")
         return [], remaining_budget, task_covered_count, total_learned_counts, 0.0, []
 
-    print(f"\n=== CMAB 招募开始，候选工人数: {len(candidates)} ===")
     round_selected = []
     round_cost = 0.0
-    completed_tasks_per_worker = []
+    completed_tasks_per_worker = []  # 记录每个选中工人实际完成的任务列表
 
-    for step in range(K):
+    for _ in range(K):
         if not candidates:
-            print(f"步骤{step}: 候选工人为空，停止")
             break
-        
         best_ratio = -1
         best_worker = None
         best_bid_tasks = None
-        best_cost = 0
-        
-        print(f"\n--- 步骤 {step} 候选评估 ---")
         for w in candidates:
-            wid = w['worker_id']
-            tid_list = bid_tasks[wid]
+            tid_list = bid_tasks[w['worker_id']]
+            # 筛选本轮实际未完成的任务
             actual_bid = [tid for tid in tid_list if task_covered_count[tid] < required_workers[tid]]
             if not actual_bid:
-                print(f"  工人 {wid}: 无可做任务")
                 continue
-            cost = len(actual_bid) * w['covered_tasks'][0]['task_price']
+            cost = len(actual_bid) * w['covered_tasks'][0]['task_price'] 
             if cost > remaining_budget:
-                print(f"  工人 {wid}: 成本 {cost:.2f} > 剩余预算 {remaining_budget:.2f}")
                 continue
             ucb_q = ucb_quality(w, total_learned_counts)
-            gain = sum(required_workers[tid] for tid in actual_bid) * ucb_q
+            gain = 0.0
+            for tid in actual_bid:
+                gain += required_workers[tid] * ucb_q
             ratio = gain / cost if gain > 0 else 0
-            print(f"  工人 {wid}: 可做{len(actual_bid)}个任务, 成本={cost:.2f}, ucb={ucb_q:.3f}, 增益={gain:.2f}, 性价比={ratio:.4f}")
             if ratio > best_ratio:
                 best_ratio = ratio
                 best_worker = w
                 best_bid_tasks = actual_bid
-                best_cost = cost
-        
+
         if best_worker is None:
-            print("步骤结束: 无合格工人")
             break
-        
-        print(f"选中工人: {best_worker['worker_id']}, 性价比={best_ratio:.4f}, 成本={best_cost:.2f}")
         round_selected.append(best_worker['worker_id'])
-        round_cost += best_cost
-        remaining_budget -= best_cost
+        cost = len(best_bid_tasks) * best_worker['covered_tasks'][0]['task_price']
+        round_cost += cost
+        remaining_budget -= cost
+
+        # 记录完成的任务
         completed_tasks_per_worker.append((best_worker, best_bid_tasks))
-        
+
         # 更新任务覆盖
         for tid in best_bid_tasks:
             if task_covered_count[tid] < required_workers[tid]:
                 task_covered_count[tid] += 1
-                print(f"  任务 {tid} 覆盖计数 -> {task_covered_count[tid]}")
-        
+
         # 更新工人档案
         learned = len(best_bid_tasks)
         if learned > 0:
             best_worker['n_i'] += learned
+            # ========== 唯一核心修改点（cost计算完全保留原写法未改动） ==========
+            # 原错误逻辑：用历史平均质量充当本轮观测值，导致质量无法迭代更新，与文档公式不符
+            # 修正后：取本轮实际完成任务的真实质量平均值，与文档中加权平均更新公式完全对齐
             task_quality_map = {t['task_id']: t['quality'] for t in best_worker['covered_tasks']}
             observed = sum(task_quality_map[tid] for tid in best_bid_tasks) / learned
             prev_sum = best_worker['avg_quality'] * (best_worker['n_i'] - learned)
             new_sum = prev_sum + observed * learned
             best_worker['avg_quality'] = new_sum / best_worker['n_i']
             total_learned_counts += learned
-        
+
         candidates.remove(best_worker)
-        print(f"剩余候选工人数: {len(candidates)}")
-    
-    print(f"CMAB 招募结束: 共招募 {len(round_selected)} 人, 总成本 {round_cost:.2f}")
+
     return round_selected, remaining_budget, task_covered_count, total_learned_counts, round_cost, completed_tasks_per_worker
 
 def update_history_and_avg(workers, member_set, completed_tasks_per_worker, task_class):
