@@ -52,30 +52,6 @@
     "grid_id": 53
   },
   {
-    "task_id": "t53_13",
-    "grid_id": 53
-  },
-  {
-    "task_id": "t53_14",
-    "grid_id": 53
-  },
-  {
-    "task_id": "t53_15",
-    "grid_id": 53
-  },
-  {
-    "task_id": "t53_16",
-    "grid_id": 53
-  },
-  {
-    "task_id": "t53_17",
-    "grid_id": 53
-  },
-  {
-    "task_id": "t53_18",
-    "grid_id": 53
-  },
-  {
     "task_id": "t67_00",
     "grid_id": 67
   },
@@ -188,30 +164,6 @@
     "grid_id": 64
   },
   {
-    "task_id": "t64_22",
-    "grid_id": 64
-  },
-  {
-    "task_id": "t64_23",
-    "grid_id": 64
-  },
-  {
-    "task_id": "t64_24",
-    "grid_id": 64
-  },
-  {
-    "task_id": "t64_25",
-    "grid_id": 64
-  },
-  {
-    "task_id": "t64_26",
-    "grid_id": 64
-  },
-  {
-    "task_id": "t64_27",
-    "grid_id": 64
-  },
-  {
     "task_id": "t10_00",
     "grid_id": 10
   },
@@ -233,14 +185,6 @@
   },
   {
     "task_id": "t10_05",
-    "grid_id": 10
-  },
-  {
-    "task_id": "t10_06",
-    "grid_id": 10
-  },
-  {
-    "task_id": "t10_07",
     "grid_id": 10
   },
   {
@@ -364,66 +308,6 @@
     "grid_id": 54
   },
   {
-    "task_id": "t54_30",
-    "grid_id": 54
-  },
-  {
-    "task_id": "t54_31",
-    "grid_id": 54
-  },
-  {
-    "task_id": "t54_32",
-    "grid_id": 54
-  },
-  {
-    "task_id": "t54_33",
-    "grid_id": 54
-  },
-  {
-    "task_id": "t54_34",
-    "grid_id": 54
-  },
-  {
-    "task_id": "t54_35",
-    "grid_id": 54
-  },
-  {
-    "task_id": "t54_36",
-    "grid_id": 54
-  },
-  {
-    "task_id": "t54_37",
-    "grid_id": 54
-  },
-  {
-    "task_id": "t54_38",
-    "grid_id": 54
-  },
-  {
-    "task_id": "t54_39",
-    "grid_id": 54
-  },
-  {
-    "task_id": "t54_40",
-    "grid_id": 54
-  },
-  {
-    "task_id": "t54_41",
-    "grid_id": 54
-  },
-  {
-    "task_id": "t54_42",
-    "grid_id": 54
-  },
-  {
-    "task_id": "t54_43",
-    "grid_id": 54
-  },
-  {
-    "task_id": "t54_44",
-    "grid_id": 54
-  },
-  {
     "task_id": "t63_00",
     "grid_id": 63
   },
@@ -441,14 +325,6 @@
   },
   {
     "task_id": "t63_04",
-    "grid_id": 63
-  },
-  {
-    "task_id": "t63_05",
-    "grid_id": 63
-  },
-  {
-    "task_id": "t63_06",
     "grid_id": 63
   },
   {
@@ -496,30 +372,6 @@
     "grid_id": 55
   },
   {
-    "task_id": "t55_11",
-    "grid_id": 55
-  },
-  {
-    "task_id": "t55_12",
-    "grid_id": 55
-  },
-  {
-    "task_id": "t55_13",
-    "grid_id": 55
-  },
-  {
-    "task_id": "t55_14",
-    "grid_id": 55
-  },
-  {
-    "task_id": "t55_15",
-    "grid_id": 55
-  },
-  {
-    "task_id": "t55_16",
-    "grid_id": 55
-  },
-  {
     "task_id": "t73_00",
     "grid_id": 73
   },
@@ -541,22 +393,6 @@
   },
   {
     "task_id": "t73_05",
-    "grid_id": 73
-  },
-  {
-    "task_id": "t73_06",
-    "grid_id": 73
-  },
-  {
-    "task_id": "t73_07",
-    "grid_id": 73
-  },
-  {
-    "task_id": "t73_08",
-    "grid_id": 73
-  },
-  {
-    "task_id": "t73_09",
     "grid_id": 73
   },
   {
@@ -592,35 +428,11 @@
     "grid_id": 65
   },
   {
-    "task_id": "t65_08",
-    "grid_id": 65
-  },
-  {
-    "task_id": "t65_09",
-    "grid_id": 65
-  },
-  {
-    "task_id": "t65_10",
-    "grid_id": 65
-  },
-  {
-    "task_id": "t65_11",
-    "grid_id": 65
-  },
-  {
     "task_id": "t72_00",
     "grid_id": 72
   },
   {
     "task_id": "t72_01",
-    "grid_id": 72
-  },
-  {
-    "task_id": "t72_02",
-    "grid_id": 72
-  },
-  {
-    "task_id": "t72_03",
     "grid_id": 72
   },
   {
@@ -632,23 +444,7 @@
     "grid_id": 56
   },
   {
-    "task_id": "t56_02",
-    "grid_id": 56
-  },
-  {
-    "task_id": "t56_03",
-    "grid_id": 56
-  },
-  {
     "task_id": "t11_00",
-    "grid_id": 11
-  },
-  {
-    "task_id": "t11_01",
-    "grid_id": 11
-  },
-  {
-    "task_id": "t11_02",
     "grid_id": 11
   },
   {
@@ -688,14 +484,6 @@
     "grid_id": 43
   },
   {
-    "task_id": "t43_09",
-    "grid_id": 43
-  },
-  {
-    "task_id": "t43_10",
-    "grid_id": 43
-  },
-  {
     "task_id": "t30_00",
     "grid_id": 30
   },
@@ -709,10 +497,6 @@
   },
   {
     "task_id": "t94_01",
-    "grid_id": 94
-  },
-  {
-    "task_id": "t94_02",
     "grid_id": 94
   },
   {
@@ -752,34 +536,6 @@
     "grid_id": 23
   },
   {
-    "task_id": "t23_08",
-    "grid_id": 23
-  },
-  {
-    "task_id": "t23_09",
-    "grid_id": 23
-  },
-  {
-    "task_id": "t23_10",
-    "grid_id": 23
-  },
-  {
-    "task_id": "t23_11",
-    "grid_id": 23
-  },
-  {
-    "task_id": "t23_12",
-    "grid_id": 23
-  },
-  {
-    "task_id": "t23_13",
-    "grid_id": 23
-  },
-  {
-    "task_id": "t23_14",
-    "grid_id": 23
-  },
-  {
     "task_id": "t61_00",
     "grid_id": 61
   },
@@ -789,10 +545,6 @@
   },
   {
     "task_id": "t61_02",
-    "grid_id": 61
-  },
-  {
-    "task_id": "t61_03",
     "grid_id": 61
   },
   {
@@ -809,14 +561,6 @@
   },
   {
     "task_id": "t76_03",
-    "grid_id": 76
-  },
-  {
-    "task_id": "t76_04",
-    "grid_id": 76
-  },
-  {
-    "task_id": "t76_05",
     "grid_id": 76
   },
   {
@@ -872,10 +616,6 @@
     "grid_id": 37
   },
   {
-    "task_id": "t37_02",
-    "grid_id": 37
-  },
-  {
     "task_id": "t52_00",
     "grid_id": 52
   },
@@ -889,22 +629,6 @@
   },
   {
     "task_id": "t52_03",
-    "grid_id": 52
-  },
-  {
-    "task_id": "t52_04",
-    "grid_id": 52
-  },
-  {
-    "task_id": "t52_05",
-    "grid_id": 52
-  },
-  {
-    "task_id": "t52_06",
-    "grid_id": 52
-  },
-  {
-    "task_id": "t52_07",
     "grid_id": 52
   },
   {
@@ -932,14 +656,6 @@
     "grid_id": 57
   },
   {
-    "task_id": "t57_06",
-    "grid_id": 57
-  },
-  {
-    "task_id": "t57_07",
-    "grid_id": 57
-  },
-  {
     "task_id": "t34_00",
     "grid_id": 34
   },
@@ -953,22 +669,6 @@
   },
   {
     "task_id": "t34_03",
-    "grid_id": 34
-  },
-  {
-    "task_id": "t34_04",
-    "grid_id": 34
-  },
-  {
-    "task_id": "t34_05",
-    "grid_id": 34
-  },
-  {
-    "task_id": "t34_06",
-    "grid_id": 34
-  },
-  {
-    "task_id": "t34_07",
     "grid_id": 34
   },
   {
@@ -989,14 +689,6 @@
   },
   {
     "task_id": "t33_03",
-    "grid_id": 33
-  },
-  {
-    "task_id": "t33_04",
-    "grid_id": 33
-  },
-  {
-    "task_id": "t33_05",
     "grid_id": 33
   },
   {
@@ -1032,22 +724,6 @@
     "grid_id": 24
   },
   {
-    "task_id": "t24_08",
-    "grid_id": 24
-  },
-  {
-    "task_id": "t24_09",
-    "grid_id": 24
-  },
-  {
-    "task_id": "t24_10",
-    "grid_id": 24
-  },
-  {
-    "task_id": "t24_11",
-    "grid_id": 24
-  },
-  {
     "task_id": "t15_00",
     "grid_id": 15
   },
@@ -1060,27 +736,11 @@
     "grid_id": 66
   },
   {
-    "task_id": "t66_02",
-    "grid_id": 66
-  },
-  {
-    "task_id": "t66_03",
-    "grid_id": 66
-  },
-  {
-    "task_id": "t66_04",
-    "grid_id": 66
-  },
-  {
     "task_id": "t12_00",
     "grid_id": 12
   },
   {
     "task_id": "t12_01",
-    "grid_id": 12
-  },
-  {
-    "task_id": "t12_02",
     "grid_id": 12
   },
   {
@@ -1101,18 +761,6 @@
   },
   {
     "task_id": "t42_01",
-    "grid_id": 42
-  },
-  {
-    "task_id": "t42_02",
-    "grid_id": 42
-  },
-  {
-    "task_id": "t42_03",
-    "grid_id": 42
-  },
-  {
-    "task_id": "t42_04",
     "grid_id": 42
   },
   {
@@ -1140,18 +788,6 @@
     "grid_id": 62
   },
   {
-    "task_id": "t62_05",
-    "grid_id": 62
-  },
-  {
-    "task_id": "t62_06",
-    "grid_id": 62
-  },
-  {
-    "task_id": "t62_07",
-    "grid_id": 62
-  },
-  {
     "task_id": "t71_00",
     "grid_id": 71
   },
@@ -1160,43 +796,7 @@
     "grid_id": 38
   },
   {
-    "task_id": "t38_01",
-    "grid_id": 38
-  },
-  {
     "task_id": "t05_00",
     "grid_id": 5
-  },
-  {
-    "task_id": "t39_00",
-    "grid_id": 39
-  },
-  {
-    "task_id": "t75_00",
-    "grid_id": 75
-  },
-  {
-    "task_id": "t75_01",
-    "grid_id": 75
-  },
-  {
-    "task_id": "t46_00",
-    "grid_id": 46
-  },
-  {
-    "task_id": "t74_00",
-    "grid_id": 74
-  },
-  {
-    "task_id": "t06_00",
-    "grid_id": 6
-  },
-  {
-    "task_id": "t96_00",
-    "grid_id": 96
-  },
-  {
-    "task_id": "t18_00",
-    "grid_id": 18
   }
 ]

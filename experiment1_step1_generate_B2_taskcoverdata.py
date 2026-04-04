@@ -12,10 +12,10 @@ import math
 from collections import defaultdict
 
 # ========== 参数配置 ==========
-RANDOM_SEED = 42
+RANDOM_SEED = 2
 random.seed(RANDOM_SEED)
 
-BUDGET = 5000
+BUDGET = 10000
 K = 7
 R = 24
 

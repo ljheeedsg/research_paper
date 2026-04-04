@@ -7,19 +7,23 @@ B1 方案：随机招募 + 固定工资（无 CMAB、无信任、无 PGRD、无 
       experiment1_step1_B1_trusted_ratio_per_round.json（新增）
 """
 
+"""
+B1 方案：随机招募 + 固定工资（无 CMAB、无信任、无 PGRD、无 LGSC）
+多次重复实验取平均，输出平均结果到原文件名。
+"""
+
 import json
 import random
 import math
+import numpy as np
 from collections import defaultdict
 
 # ========== 参数配置 ==========
 RANDOM_SEED = 42
-random.seed(RANDOM_SEED)
-
 BUDGET = 5000
 K = 7
 R = 24
-M_VERIFY = 7  # B1 不使用，但保留参数
+M_VERIFY = 7
 
 # 任务分类参数
 MEMBER_RATIO = 0.5
@@ -28,6 +32,9 @@ NORMAL_MULTIPLIER = 1.0
 MEMBER_COST_RANGE = (0.4, 0.6)
 NORMAL_COST_RANGE = (0.7, 0.9)
 PROFIT_RANGE = (1.2, 2.0)
+
+# 重复次数
+NUM_SEEDS = 30   # 可调整
 
 # ========== 工具函数 ==========
 def load_json(filepath):
@@ -38,7 +45,7 @@ def save_json(data, filepath):
     with open(filepath, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
-# ========== 第一阶段：数据准备 ==========
+# ========== 第一阶段：数据准备（同原代码） ==========
 def parse_worker_segments(segments_by_region):
     workers = defaultdict(list)
     for region_key, seg_list in sorted(segments_by_region.items()):
@@ -73,7 +80,7 @@ def generate_worker_options(workers, tasks):
     worker_options = []
     for worker_id, segs in workers.items():
         is_trusted = segs[0]['is_trusted']
-        base_cost = segs[0]['cost']   # 这里假设同一工人所有时间段的成本相同，实际可以根据不同时间段调整
+        base_cost = segs[0]['cost']
         trust = 1.0 if is_trusted else 0.5
         category = 'trusted' if is_trusted else 'unknown'
 
@@ -125,32 +132,27 @@ def generate_task_classification(worker_options_path, task_segments_path, output
     worker_options = data['worker_options']
     task_segments = load_json(task_segments_path)
 
-    # 收集所有任务ID（原始任务列表）
     all_task_ids = []
     for region_key, tasks in task_segments.items():
         for task in tasks:
             all_task_ids.append(task['task_id'])
 
-    # 统计每个任务被工人覆盖的原始报价
     task_prices = defaultdict(list)
     for w in worker_options:
         for task in w['covered_tasks']:
             tid = task['task_id']
-            task_prices[tid].append(task['task_price'])   # 原始报价
+            task_prices[tid].append(task['task_price'])
 
-    # 只保留有工人覆盖的任务（排除无覆盖的任务）
     covered_task_ids = set(task_prices.keys())
     if not covered_task_ids:
         print("警告：没有任务被任何工人覆盖！")
         return
 
-    # 构建任务信息列表，base_price 取平均
     tasks_info = []
     for tid in covered_task_ids:
         base_price = sum(task_prices[tid]) / len(task_prices[tid])
         tasks_info.append({'task_id': tid, 'base_price': base_price})
 
-    # 按原始价格降序排序，前 MEMBER_RATIO 比例的任务为会员任务
     tasks_info.sort(key=lambda x: x['base_price'], reverse=True)
     m = len(tasks_info)
     k = int(MEMBER_RATIO * m)
@@ -216,38 +218,33 @@ def initialize(worker_options_path, task_weights_path, task_class_path):
     data = load_json(worker_options_path)
     workers = data['worker_options']
     task_weights = load_json(task_weights_path)['task_weights']
-    task_class = load_json(task_class_path)  # 用于后续平台效用，但初始化阶段不需要
+    task_class = load_json(task_class_path)
 
-    # 构建任务时间映射
     task_time_map = {}
     for w in workers:
         for task in w['covered_tasks']:
             tid = task['task_id']
             if tid not in task_time_map:
-                task_time_map[tid] = task['task_start_time'] # 
+                task_time_map[tid] = task['task_start_time']
 
-    # 初始化工人档案（仅保留必要字段）
     for w in workers:
-        w['n_i'] = len(w['covered_tasks']) # 计算覆盖任务数量
+        w['n_i'] = len(w['covered_tasks'])
         w['avg_quality'] = sum(t['quality'] for t in w['covered_tasks']) / w['n_i'] if w['n_i'] > 0 else 0.0
         w['available_rounds'] = set()
         for t in w['covered_tasks']:
             hour = t['task_start_time'] // 3600
             w['available_rounds'].add(hour)
 
-    # 任务覆盖计数
-    task_covered_count = {tid: 0 for tid in task_time_map} # 只初始化有工人覆盖的任务  记录每个任务被覆盖的次数
-    required_workers = {tid: task_weights[tid] for tid in task_time_map} # 只初始化有工人覆盖的任务 记录每个任务需要的工人数量
-
-    # 初始可信工人集合（用于计算可信任务占比）
-    initial_Uc = {w['worker_id'] for w in workers if w['category'] == 'trusted'}  # 记录初始可信工人ID集合
-    initial_Uu = {w['worker_id'] for w in workers if w['category'] == 'unknown'}  # 记录初始未知工人ID集合
+    task_covered_count = {tid: 0 for tid in task_time_map}
+    required_workers = {tid: task_weights[tid] for tid in task_time_map}
+    initial_Uc = {w['worker_id'] for w in workers if w['category'] == 'trusted'}
+    initial_Uu = {w['worker_id'] for w in workers if w['category'] == 'unknown'}
 
     print(f"初始化完成，工人总数: {len(workers)}，初始可信工人: {len(initial_Uc)}，初始未知工人: {len(initial_Uu)}")
-        
 
     return workers, task_covered_count, required_workers, task_time_map, initial_Uc
 
+# ========== B1 主循环（不保存文件，返回数据） ==========
 def greedy_recruitment_B1(workers, task_covered_count, required_workers, B, K, R, task_time_map, task_class, initial_Uc):
     total_cost = 0.0
     remaining_budget = B
@@ -255,21 +252,14 @@ def greedy_recruitment_B1(workers, task_covered_count, required_workers, B, K, R
     greedy_rounds = 0
     round_details = []
 
-    # 系统收益映射和累加变量
     task_system_income_map = {t['task_id']: t['system_income'] for t in task_class}
     task_price_map = {t['task_id']: t['task_price'] for t in task_class}
     total_system_income = 0.0
 
-    # 总可信任务记录（用于最终占比）
-    task_completion_records = []   # 存储 (task_id, worker_id, is_trusted)
-
-    # 每轮可信任务占比（非累积）和累积可信任务占比
-    trusted_ratio_per_round = []      # 每轮非累积占比
-    cumulative_trusted_ratio = []     # 每轮累积占比
+    task_coverage_records = []      # 每轮覆盖率
     cumulative_total = 0
     cumulative_trusted = 0
-
-    task_coverage_records = []
+    cumulative_trusted_ratio = []   # 每轮累积占比
 
     for r in range(R):
         print(f"\n--- 第 {r} 轮 ---")
@@ -278,7 +268,7 @@ def greedy_recruitment_B1(workers, task_covered_count, required_workers, B, K, R
             print("当前轮无可用工人")
             continue
 
-        # 计算最小成本（基于分类价格）
+        # 计算最小成本
         min_cost = float('inf')
         for w in available_workers:
             for task in w['covered_tasks']:
@@ -300,7 +290,7 @@ def greedy_recruitment_B1(workers, task_covered_count, required_workers, B, K, R
             print("所有任务已完成，终止")
             break
 
-        # 随机招募 K 个工人
+        # 随机招募
         candidates = available_workers[:]
         random.shuffle(candidates)
         selected_workers = []
@@ -334,33 +324,20 @@ def greedy_recruitment_B1(workers, task_covered_count, required_workers, B, K, R
         greedy_selected.extend([w['worker_id'] for w in selected_workers])
         greedy_rounds += 1
 
-        # 本轮可信任务统计
         round_total = 0
         round_trusted = 0
-
-        # 更新任务覆盖、累加系统收益、记录总可信任务
         for w, tasks_this_round in zip(selected_workers, selected_bid_tasks):
             is_trusted = (w['worker_id'] in initial_Uc)
             for tid in tasks_this_round:
                 if task_covered_count[tid] < required_workers[tid]:
                     task_covered_count[tid] += 1
                     total_system_income += task_system_income_map[tid]
-                    task_completion_records.append((tid, w['worker_id'], is_trusted))
                     round_total += 1
                     if is_trusted:
                         round_trusted += 1
 
-        # 打印本轮完成情况
         print(f"本轮完成任务数: {round_total}, 其中可信工人完成: {round_trusted}, 占比: {round_trusted/round_total if round_total>0 else 0:.2%}")
 
-        # 计算每轮非累积占比
-        ratio = round_trusted / round_total if round_total > 0 else 0.0
-        trusted_ratio_per_round.append({
-            "round": r,
-            "trusted_task_ratio": round(ratio, 4)
-        })
-
-        # 更新累积统计
         cumulative_total += round_total
         cumulative_trusted += round_trusted
         cumulative_ratio = cumulative_trusted / cumulative_total if cumulative_total > 0 else 0.0
@@ -370,12 +347,10 @@ def greedy_recruitment_B1(workers, task_covered_count, required_workers, B, K, R
         })
         print(f"累积完成任务数: {cumulative_total}, 累积可信完成: {cumulative_trusted}, 累积占比: {cumulative_ratio:.2%}")
 
-        # 统计覆盖率
         completed = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
         total_task_num = len(required_workers)
         print(f"总成本: {total_cost:.2f}, 剩余预算: {remaining_budget:.2f}, 已完成任务: {completed}/{total_task_num}")
 
-        # 记录覆盖率
         task_coverage_records.append({
             "round": r,
             "completed_tasks": completed,
@@ -383,33 +358,16 @@ def greedy_recruitment_B1(workers, task_covered_count, required_workers, B, K, R
             "coverage_rate": round(completed / total_task_num, 4) if total_task_num > 0 else 0.0
         })
 
-        # 记录详情
         round_details.append({
             'round': r,
             'recruited_workers': [w['worker_id'] for w in selected_workers],
             'recruited_count': len(selected_workers)
         })
 
-    # 保存覆盖率文件
-    save_json(task_coverage_records, "experiment1_step1_B1_taskcover.json")
-    print(f"\n✅ 覆盖率文件已保存：experiment1_step1_B1_taskcover.json")
-
-    # 保存每轮可信任务占比文件（非累积）
-    save_json(trusted_ratio_per_round, "experiment1_step1_B1_trusted_ratio_per_round.json")
-    print(f"✅ 每轮可信任务占比文件已保存：experiment1_step1_B1_trusted_ratio_per_round.json")
-
-    # 保存累积可信任务占比文件
-    save_json(cumulative_trusted_ratio, "experiment1_step1_B1_cumulative_trusted_ratio.json")
-    print(f"✅ 累积可信任务占比文件已保存：experiment1_step1_B1_cumulative_trusted_ratio.json")
-
     covered_task_count = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
-
-    # 计算平台效用（无会费无奖励金）
     platform_utility = total_system_income - total_cost
-
-    # 计算总可信任务占比
-    total_tasks = len(task_completion_records)
-    trusted_tasks = sum(1 for _, _, is_trusted in task_completion_records if is_trusted)
+    total_tasks = cumulative_total
+    trusted_tasks = cumulative_trusted
     trusted_task_ratio_total = trusted_tasks / total_tasks if total_tasks > 0 else 0.0
 
     result = {
@@ -422,56 +380,141 @@ def greedy_recruitment_B1(workers, task_covered_count, required_workers, B, K, R
         'init_select': len(workers),
         'later_select': len(greedy_selected),
         'covered_task_count': covered_task_count,
+        'trusted_count': len(initial_Uc),
         'round_details': round_details
     }
-    return result
-# ========== 主函数 ==========
+
+    return result, task_coverage_records, cumulative_trusted_ratio
+
+# ========== 主函数：多次重复实验取平均 ==========
 def main():
-    random.seed(RANDOM_SEED)
+    SEEDS = list(range(1, NUM_SEEDS + 1))
+    
+    # 存储多次实验的数据
+    all_coverage_curves = []
+    all_cumulative_curves = []
+    all_platform_utils = []
+    all_final_coverages = []
+    all_trusted_counts = []
+    all_final_costs = []       # 可选
+    all_remaining_budgets = [] # 可选
 
     WORKER_SEGMENTS = 'step6_worker_segments.json'
     TASK_SEGMENTS = 'step6_task_segments.json'
 
-    OUTPUT_WORKER_OPTIONS = 'step9_worker_option_set_B1.json'
-    OUTPUT_TASK_WEIGHTS = 'step9_task_weight_list_B1.json'
-    OUTPUT_TASK_GRID = 'step9_tasks_grid_num_B1.json'
-    OUTPUT_TASK_CLASS = 'step9_tasks_classification_B1.json'
-    OUTPUT_FINAL = 'step9_final_result_B1.json'
+    for seed in SEEDS:
+        print(f"\n========== 运行随机种子 {seed} ==========")
+        random.seed(seed)
 
-    # 第一阶段
-    worker_options, tasks, task_weights, task_grid = data_preparation(
-        WORKER_SEGMENTS, TASK_SEGMENTS,
-        OUTPUT_WORKER_OPTIONS, OUTPUT_TASK_WEIGHTS,
-        OUTPUT_TASK_GRID, OUTPUT_TASK_CLASS
-    )
+        # 临时输出文件名（每次循环覆盖，但最终我们不保留中间文件，只用于传递数据）
+        OUTPUT_WORKER_OPTIONS = 'step9_worker_option_set_B1.json'
+        OUTPUT_TASK_WEIGHTS = 'step9_task_weight_list_B1.json'
+        OUTPUT_TASK_GRID = 'step9_tasks_grid_num_B1.json'
+        OUTPUT_TASK_CLASS = 'step9_tasks_classification_B1.json'
 
-    # 第二阶段
-    workers, task_covered_count, required_workers, task_time_map, initial_Uc = initialize(
-        OUTPUT_WORKER_OPTIONS, OUTPUT_TASK_WEIGHTS, OUTPUT_TASK_CLASS
-    )
+        # 第一阶段
+        worker_options, tasks, task_weights, task_grid = data_preparation(
+            WORKER_SEGMENTS, TASK_SEGMENTS,
+            OUTPUT_WORKER_OPTIONS, OUTPUT_TASK_WEIGHTS,
+            OUTPUT_TASK_GRID, OUTPUT_TASK_CLASS
+        )
 
-    # 加载任务分类（用于平台效用计算）
-    task_class = load_json(OUTPUT_TASK_CLASS)
+        # 第二阶段
+        workers, task_covered_count, required_workers, task_time_map, initial_Uc = initialize(
+            OUTPUT_WORKER_OPTIONS, OUTPUT_TASK_WEIGHTS, OUTPUT_TASK_CLASS
+        )
 
-    # 第三阶段
-    result = greedy_recruitment_B1(
-        workers, task_covered_count, required_workers,
-        BUDGET, K, R, task_time_map, task_class, initial_Uc
-    )
+        # 加载任务分类
+        task_class = load_json(OUTPUT_TASK_CLASS)
 
-    save_json(result, OUTPUT_FINAL)
-    print(f"\n最终结果已保存至 {OUTPUT_FINAL}")
+        # 第三阶段
+        result, coverage_records, cumulative_records = greedy_recruitment_B1(
+            workers, task_covered_count, required_workers,
+            BUDGET, K, R, task_time_map, task_class, initial_Uc
+        )
 
-    print("\n=== 最终结果 ===")
-    for k, v in result.items():
-        if isinstance(v, list) and len(v) > 10:
-            print(f"{k}: {v[:10]}... (共{len(v)})")
-        elif k == 'round_details':
-            print(f"{k}:")
-            for rd in v[:3]:
-                print(f"  轮次 {rd['round']}: 招募人数 {rd['recruited_count']}")
-        else:
-            print(f"{k}: {v}")
+        # 收集数据
+        all_coverage_curves.append([item['coverage_rate'] for item in coverage_records])
+        all_cumulative_curves.append([item['cumulative_trusted_ratio'] for item in cumulative_records])
+        all_platform_utils.append(result['platform_utility'])
+        total_tasks = len(required_workers)
+        all_final_coverages.append(result['covered_task_count'] / total_tasks)
+        all_trusted_counts.append(result['trusted_count'])
+        all_final_costs.append(result['total_cost'])
+        all_remaining_budgets.append(result['remaining_budget'])
+
+    # 计算平均曲线（假设所有实验轮数相同）
+    num_rounds = len(all_coverage_curves[0])
+    avg_coverage = []
+    std_coverage = []
+    avg_cumulative = []
+    std_cumulative = []
+    for r in range(num_rounds):
+        round_cov = [curve[r] for curve in all_coverage_curves]
+        avg_coverage.append(np.mean(round_cov))
+        std_coverage.append(np.std(round_cov))
+        round_cum = [curve[r] for curve in all_cumulative_curves]
+        avg_cumulative.append(np.mean(round_cum))
+        std_cumulative.append(np.std(round_cum))
+
+    # 其他指标平均值
+    avg_platform = np.mean(all_platform_utils)
+    avg_final_coverage = np.mean(all_final_coverages)
+    avg_trusted = np.mean(all_trusted_counts)
+    avg_cost = np.mean(all_final_costs)
+    avg_remaining = np.mean(all_remaining_budgets)
+
+    # ========== 保存平均结果到原文件名 ==========
+    # 1. 保存平均覆盖率曲线（每轮）
+    avg_coverage_records = [
+        {
+            "round": r,
+            "completed_tasks": int(round(avg_coverage[r] * total_tasks)),  # 近似，实际可保留原值
+            "total_tasks": total_tasks,
+            "coverage_rate": round(avg_coverage[r], 4)
+        }
+        for r in range(num_rounds)
+    ]
+    save_json(avg_coverage_records, "experiment1_step1_B1_taskcover.json")
+    print("✅ 平均覆盖率曲线已保存至 experiment1_step1_B1_taskcover.json")
+
+    # 2. 保存平均累积可信任务占比曲线
+    avg_cumulative_records = [
+        {
+            "round": r,
+            "cumulative_trusted_ratio": round(avg_cumulative[r], 4)
+        }
+        for r in range(num_rounds)
+    ]
+    save_json(avg_cumulative_records, "experiment1_step1_B1_cumulative_trusted_ratio.json")
+    print("✅ 平均累积可信任务占比曲线已保存至 experiment1_step1_B1_cumulative_trusted_ratio.json")
+
+    # 3. 保存平均最终结果
+    avg_result = {
+        'total_rounds': num_rounds,
+        'total_cost': round(avg_cost, 2),
+        'platform_utility': round(avg_platform, 2),
+        'remaining_budget': round(avg_remaining, 2),
+        'covered_task_count': int(round(avg_final_coverage * total_tasks)),
+        'trusted_count': int(round(avg_trusted)),
+        'init_select': len(workers),
+        'later_select': int(round(avg_trusted)),  # B1 中 later_select 与 trusted_count 相同，简化
+        'trusted_workers_list': list(initial_Uc),  # 平均结果中无法列出具体工人ID，可省略或保留空列表
+        'round_details': []  # 平均后无法保留详细轮次信息，可省略
+    }
+    save_json(avg_result, "step9_final_result_B1.json")
+    print("✅ 平均最终结果已保存至 step9_final_result_B1.json")
+
+    # 可选：同时保存标准差（供后续绘图误差棒）
+    std_result = {
+        "std_coverage_per_round": [round(x, 4) for x in std_coverage],
+        "std_cumulative_trusted_ratio_per_round": [round(x, 4) for x in std_cumulative],
+        "std_platform_utility": round(np.std(all_platform_utils), 2),
+        "std_final_coverage_rate": round(np.std(all_final_coverages), 4),
+        "std_final_trusted_count": round(np.std(all_trusted_counts), 2)
+    }
+    save_json(std_result, "experiment1_step1_B1_std_results.json")
+    print("✅ 标准差结果已保存至 experiment1_step1_B1_std_results.json")
 
 if __name__ == '__main__':
     main()

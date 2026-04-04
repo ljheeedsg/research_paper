@@ -23,11 +23,11 @@ def load_trusted_ratio(filepath):
 def main():
     # 定义文件名映射
     files = {
-        'B1': 'experiment1_step1_B1_trusted_ratio_per_round.json',
-        'B2': 'experiment1_step1_B2_trusted_ratio_per_round.json',
-        'B3': 'experiment1_step1_B3_trusted_ratio_per_round.json',
-        'B4': 'experiment1_step1_B4_trusted_ratio_per_round.json',
-        'OURS': 'experiment1_step1_ours_trusted_ratio_per_round.json'
+        'B1': 'experiment1_step1_B1_cumulative_trusted_ratio.json',
+        'B2': 'experiment1_step1_B2_cumulative_trusted_ratio.json',
+        'B3': 'experiment1_step1_B3_cumulative_trusted_ratio.json',
+        'B4': 'experiment1_step1_B4_cumulative_trusted_ratio.json',
+        'OURS': 'experiment1_step1_ours_cumulative_trusted_ratio.json'
     }
 
     # 加载所有数据

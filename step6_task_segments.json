@@ -77,42 +77,6 @@
       "start_time": 28800,
       "end_time": 32400,
       "required_workers": 1
-    },
-    {
-      "task_id": "t53_13",
-      "start_time": 25200,
-      "end_time": 28800,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t53_14",
-      "start_time": 36000,
-      "end_time": 39600,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t53_15",
-      "start_time": 50400,
-      "end_time": 54000,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t53_16",
-      "start_time": 54000,
-      "end_time": 57600,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t53_17",
-      "start_time": 46800,
-      "end_time": 50400,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t53_18",
-      "start_time": 57600,
-      "end_time": 61200,
-      "required_workers": 1
     }
   ],
   "region_67": [
@@ -285,42 +249,6 @@
       "start_time": 28800,
       "end_time": 32400,
       "required_workers": 1
-    },
-    {
-      "task_id": "t64_22",
-      "start_time": 61200,
-      "end_time": 64800,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t64_23",
-      "start_time": 61200,
-      "end_time": 64800,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t64_24",
-      "start_time": 39600,
-      "end_time": 43200,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t64_25",
-      "start_time": 3600,
-      "end_time": 7200,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t64_26",
-      "start_time": 28800,
-      "end_time": 32400,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t64_27",
-      "start_time": 32400,
-      "end_time": 36000,
-      "required_workers": 1
     }
   ],
   "region_10": [
@@ -358,18 +286,6 @@
       "task_id": "t10_05",
       "start_time": 28800,
       "end_time": 32400,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t10_06",
-      "start_time": 36000,
-      "end_time": 39600,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t10_07",
-      "start_time": 39600,
-      "end_time": 43200,
       "required_workers": 1
     }
   ],
@@ -553,96 +469,6 @@
       "start_time": 61200,
       "end_time": 64800,
       "required_workers": 1
-    },
-    {
-      "task_id": "t54_30",
-      "start_time": 64800,
-      "end_time": 68400,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t54_31",
-      "start_time": 75600,
-      "end_time": 79200,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t54_32",
-      "start_time": 0,
-      "end_time": 3600,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t54_33",
-      "start_time": 25200,
-      "end_time": 28800,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t54_34",
-      "start_time": 7200,
-      "end_time": 10800,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t54_35",
-      "start_time": 28800,
-      "end_time": 32400,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t54_36",
-      "start_time": 68400,
-      "end_time": 72000,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t54_37",
-      "start_time": 3600,
-      "end_time": 7200,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t54_38",
-      "start_time": 64800,
-      "end_time": 68400,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t54_39",
-      "start_time": 79200,
-      "end_time": 82800,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t54_40",
-      "start_time": 54000,
-      "end_time": 57600,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t54_41",
-      "start_time": 32400,
-      "end_time": 36000,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t54_42",
-      "start_time": 0,
-      "end_time": 3600,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t54_43",
-      "start_time": 79200,
-      "end_time": 82800,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t54_44",
-      "start_time": 54000,
-      "end_time": 57600,
-      "required_workers": 1
     }
   ],
   "region_63": [
@@ -674,18 +500,6 @@
       "task_id": "t63_04",
       "start_time": 36000,
       "end_time": 39600,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t63_05",
-      "start_time": 39600,
-      "end_time": 43200,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t63_06",
-      "start_time": 68400,
-      "end_time": 72000,
       "required_workers": 1
     }
   ],
@@ -755,42 +569,6 @@
       "start_time": 14400,
       "end_time": 18000,
       "required_workers": 1
-    },
-    {
-      "task_id": "t55_11",
-      "start_time": 46800,
-      "end_time": 50400,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t55_12",
-      "start_time": 72000,
-      "end_time": 75600,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t55_13",
-      "start_time": 36000,
-      "end_time": 39600,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t55_14",
-      "start_time": 46800,
-      "end_time": 50400,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t55_15",
-      "start_time": 25200,
-      "end_time": 28800,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t55_16",
-      "start_time": 3600,
-      "end_time": 7200,
-      "required_workers": 1
     }
   ],
   "region_73": [
@@ -828,30 +606,6 @@
       "task_id": "t73_05",
       "start_time": 50400,
       "end_time": 54000,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t73_06",
-      "start_time": 82800,
-      "end_time": 86400,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t73_07",
-      "start_time": 64800,
-      "end_time": 68400,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t73_08",
-      "start_time": 54000,
-      "end_time": 57600,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t73_09",
-      "start_time": 32400,
-      "end_time": 36000,
       "required_workers": 1
     }
   ],
@@ -903,30 +657,6 @@
       "start_time": 39600,
       "end_time": 43200,
       "required_workers": 1
-    },
-    {
-      "task_id": "t65_08",
-      "start_time": 0,
-      "end_time": 3600,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t65_09",
-      "start_time": 0,
-      "end_time": 3600,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t65_10",
-      "start_time": 68400,
-      "end_time": 72000,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t65_11",
-      "start_time": 43200,
-      "end_time": 46800,
-      "required_workers": 1
     }
   ],
   "region_72": [
@@ -940,18 +670,6 @@
       "task_id": "t72_01",
       "start_time": 21600,
       "end_time": 25200,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t72_02",
-      "start_time": 50400,
-      "end_time": 54000,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t72_03",
-      "start_time": 18000,
-      "end_time": 21600,
       "required_workers": 1
     }
   ],
@@ -967,18 +685,6 @@
       "start_time": 21600,
       "end_time": 25200,
       "required_workers": 1
-    },
-    {
-      "task_id": "t56_02",
-      "start_time": 82800,
-      "end_time": 86400,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t56_03",
-      "start_time": 21600,
-      "end_time": 25200,
-      "required_workers": 1
     }
   ],
   "region_11": [
@@ -986,18 +692,6 @@
       "task_id": "t11_00",
       "start_time": 68400,
       "end_time": 72000,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t11_01",
-      "start_time": 68400,
-      "end_time": 72000,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t11_02",
-      "start_time": 14400,
-      "end_time": 18000,
       "required_workers": 1
     }
   ],
@@ -1055,18 +749,6 @@
       "start_time": 3600,
       "end_time": 7200,
       "required_workers": 1
-    },
-    {
-      "task_id": "t43_09",
-      "start_time": 46800,
-      "end_time": 50400,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t43_10",
-      "start_time": 72000,
-      "end_time": 75600,
-      "required_workers": 1
     }
   ],
   "region_30": [
@@ -1094,12 +776,6 @@
       "task_id": "t94_01",
       "start_time": 36000,
       "end_time": 39600,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t94_02",
-      "start_time": 46800,
-      "end_time": 50400,
       "required_workers": 1
     }
   ],
@@ -1159,48 +835,6 @@
       "start_time": 46800,
       "end_time": 50400,
       "required_workers": 1
-    },
-    {
-      "task_id": "t23_08",
-      "start_time": 79200,
-      "end_time": 82800,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t23_09",
-      "start_time": 39600,
-      "end_time": 43200,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t23_10",
-      "start_time": 32400,
-      "end_time": 36000,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t23_11",
-      "start_time": 28800,
-      "end_time": 32400,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t23_12",
-      "start_time": 25200,
-      "end_time": 28800,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t23_13",
-      "start_time": 39600,
-      "end_time": 43200,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t23_14",
-      "start_time": 39600,
-      "end_time": 43200,
-      "required_workers": 1
     }
   ],
   "region_61": [
@@ -1220,12 +854,6 @@
       "task_id": "t61_02",
       "start_time": 14400,
       "end_time": 18000,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t61_03",
-      "start_time": 10800,
-      "end_time": 14400,
       "required_workers": 1
     }
   ],
@@ -1252,18 +880,6 @@
       "task_id": "t76_03",
       "start_time": 32400,
       "end_time": 36000,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t76_04",
-      "start_time": 28800,
-      "end_time": 32400,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t76_05",
-      "start_time": 10800,
-      "end_time": 14400,
       "required_workers": 1
     }
   ],
@@ -1355,12 +971,6 @@
       "start_time": 7200,
       "end_time": 10800,
       "required_workers": 1
-    },
-    {
-      "task_id": "t37_02",
-      "start_time": 54000,
-      "end_time": 57600,
-      "required_workers": 1
     }
   ],
   "region_52": [
@@ -1386,30 +996,6 @@
       "task_id": "t52_03",
       "start_time": 68400,
       "end_time": 72000,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t52_04",
-      "start_time": 57600,
-      "end_time": 61200,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t52_05",
-      "start_time": 7200,
-      "end_time": 10800,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t52_06",
-      "start_time": 28800,
-      "end_time": 32400,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t52_07",
-      "start_time": 18000,
-      "end_time": 21600,
       "required_workers": 1
     }
   ],
@@ -1449,18 +1035,6 @@
       "start_time": 64800,
       "end_time": 68400,
       "required_workers": 1
-    },
-    {
-      "task_id": "t57_06",
-      "start_time": 21600,
-      "end_time": 25200,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t57_07",
-      "start_time": 57600,
-      "end_time": 61200,
-      "required_workers": 1
     }
   ],
   "region_34": [
@@ -1486,30 +1060,6 @@
       "task_id": "t34_03",
       "start_time": 57600,
       "end_time": 61200,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t34_04",
-      "start_time": 36000,
-      "end_time": 39600,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t34_05",
-      "start_time": 61200,
-      "end_time": 64800,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t34_06",
-      "start_time": 72000,
-      "end_time": 75600,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t34_07",
-      "start_time": 64800,
-      "end_time": 68400,
       "required_workers": 1
     }
   ],
@@ -1544,18 +1094,6 @@
       "task_id": "t33_03",
       "start_time": 7200,
       "end_time": 10800,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t33_04",
-      "start_time": 82800,
-      "end_time": 86400,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t33_05",
-      "start_time": 36000,
-      "end_time": 39600,
       "required_workers": 1
     }
   ],
@@ -1607,30 +1145,6 @@
       "start_time": 75600,
       "end_time": 79200,
       "required_workers": 1
-    },
-    {
-      "task_id": "t24_08",
-      "start_time": 39600,
-      "end_time": 43200,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t24_09",
-      "start_time": 64800,
-      "end_time": 68400,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t24_10",
-      "start_time": 61200,
-      "end_time": 64800,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t24_11",
-      "start_time": 72000,
-      "end_time": 75600,
-      "required_workers": 1
     }
   ],
   "region_15": [
@@ -1653,24 +1167,6 @@
       "start_time": 3600,
       "end_time": 7200,
       "required_workers": 1
-    },
-    {
-      "task_id": "t66_02",
-      "start_time": 46800,
-      "end_time": 50400,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t66_03",
-      "start_time": 21600,
-      "end_time": 25200,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t66_04",
-      "start_time": 43200,
-      "end_time": 46800,
-      "required_workers": 1
     }
   ],
   "region_12": [
@@ -1684,12 +1180,6 @@
       "task_id": "t12_01",
       "start_time": 18000,
       "end_time": 21600,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t12_02",
-      "start_time": 64800,
-      "end_time": 68400,
       "required_workers": 1
     }
   ],
@@ -1724,24 +1214,6 @@
       "task_id": "t42_01",
       "start_time": 54000,
       "end_time": 57600,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t42_02",
-      "start_time": 54000,
-      "end_time": 57600,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t42_03",
-      "start_time": 32400,
-      "end_time": 36000,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t42_04",
-      "start_time": 28800,
-      "end_time": 32400,
       "required_workers": 1
     }
   ],
@@ -1783,24 +1255,6 @@
       "start_time": 28800,
       "end_time": 32400,
       "required_workers": 1
-    },
-    {
-      "task_id": "t62_05",
-      "start_time": 72000,
-      "end_time": 75600,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t62_06",
-      "start_time": 46800,
-      "end_time": 50400,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t62_07",
-      "start_time": 43200,
-      "end_time": 46800,
-      "required_workers": 1
     }
   ],
   "region_71": [
@@ -1817,12 +1271,6 @@
       "start_time": 79200,
       "end_time": 82800,
       "required_workers": 1
-    },
-    {
-      "task_id": "t38_01",
-      "start_time": 0,
-      "end_time": 3600,
-      "required_workers": 1
     }
   ],
   "region_5": [
@@ -1830,68 +1278,6 @@
       "task_id": "t05_00",
       "start_time": 7200,
       "end_time": 10800,
-      "required_workers": 1
-    }
-  ],
-  "region_39": [
-    {
-      "task_id": "t39_00",
-      "start_time": 43200,
-      "end_time": 46800,
-      "required_workers": 1
-    }
-  ],
-  "region_75": [
-    {
-      "task_id": "t75_00",
-      "start_time": 72000,
-      "end_time": 75600,
-      "required_workers": 1
-    },
-    {
-      "task_id": "t75_01",
-      "start_time": 75600,
-      "end_time": 79200,
-      "required_workers": 1
-    }
-  ],
-  "region_46": [
-    {
-      "task_id": "t46_00",
-      "start_time": 32400,
-      "end_time": 36000,
-      "required_workers": 1
-    }
-  ],
-  "region_74": [
-    {
-      "task_id": "t74_00",
-      "start_time": 72000,
-      "end_time": 75600,
-      "required_workers": 1
-    }
-  ],
-  "region_6": [
-    {
-      "task_id": "t06_00",
-      "start_time": 50400,
-      "end_time": 54000,
-      "required_workers": 1
-    }
-  ],
-  "region_96": [
-    {
-      "task_id": "t96_00",
-      "start_time": 32400,
-      "end_time": 36000,
-      "required_workers": 1
-    }
-  ],
-  "region_18": [
-    {
-      "task_id": "t18_00",
-      "start_time": 21600,
-      "end_time": 25200,
       "required_workers": 1
     }
   ]

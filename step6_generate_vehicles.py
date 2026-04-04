@@ -31,10 +31,10 @@ GRID_Y_NUM = 10                    # 纬度方向网格数
 # 车辆属性生成
 COST_MIN = 5.0
 COST_MAX = 20.0
-TRUSTED_RATIO = 0.3               # 可信工人比例
+TRUSTED_RATIO = 0.5               # 可信工人比例
 
 # 随机种子（保证可重复）
-random.seed(1)
+random.seed(3)
 # ==================================================
 
 def time_to_seconds(t_str):

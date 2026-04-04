@@ -13,7 +13,7 @@ TASK_CSV = 'step6_tasks.csv'                # 输出任务 CSV
 TASK_JSON = 'step6_task_segments.json'      # 输出任务 JSON
 PLOT_FILE = 'step6_tasks_distribution.png'  # 输出图片
 
-TOTAL_TASKS = 300                           # 总任务数（将尽力生成，如果容量不足则输出实际数量）
+TOTAL_TASKS = 200                           # 总任务数（将尽力生成，如果容量不足则输出实际数量）
 TIME_SLOT_HOURS = 1                         # 时间片长度（小时），固定为1
 HOURS_PER_DAY = 24
 
