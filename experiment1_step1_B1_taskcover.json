@@ -3,144 +3,144 @@
     "round": 0,
     "completed_tasks": 3,
     "total_tasks": 200,
-    "coverage_rate": 0.013
+    "coverage_rate": 0.0128
   },
   {
     "round": 1,
     "completed_tasks": 10,
     "total_tasks": 200,
-    "coverage_rate": 0.0488
+    "coverage_rate": 0.0487
   },
   {
     "round": 2,
     "completed_tasks": 15,
     "total_tasks": 200,
-    "coverage_rate": 0.0748
+    "coverage_rate": 0.074
   },
   {
     "round": 3,
-    "completed_tasks": 20,
+    "completed_tasks": 19,
     "total_tasks": 200,
-    "coverage_rate": 0.0977
+    "coverage_rate": 0.0967
   },
   {
     "round": 4,
-    "completed_tasks": 25,
+    "completed_tasks": 24,
     "total_tasks": 200,
-    "coverage_rate": 0.123
+    "coverage_rate": 0.1218
   },
   {
     "round": 5,
     "completed_tasks": 31,
     "total_tasks": 200,
-    "coverage_rate": 0.1567
+    "coverage_rate": 0.1555
   },
   {
     "round": 6,
-    "completed_tasks": 39,
+    "completed_tasks": 38,
     "total_tasks": 200,
-    "coverage_rate": 0.1933
+    "coverage_rate": 0.1915
   },
   {
     "round": 7,
     "completed_tasks": 43,
     "total_tasks": 200,
-    "coverage_rate": 0.217
+    "coverage_rate": 0.2155
   },
   {
     "round": 8,
     "completed_tasks": 50,
     "total_tasks": 200,
-    "coverage_rate": 0.2525
+    "coverage_rate": 0.2513
   },
   {
     "round": 9,
     "completed_tasks": 56,
     "total_tasks": 200,
-    "coverage_rate": 0.2817
+    "coverage_rate": 0.2803
   },
   {
     "round": 10,
     "completed_tasks": 60,
     "total_tasks": 200,
-    "coverage_rate": 0.301
+    "coverage_rate": 0.2997
   },
   {
     "round": 11,
     "completed_tasks": 67,
     "total_tasks": 200,
-    "coverage_rate": 0.335
+    "coverage_rate": 0.3337
   },
   {
     "round": 12,
-    "completed_tasks": 72,
+    "completed_tasks": 71,
     "total_tasks": 200,
-    "coverage_rate": 0.3588
+    "coverage_rate": 0.3575
   },
   {
     "round": 13,
     "completed_tasks": 78,
     "total_tasks": 200,
-    "coverage_rate": 0.3918
+    "coverage_rate": 0.3902
   },
   {
     "round": 14,
-    "completed_tasks": 82,
+    "completed_tasks": 81,
     "total_tasks": 200,
-    "coverage_rate": 0.4088
+    "coverage_rate": 0.4072
   },
   {
     "round": 15,
     "completed_tasks": 89,
     "total_tasks": 200,
-    "coverage_rate": 0.4445
+    "coverage_rate": 0.443
   },
   {
     "round": 16,
     "completed_tasks": 95,
     "total_tasks": 200,
-    "coverage_rate": 0.4753
+    "coverage_rate": 0.4737
   },
   {
     "round": 17,
-    "completed_tasks": 101,
+    "completed_tasks": 100,
     "total_tasks": 200,
-    "coverage_rate": 0.5032
+    "coverage_rate": 0.5015
   },
   {
     "round": 18,
     "completed_tasks": 108,
     "total_tasks": 200,
-    "coverage_rate": 0.5408
+    "coverage_rate": 0.5393
   },
   {
     "round": 19,
     "completed_tasks": 113,
     "total_tasks": 200,
-    "coverage_rate": 0.5665
+    "coverage_rate": 0.5648
   },
   {
     "round": 20,
     "completed_tasks": 119,
     "total_tasks": 200,
-    "coverage_rate": 0.5973
+    "coverage_rate": 0.596
   },
   {
     "round": 21,
     "completed_tasks": 125,
     "total_tasks": 200,
-    "coverage_rate": 0.6243
+    "coverage_rate": 0.6233
   },
   {
     "round": 22,
     "completed_tasks": 130,
     "total_tasks": 200,
-    "coverage_rate": 0.6492
+    "coverage_rate": 0.6482
   },
   {
     "round": 23,
     "completed_tasks": 134,
     "total_tasks": 200,
-    "coverage_rate": 0.6687
+    "coverage_rate": 0.6682
   }
 ]

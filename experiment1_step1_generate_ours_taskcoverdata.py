@@ -1,26 +1,25 @@
 """
 群智感知双阶段工人招募与信任度验证算法（OURS 完整方案：CMAB + 信任 + PGRD + LGSC）
+多次重复实验取平均，输出平均结果到原文件名。
 输入：step6_worker_segments.json, step6_task_segments.json
-输出：step9_worker_option_set.json, step9_task_weight_list.json, step9_tasks_grid_num.json,
-      step9_tasks_classification.json, step9_lgsc_params.json, step9_final_result_ours.json
-      experiment1_step1_ours_taskcover.json（覆盖率记录）
-      experiment1_step1_ours_cumulative_trusted_ratio.json（累积数据质量）
+输出：step9_final_result_ours.json, experiment1_step1_ours_taskcover.json,
+      experiment1_step1_ours_cumulative_trusted_ratio.json,
+      experiment1_step1_ours_std_results.json（标准差）
 """
 
 import json
 import random
 import math
+import numpy as np
 from collections import defaultdict
+import csv
 
 # ========== 参数配置 ==========
 RANDOM_SEED = 2
-random.seed(RANDOM_SEED)
-
-# 预算与招募参数
 BUDGET = 10000
 K = 7
 R = 24
-M_VERIFY = 7 # 验证任务数量（B1 不使用，但保留参数）
+M_VERIFY = 7
 
 # 信任度参数
 ETA = 0.6
@@ -49,6 +48,9 @@ PROFIT_RANGE = (1.2, 2.0)
 SUNK_THRESHOLD = 20
 MEMBER_BONUS = 20
 RHO_INIT = 1.0
+
+# 重复次数
+NUM_SEEDS = 30
 
 # ========== 工具函数 ==========
 def load_json(filepath):
@@ -146,32 +148,27 @@ def generate_task_classification(worker_options_path, task_segments_path, output
     worker_options = data['worker_options']
     task_segments = load_json(task_segments_path)
 
-    # 收集所有任务ID（原始任务列表）
     all_task_ids = []
     for region_key, tasks in task_segments.items():
         for task in tasks:
             all_task_ids.append(task['task_id'])
 
-    # 统计每个任务被工人覆盖的原始报价
     task_prices = defaultdict(list)
     for w in worker_options:
         for task in w['covered_tasks']:
             tid = task['task_id']
             task_prices[tid].append(task['task_price'])
 
-    # 只保留有工人覆盖的任务（排除无覆盖的任务）
     covered_task_ids = set(task_prices.keys())
     if not covered_task_ids:
         print("警告：没有任务被任何工人覆盖！")
         return
 
-    # 构建任务信息列表，base_price 取平均
     tasks_info = []
     for tid in covered_task_ids:
         base_price = sum(task_prices[tid]) / len(task_prices[tid])
         tasks_info.append({'task_id': tid, 'base_price': base_price})
 
-    # 按原始价格降序排序，前 MEMBER_RATIO 比例的任务为会员任务
     tasks_info.sort(key=lambda x: x['base_price'], reverse=True)
     m = len(tasks_info)
     k = int(MEMBER_RATIO * m)
@@ -249,7 +246,6 @@ def initialize_cmab(worker_options_path, task_weights_path, task_class_path, lgs
     task_class = load_json(task_class_path)
     lgsc = load_json(lgsc_params_path)
 
-    # 构建任务时间映射
     task_time_map = {}
     for w in workers:
         for task in w['covered_tasks']:
@@ -257,23 +253,17 @@ def initialize_cmab(worker_options_path, task_weights_path, task_class_path, lgs
             if tid not in task_time_map:
                 task_time_map[tid] = task['task_start_time']
 
-    # 初始化 CMAB 档案
     for w in workers:
         w['n_i'] = len(w['covered_tasks'])
         w['avg_quality'] = sum(t['quality'] for t in w['covered_tasks']) / w['n_i'] if w['n_i'] > 0 else 0.0
         w['judge_count'] = 1
-
-        # PGRD 历史报酬
         w['hist_reward_m'] = 0.0
         w['hist_reward_n'] = 0.0
-
-        # 可用轮次
         w['available_rounds'] = set()
         for t in w['covered_tasks']:
             hour = t['task_start_time'] // 3600
             w['available_rounds'].add(hour)
 
-        # LGSC 状态
         w['is_member'] = False
         w['member_until'] = -1
         w['sunk_value'] = 0.0
@@ -281,7 +271,6 @@ def initialize_cmab(worker_options_path, task_weights_path, task_class_path, lgs
         w['bonus_count'] = 0
         w['last_period_cost'] = 0.0
 
-    # 工人分类集合
     Uc = set()
     Uu = set()
     Um = set()
@@ -293,12 +282,10 @@ def initialize_cmab(worker_options_path, task_weights_path, task_class_path, lgs
         else:
             Um.add(w['worker_id'])
 
-    # 任务覆盖计数（只针对有工人覆盖的任务）
     task_covered_count = {tid: 0 for tid in task_time_map}
     required_workers = {tid: task_weights[tid] for tid in task_time_map}
     total_learned_counts = sum(w['n_i'] for w in workers)
 
-    # PGRD 平均报酬
     member_prices = [t['task_price'] for t in task_class if t['type'] == 'member']
     normal_prices = [t['task_price'] for t in task_class if t['type'] == 'normal']
     R_m = sum(member_prices) / len(member_prices) if member_prices else 0
@@ -390,8 +377,7 @@ def update_trust(workers, validation_tasks, task_grid_map, Uc, Uu, Um, round_idx
                     w['category'] = 'malicious'
     return Uc, Uu, Um
 
-# ========== PGRD 决策（有效代码逻辑） ==========
-def pgrd_decision(workers, task_class, R_m, R_n, round_idx, fee, alpha, beta, zeta, lam, sigma, psi_th):
+def pgrd_decision(workers, task_class, R_m, R_n, round_idx, fee, alpha, beta, zeta, lam, sigma, psi_th, member_validity):
     task_type = {t['task_id']: t['type'] for t in task_class}
     task_cost = {t['task_id']: t['worker_cost'] for t in task_class}
     available_workers = [w for w in workers if round_idx in w['available_rounds']]
@@ -405,9 +391,7 @@ def pgrd_decision(workers, task_class, R_m, R_n, round_idx, fee, alpha, beta, ze
         if w['category'] == 'malicious':
             continue
 
-        # 已经会员且未过期
         if w['is_member'] and w['member_until'] >= round_idx:
-            # 会员只投标会员任务
             member_tasks = []
             for task in w['covered_tasks']:
                 if task['task_start_time'] // 3600 == round_idx:
@@ -417,7 +401,6 @@ def pgrd_decision(workers, task_class, R_m, R_n, round_idx, fee, alpha, beta, ze
             bid_tasks[wid] = member_tasks
             continue
 
-        # 非会员：收集当前轮可投标的任务
         member_tasks = []
         normal_tasks = []
         for task in w['covered_tasks']:
@@ -433,12 +416,10 @@ def pgrd_decision(workers, task_class, R_m, R_n, round_idx, fee, alpha, beta, ze
             bid_tasks[wid] = []
             continue
 
-        # 未知工人不能成为会员
         if w['category'] == 'unknown':
             bid_tasks[wid] = normal_tasks
             continue
 
-        # 可信工人：计算成为会员的概率
         b_m = alpha * w['hist_reward_m'] + beta * R_m
         b_n = alpha * w['hist_reward_n'] + beta * R_n
         delta = beta * (R_m - R_n)
@@ -456,15 +437,14 @@ def pgrd_decision(workers, task_class, R_m, R_n, round_idx, fee, alpha, beta, ze
         if psi >= psi_th:
             new_member_set.add(wid)
             w['is_member'] = True
-            w['member_until'] = round_idx + MEMBER_VALIDITY
-            bid_tasks[wid] = member_tasks + normal_tasks  # 成为会员后可做所有任务
+            w['member_until'] = round_idx + member_validity
+            bid_tasks[wid] = member_tasks + normal_tasks
             total_fee += fee
         else:
             bid_tasks[wid] = normal_tasks
 
     return bid_tasks, new_member_set, total_fee
 
-# ========== CMAB 招募（使用分类后价格） ==========
 def cmab_round(workers, task_covered_count, required_workers, remaining_budget, K, total_learned_counts, round_idx, bid_tasks, task_price_map):
     candidates = [w for w in workers if round_idx in w['available_rounds']
                   and w['category'] in ('trusted', 'unknown')
@@ -523,7 +503,6 @@ def cmab_round(workers, task_covered_count, required_workers, remaining_budget, 
         candidates.remove(best_worker)
     return round_selected, remaining_budget, task_covered_count, total_learned_counts, round_cost, completed_tasks_per_worker
 
-# ========== 更新历史报酬和平均报酬（有效代码逻辑） ==========
 def update_history_and_avg(workers, member_set, completed_tasks_per_worker, task_class):
     task_type = {t['task_id']: t['type'] for t in task_class}
     task_price = {t['task_id']: t['task_price'] for t in task_class}
@@ -538,7 +517,6 @@ def update_history_and_avg(workers, member_set, completed_tasks_per_worker, task
                 reward_n += price
         w['hist_reward_m'] = reward_m
         w['hist_reward_n'] = reward_n
-    # 计算新的平均报酬 R_m, R_n（用于下一轮）
     member_rewards = []
     normal_rewards = []
     for w in workers:
@@ -552,7 +530,6 @@ def update_history_and_avg(workers, member_set, completed_tasks_per_worker, task
     R_n = sum(normal_rewards) / len(normal_rewards) if normal_rewards else 0
     return R_m, R_n
 
-# ========== LGSC 支付 ==========
 def lgsc_payment(workers, completed_tasks_per_worker, task_class, sunk_threshold, member_bonus, task_price_map, round_idx):
     task_cost = {t['task_id']: t['worker_cost'] for t in task_class}
     total_bonus_paid = 0.0
@@ -592,11 +569,11 @@ def lgsc_payment(workers, completed_tasks_per_worker, task_class, sunk_threshold
     avg_roi = sum(rois) / len(rois) if rois else 0.0
     return total_bonus_paid, avg_sunk_loss, avg_roi, members_above_threshold
 
-# ========== OURS 主循环 ==========
-def greedy_recruitment(workers, task_covered_count, required_workers, total_learned_counts,
-                       Uc, Uu, Um, R_m, R_n, B, K, R, task_grid_map, task_time_map,
-                       M_VERIFY, ETA, THETA_HIGH, THETA_LOW,
-                       PGRD_PARAMS, LGSC_PARAMS, task_class):
+# ========== OURS 主循环（单次实验，返回曲线和结果） ==========
+def greedy_recruitment_ours(workers, task_covered_count, required_workers, total_learned_counts,
+                            Uc, Uu, Um, R_m, R_n, B, K, R, task_grid_map, task_time_map,
+                            M_VERIFY, ETA, THETA_HIGH, THETA_LOW,
+                            PGRD_PARAMS, LGSC_PARAMS, task_class, member_validity):
     total_cost = 0.0
     remaining_budget = B
     greedy_selected = []
@@ -605,33 +582,60 @@ def greedy_recruitment(workers, task_covered_count, required_workers, total_lear
     total_bonus_paid = 0.0
     round_details = []
 
-    # 任务价格映射（分类后的价格）和系统收益映射
     task_price_map = {t['task_id']: t['task_price'] for t in task_class}
     task_system_income_map = {t['task_id']: t['system_income'] for t in task_class}
     total_system_income = 0.0
 
-    # 数据质量统计（累积）
     cumulative_total_tasks = 0
     cumulative_trusted_tasks = 0
-    cumulative_trusted_ratio = []     # 每轮累积占比
-
+    cumulative_trusted_ratio = []
     task_coverage_records = []
+
+    # 新增：存储每轮的工人类别数量
+    worker_category_per_round = []
+
+    stop_recruitment = False  # 标记是否停止招募（预算不足/任务完成/无工人）
 
     for r in range(R):
         print(f"\n--- 第 {r} 轮 ---")
+
+        # 如果已经停止招募，直接记录当前工人数量并继续下一轮
+        if stop_recruitment:
+            worker_category_per_round.append({
+                "round": r,
+                "trusted_count": len(Uc),
+                "unknown_count": len(Uu),
+                "malicious_count": len(Um)
+            })
+            continue
+
         available_workers = [w for w in workers if r in w['available_rounds']]
         print(f"可用工人数: {len(available_workers)}")
         if not available_workers:
-            print("当前轮无可用工人")
+            print("当前轮无可用工人，停止招募")
+            stop_recruitment = True
+            worker_category_per_round.append({
+                "round": r,
+                "trusted_count": len(Uc),
+                "unknown_count": len(Uu),
+                "malicious_count": len(Um)
+            })
             continue
 
         remaining_tasks = sum(1 for tid, cnt in task_covered_count.items() if cnt < required_workers[tid])
         print(f"当前轮未完成任务数: {remaining_tasks}")
         if remaining_tasks == 0:
-            print("所有任务已完成，终止")
-            break
+            print("所有任务已完成，停止招募")
+            stop_recruitment = True
+            worker_category_per_round.append({
+                "round": r,
+                "trusted_count": len(Uc),
+                "unknown_count": len(Uu),
+                "malicious_count": len(Um)
+            })
+            continue
 
-        # 计算最小成本（基于分类后的任务价格）
+        # 计算最小成本
         min_cost = float('inf')
         for w in available_workers:
             for task in w['covered_tasks']:
@@ -643,17 +647,32 @@ def greedy_recruitment(workers, task_covered_count, required_workers, total_lear
                     if price < min_cost:
                         min_cost = price
         if min_cost == float('inf'):
-            print("本轮没有可做的任务")
-            break
+            print("本轮没有可做的任务，停止招募")
+            stop_recruitment = True
+            worker_category_per_round.append({
+                "round": r,
+                "trusted_count": len(Uc),
+                "unknown_count": len(Uu),
+                "malicious_count": len(Um)
+            })
+            continue
         if remaining_budget < min_cost:
-            print("预算不足，终止")
-            break
+            print("预算不足，停止招募")
+            stop_recruitment = True
+            worker_category_per_round.append({
+                "round": r,
+                "trusted_count": len(Uc),
+                "unknown_count": len(Uu),
+                "malicious_count": len(Um)
+            })
+            continue
 
         # PGRD 决策
         bid_tasks, new_member_set, fee_income = pgrd_decision(
             workers, task_class, R_m, R_n, r,
             PGRD_PARAMS['fee'], PGRD_PARAMS['alpha'], PGRD_PARAMS['beta'],
-            PGRD_PARAMS['zeta'], PGRD_PARAMS['lam'], PGRD_PARAMS['sigma'], PGRD_PARAMS['psi_th']
+            PGRD_PARAMS['zeta'], PGRD_PARAMS['lam'], PGRD_PARAMS['sigma'], PGRD_PARAMS['psi_th'],
+            member_validity
         )
         total_fee += fee_income
         print(f"新会员人数: {len(new_member_set)}，会费收入: {fee_income:.2f}")
@@ -669,12 +688,10 @@ def greedy_recruitment(workers, task_covered_count, required_workers, total_lear
 
         total_cost += round_cost
 
-        # 累加系统收益
         for w, task_list in completed_tasks:
             for tid in task_list:
                 total_system_income += task_system_income_map[tid]
 
-        # 统计本轮完成情况（信任更新前，使用当前 Uc）
         round_total = 0
         round_trusted = 0
         for w, task_list in completed_tasks:
@@ -686,7 +703,6 @@ def greedy_recruitment(workers, task_covered_count, required_workers, total_lear
 
         print(f"本轮完成任务数: {round_total}, 其中可信工人完成: {round_trusted}, 占比: {round_trusted/round_total if round_total>0 else 0:.2%}")
 
-        # 更新累积统计
         cumulative_total_tasks += round_total
         cumulative_trusted_tasks += round_trusted
         cumulative_ratio = cumulative_trusted_tasks / cumulative_total_tasks if cumulative_total_tasks > 0 else 0.0
@@ -697,7 +713,6 @@ def greedy_recruitment(workers, task_covered_count, required_workers, total_lear
             "cumulative_trusted_ratio": round(cumulative_ratio, 4)
         })
 
-        # 打印招募信息
         if round_selected:
             recruited_trusted = [wid for wid in round_selected if wid in Uc]
             print(f"招募工人: {round_selected}, 其中可信: {recruited_trusted} (共{len(recruited_trusted)}人)")
@@ -717,7 +732,6 @@ def greedy_recruitment(workers, task_covered_count, required_workers, total_lear
         )
         total_bonus_paid += bonus_paid
 
-        # 统计覆盖率
         completed = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
         total_task_num = len(required_workers)
         print(f"总成本: {total_cost:.2f}, 剩余预算: {remaining_budget:.2f}, 已完成任务: {completed}/{total_task_num}")
@@ -725,7 +739,6 @@ def greedy_recruitment(workers, task_covered_count, required_workers, total_lear
         print(f"平均报酬: 会员任务 R_m={R_m:.2f}, 普通任务 R_n={R_n:.2f}")
         print(f"LGSC: 奖励金 {bonus_paid:.2f}, 平均沉没损失 {avg_sunk_loss:.2f}, 平均ROI {avg_roi:.2f}")
 
-        # 记录覆盖率
         task_coverage_records.append({
             "round": r,
             "completed_tasks": completed,
@@ -733,7 +746,6 @@ def greedy_recruitment(workers, task_covered_count, required_workers, total_lear
             "coverage_rate": round(completed / total_task_num, 4) if total_task_num > 0 else 0.0
         })
 
-        # 记录详情
         round_details.append({
             'round': r,
             'member_set': list(new_member_set),
@@ -746,6 +758,14 @@ def greedy_recruitment(workers, task_covered_count, required_workers, total_lear
             'avg_sunk_loss_this_round': avg_sunk_loss,
             'avg_roi_this_round': round(avg_roi, 2),
             'members_above_threshold': members_above
+        })
+
+        # 记录本轮结束时的工人类别数量
+        worker_category_per_round.append({
+            "round": r,
+            "trusted_count": len(Uc),
+            "unknown_count": len(Uu),
+            "malicious_count": len(Um)
         })
 
     # 最终统计
@@ -771,42 +791,49 @@ def greedy_recruitment(workers, task_covered_count, required_workers, total_lear
         'round_details': round_details
     }
 
-    # 保存文件
-    save_json(task_coverage_records, "experiment1_step1_ours_taskcover.json")
-    save_json(cumulative_trusted_ratio, "experiment1_step1_ours_cumulative_trusted_ratio.json")
-    print(f"✅ 覆盖率文件已保存：experiment1_step1_ours_taskcover.json")
-    print(f"✅ 累积可信任务占比文件已保存：experiment1_step1_ours_cumulative_trusted_ratio.json")
+    coverage_curve = [item['coverage_rate'] for item in task_coverage_records]
+    cumulative_curve = [item['cumulative_trusted_ratio'] for item in cumulative_trusted_ratio]
+    return result, coverage_curve, cumulative_curve, worker_category_per_round
 
-    return result
-
-# ========== 主函数 ==========
-def main():
-    random.seed(RANDOM_SEED)
-
-    WORKER_SEGMENTS = 'step6_worker_segments.json'
-    TASK_SEGMENTS = 'step6_task_segments.json'
+# ========== 单次实验封装 ==========
+def run_experiment_ours(seed, worker_segments_path, task_segments_path,
+                        budget, K, R, M_VERIFY, ETA, THETA_HIGH, THETA_LOW,
+                        pgrd_params, lgsc_params, member_validity):
+    random.seed(seed)
 
     OUTPUT_WORKER_OPTIONS = 'step9_worker_option_set.json'
     OUTPUT_TASK_WEIGHTS = 'step9_task_weight_list.json'
     OUTPUT_TASK_GRID = 'step9_tasks_grid_num.json'
     OUTPUT_TASK_CLASS = 'step9_tasks_classification.json'
-    OUTPUT_FINAL = 'step9_final_result_ours.json'
 
-    # 第一阶段
-    worker_options, tasks, task_weights, task_grid = data_preparation(
-        WORKER_SEGMENTS, TASK_SEGMENTS,
-        OUTPUT_WORKER_OPTIONS, OUTPUT_TASK_WEIGHTS,
-        OUTPUT_TASK_GRID, OUTPUT_TASK_CLASS
-    )
+    data_preparation(worker_segments_path, task_segments_path,
+                     OUTPUT_WORKER_OPTIONS, OUTPUT_TASK_WEIGHTS,
+                     OUTPUT_TASK_GRID, OUTPUT_TASK_CLASS)
 
-    # 第二阶段
     workers, task_covered_count, required_workers, total_learned_counts, \
     Uc, Uu, Um, R_m, R_n, task_time_map = initialize_cmab(
         OUTPUT_WORKER_OPTIONS, OUTPUT_TASK_WEIGHTS, OUTPUT_TASK_CLASS, 'step9_lgsc_params.json'
     )
 
-    # 准备 PGRD 和 LGSC 参数
     task_class = load_json(OUTPUT_TASK_CLASS)
+    task_grid = load_json(OUTPUT_TASK_GRID)
+    task_grid_map = {item['task_id']: item['grid_id'] for item in task_grid}
+
+    result, coverage_curve, cumulative_curve, worker_category_per_round = greedy_recruitment_ours(
+        workers, task_covered_count, required_workers, total_learned_counts,
+        Uc, Uu, Um, R_m, R_n,
+        budget, K, R, task_grid_map, task_time_map,
+        M_VERIFY, ETA, THETA_HIGH, THETA_LOW,
+        pgrd_params, lgsc_params, task_class, member_validity
+    )
+
+    return coverage_curve, cumulative_curve, result, worker_category_per_round
+
+# ========== 主函数：多次重复实验取平均 ==========
+def main():
+    WORKER_SEGMENTS = 'step6_worker_segments.json'
+    TASK_SEGMENTS = 'step6_task_segments.json'
+
     PGRD_PARAMS = {
         'fee': FEE,
         'alpha': ALPHA,
@@ -822,30 +849,163 @@ def main():
         'rho_init': RHO_INIT
     }
 
-    # 第三阶段
-    task_grid_map = {item['task_id']: item['grid_id'] for item in task_grid}
+    base_seed = RANDOM_SEED
+    seeds = [base_seed + i for i in range(NUM_SEEDS)]
 
-    result = greedy_recruitment(
-        workers, task_covered_count, required_workers, total_learned_counts,
-        Uc, Uu, Um, R_m, R_n,
-        BUDGET, K, R, task_grid_map, task_time_map,
-        M_VERIFY, ETA, THETA_HIGH, THETA_LOW,
-        PGRD_PARAMS, LGSC_PARAMS, task_class
-    )
+    all_coverage_curves = []
+    all_cumulative_curves = []
+    all_platform_utils = []
+    all_final_coverages = []
+    all_total_costs = []
+    all_remaining_budgets = []
+    all_trusted_counts = []
+    all_malicious_counts = []
+    all_unknown_counts = []
+    all_total_fees = []
+    all_total_bonus_paid = []
+    # 新增：存储每次实验的工人类别序列
+    all_worker_categories = []  # 每个元素是列表，列表元素为字典{'round', 'trusted_count', ...}
 
-    save_json(result, OUTPUT_FINAL)
-    print(f"\n最终结果已保存至 {OUTPUT_FINAL}")
+    print("获取总任务数...")
+    temp_seed = seeds[0]
+    random.seed(temp_seed)
+    temp_worker_options = 'step9_worker_option_set.json'
+    temp_task_weights = 'step9_task_weight_list.json'
+    temp_task_grid = 'step9_tasks_grid_num.json'
+    temp_task_class = 'step9_tasks_classification.json'
+    data_preparation(WORKER_SEGMENTS, TASK_SEGMENTS,
+                     temp_worker_options, temp_task_weights,
+                     temp_task_grid, temp_task_class)
+    task_class_temp = load_json(temp_task_class)
+    TOTAL_TASKS = len(task_class_temp)
+    print(f"总任务数: {TOTAL_TASKS}")
 
-    print("\n=== 最终结果 ===")
-    for k, v in result.items():
-        if isinstance(v, list) and len(v) > 10:
-            print(f"{k}: {v[:10]}... (共{len(v)})")
-        elif k == 'round_details':
-            print(f"{k}:")
-            for rd in v[:3]:
-                print(f"  轮次 {rd['round']}: 会员人数 {rd['member_count']}, 非会员人数 {rd['non_member_count']}, R_m={rd['R_m']:.2f}, R_n={rd['R_n']:.2f}")
-        else:
-            print(f"{k}: {v}")
+    for idx, seed in enumerate(seeds):
+        print(f"\n========== 运行实验 {idx+1}/{NUM_SEEDS}，随机种子 {seed} ==========")
+        coverage_curve, cumulative_curve, result, worker_cat = run_experiment_ours(
+            seed, WORKER_SEGMENTS, TASK_SEGMENTS,
+            BUDGET, K, R, M_VERIFY, ETA, THETA_HIGH, THETA_LOW,
+            PGRD_PARAMS, LGSC_PARAMS, MEMBER_VALIDITY
+        )
+        all_coverage_curves.append(coverage_curve)
+        all_cumulative_curves.append(cumulative_curve)
+        all_platform_utils.append(result['platform_utility'])
+        all_total_costs.append(result['total_cost'])
+        all_remaining_budgets.append(result['remaining_budget'])
+        all_trusted_counts.append(result['trusted_count'])
+        all_malicious_counts.append(result['malicious_count'])
+        all_unknown_counts.append(result['unknown_count'])
+        all_total_fees.append(result['total_fee'])
+        all_total_bonus_paid.append(result['total_bonus_paid'])
+        final_coverage = result['covered_task_count'] / TOTAL_TASKS
+        all_final_coverages.append(final_coverage)
+        all_worker_categories.append(worker_cat)  # 存储工人类别序列
+
+    # 计算平均覆盖率曲线等（与之前相同）
+    num_rounds = len(all_coverage_curves[0])
+    avg_coverage = []
+    std_coverage = []
+    avg_cumulative = []
+    std_cumulative = []
+    for r in range(num_rounds):
+        round_cov = [curve[r] for curve in all_coverage_curves]
+        avg_coverage.append(np.mean(round_cov))
+        std_coverage.append(np.std(round_cov))
+        round_cum = [curve[r] for curve in all_cumulative_curves]
+        avg_cumulative.append(np.mean(round_cum))
+        std_cumulative.append(np.std(round_cum))
+
+    # 计算工人类别平均数量（每轮）
+    # 假设所有实验的 worker_cat 长度都是 R（因为我们已经强制记录R轮）
+    avg_trusted_per_round = []
+    avg_unknown_per_round = []
+    avg_malicious_per_round = []
+    for r in range(num_rounds):
+        trusted_vals = [cat[r]['trusted_count'] for cat in all_worker_categories]
+        unknown_vals = [cat[r]['unknown_count'] for cat in all_worker_categories]
+        malicious_vals = [cat[r]['malicious_count'] for cat in all_worker_categories]
+        avg_trusted_per_round.append(round(np.mean(trusted_vals)))
+        avg_unknown_per_round.append(round(np.mean(unknown_vals)))
+        avg_malicious_per_round.append(round(np.mean(malicious_vals)))
+
+    # 写入工人类别CSV文件
+    with open("experiment1_step1_worker_category.csv", "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(["round", "trusted_count", "unknown_count", "malicious_count"])
+        for r in range(num_rounds):
+            writer.writerow([r, avg_trusted_per_round[r], avg_unknown_per_round[r], avg_malicious_per_round[r]])
+    print("✅ 工人类别变化曲线已保存至 experiment1_step1_worker_category.csv")
+
+    # 其余指标的平均值和保存代码与之前相同
+    avg_platform = np.mean(all_platform_utils)
+    avg_final_coverage = np.mean(all_final_coverages)
+    avg_cost = np.mean(all_total_costs)
+    avg_remaining = np.mean(all_remaining_budgets)
+    avg_trusted = np.mean(all_trusted_counts)
+    avg_malicious = np.mean(all_malicious_counts)
+    avg_unknown = np.mean(all_unknown_counts)
+    avg_fee = np.mean(all_total_fees)
+    avg_bonus = np.mean(all_total_bonus_paid)
+
+    # 保存平均覆盖率曲线
+    avg_coverage_records = [
+        {
+            "round": r,
+            "completed_tasks": int(round(avg_coverage[r] * TOTAL_TASKS)),
+            "total_tasks": TOTAL_TASKS,
+            "coverage_rate": round(avg_coverage[r], 4)
+        }
+        for r in range(num_rounds)
+    ]
+    save_json(avg_coverage_records, "experiment1_step1_ours_taskcover.json")
+    print("✅ 平均覆盖率曲线已保存至 experiment1_step1_ours_taskcover.json")
+
+    # 保存平均累积可信任务占比曲线
+    avg_cumulative_records = [
+        {
+            "round": r,
+            "cumulative_trusted_ratio": round(avg_cumulative[r], 4)
+        }
+        for r in range(num_rounds)
+    ]
+    save_json(avg_cumulative_records, "experiment1_step1_ours_cumulative_trusted_ratio.json")
+    print("✅ 平均累积可信任务占比曲线已保存至 experiment1_step1_ours_cumulative_trusted_ratio.json")
+
+    # 保存平均最终结果
+    avg_result = {
+        'total_rounds': num_rounds,
+        'platform_utility': round(avg_platform, 2),
+        'total_cost': round(avg_cost, 2),
+        'remaining_budget': round(avg_remaining, 2),
+        'covered_task_count': int(round(avg_final_coverage * TOTAL_TASKS)),
+        'trusted_count': int(round(avg_trusted)),
+        'malicious_count': int(round(avg_malicious)),
+        'unknown_count': int(round(avg_unknown)),
+        'init_select': len(load_json(temp_worker_options)['worker_options']),
+        'later_select': int(round(avg_trusted)),
+        'trusted_workers_list': [],
+        'total_fee': round(avg_fee, 2),
+        'total_bonus_paid': round(avg_bonus, 2),
+        'round_details': []
+    }
+    save_json(avg_result, "step9_final_result_ours.json")
+    print("✅ 平均最终结果已保存至 step9_final_result_ours.json")
+
+    # 保存标准差结果
+    std_result = {
+        "std_coverage_per_round": [round(x, 4) for x in std_coverage],
+        "std_cumulative_trusted_ratio_per_round": [round(x, 4) for x in std_cumulative],
+        "std_platform_utility": round(np.std(all_platform_utils), 2),
+        "std_final_coverage_rate": round(np.std(all_final_coverages), 4),
+        "std_total_cost": round(np.std(all_total_costs), 2),
+        "std_trusted_count": round(np.std(all_trusted_counts), 2),
+        "std_malicious_count": round(np.std(all_malicious_counts), 2),
+        "std_unknown_count": round(np.std(all_unknown_counts), 2),
+        "std_total_fee": round(np.std(all_total_fees), 2),
+        "std_total_bonus_paid": round(np.std(all_total_bonus_paid), 2)
+    }
+    save_json(std_result, "experiment1_step1_ours_std_results.json")
+    print("✅ 标准差结果已保存至 experiment1_step1_ours_std_results.json")
 
 if __name__ == '__main__':
     main()
