@@ -17,9 +17,9 @@ import csv
 # ========== 参数配置 ==========
 RANDOM_SEED = 2
 BUDGET = 10000
-K = 7
+K = 20
 R = 24
-M_VERIFY = 7
+M_VERIFY = 9
 
 # 信任度参数
 ETA = 0.6
@@ -46,8 +46,8 @@ PROFIT_RANGE = (1.2, 2.0)
 
 # LGSC 参数
 SUNK_THRESHOLD = 20
-MEMBER_BONUS = 20
-RHO_INIT = 1.0
+MEMBER_BONUS = 50
+RHO_INIT = 1.0 
 
 # 重复次数
 NUM_SEEDS = 30
@@ -584,22 +584,22 @@ def greedy_recruitment_ours(workers, task_covered_count, required_workers, total
 
     task_price_map = {t['task_id']: t['task_price'] for t in task_class}
     task_system_income_map = {t['task_id']: t['system_income'] for t in task_class}
+    task_cost_map = {t['task_id']: t['worker_cost'] for t in task_class}
     total_system_income = 0.0
+
+    # 会员 ROI 统计：累加总报酬、总成本、总会费（奖励金通过 bonus_count 计算）
+    member_stats = {}   # worker_id -> {'total_reward': 0.0, 'total_cost': 0.0, 'total_fee': 0.0}
 
     cumulative_total_tasks = 0
     cumulative_trusted_tasks = 0
     cumulative_trusted_ratio = []
     task_coverage_records = []
 
-    # 新增：存储每轮的工人类别数量
     worker_category_per_round = []
-
-    stop_recruitment = False  # 标记是否停止招募（预算不足/任务完成/无工人）
+    stop_recruitment = False
 
     for r in range(R):
         print(f"\n--- 第 {r} 轮 ---")
-
-        # 如果已经停止招募，直接记录当前工人数量并继续下一轮
         if stop_recruitment:
             worker_category_per_round.append({
                 "round": r,
@@ -635,7 +635,6 @@ def greedy_recruitment_ours(workers, task_covered_count, required_workers, total
             })
             continue
 
-        # 计算最小成本
         min_cost = float('inf')
         for w in available_workers:
             for task in w['covered_tasks']:
@@ -675,13 +674,15 @@ def greedy_recruitment_ours(workers, task_covered_count, required_workers, total
             member_validity
         )
         total_fee += fee_income
+        for wid in new_member_set:
+            if wid not in member_stats:
+                member_stats[wid] = {'total_reward': 0.0, 'total_cost': 0.0, 'total_fee': 0.0}
+            member_stats[wid]['total_fee'] += PGRD_PARAMS['fee']   # 每次成为会员支付会费
         print(f"新会员人数: {len(new_member_set)}，会费收入: {fee_income:.2f}")
 
-        # 生成验证任务
         validation_tasks = generate_validation_tasks(workers, task_grid_map, task_time_map, Uc, Uu, r, M_VERIFY)
         print(f"验证任务: {validation_tasks}")
 
-        # CMAB 招募
         round_selected, remaining_budget, task_covered_count, total_learned_counts, round_cost, completed_tasks = cmab_round(
             workers, task_covered_count, required_workers, remaining_budget, K, total_learned_counts, r, bid_tasks, task_price_map
         )
@@ -691,6 +692,9 @@ def greedy_recruitment_ours(workers, task_covered_count, required_workers, total
         for w, task_list in completed_tasks:
             for tid in task_list:
                 total_system_income += task_system_income_map[tid]
+                if w['worker_id'] in member_stats:
+                    member_stats[w['worker_id']]['total_reward'] += task_price_map[tid]
+                    member_stats[w['worker_id']]['total_cost'] += task_cost_map[tid]
 
         round_total = 0
         round_trusted = 0
@@ -719,15 +723,12 @@ def greedy_recruitment_ours(workers, task_covered_count, required_workers, total
         else:
             print("本轮未选中任何工人")
 
-        # 信任度更新
         if validation_tasks:
             Uc, Uu, Um = update_trust(workers, validation_tasks, task_grid_map, Uc, Uu, Um, r, ETA, THETA_HIGH, THETA_LOW)
 
-        # 更新历史报酬与平均报酬
         R_m, R_n = update_history_and_avg(workers, new_member_set, completed_tasks, task_class)
 
-        # LGSC 支付
-        bonus_paid, avg_sunk_loss, avg_roi, members_above = lgsc_payment(
+        bonus_paid, avg_sunk_loss, avg_roi_lgsc, members_above = lgsc_payment(
             workers, completed_tasks, task_class, LGSC_PARAMS['sunk_threshold'], LGSC_PARAMS['member_bonus'], task_price_map, round_idx=r
         )
         total_bonus_paid += bonus_paid
@@ -737,7 +738,7 @@ def greedy_recruitment_ours(workers, task_covered_count, required_workers, total
         print(f"总成本: {total_cost:.2f}, 剩余预算: {remaining_budget:.2f}, 已完成任务: {completed}/{total_task_num}")
         print(f"可信: {len(Uc)}, 未知: {len(Uu)}, 恶意: {len(Um)}")
         print(f"平均报酬: 会员任务 R_m={R_m:.2f}, 普通任务 R_n={R_n:.2f}")
-        print(f"LGSC: 奖励金 {bonus_paid:.2f}, 平均沉没损失 {avg_sunk_loss:.2f}, 平均ROI {avg_roi:.2f}")
+        print(f"LGSC: 奖励金 {bonus_paid:.2f}, 平均沉没损失 {avg_sunk_loss:.2f}, 平均ROI {avg_roi_lgsc:.2f}")
 
         task_coverage_records.append({
             "round": r,
@@ -756,11 +757,10 @@ def greedy_recruitment_ours(workers, task_covered_count, required_workers, total
             'non_member_count': len([w for w in available_workers if not w['is_member']]),
             'bonus_paid_this_round': bonus_paid,
             'avg_sunk_loss_this_round': avg_sunk_loss,
-            'avg_roi_this_round': round(avg_roi, 2),
+            'avg_roi_this_round': round(avg_roi_lgsc, 2),
             'members_above_threshold': members_above
         })
 
-        # 记录本轮结束时的工人类别数量
         worker_category_per_round.append({
             "round": r,
             "trusted_count": len(Uc),
@@ -768,9 +768,25 @@ def greedy_recruitment_ours(workers, task_covered_count, required_workers, total
             "malicious_count": len(Um)
         })
 
-    # 最终统计
     covered_task_count = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
     platform_utility = total_system_income + total_fee - total_cost - total_bonus_paid
+
+    # 计算平均 ROI（含奖励金，累加会费）
+    roi_list = []
+    for w in workers:
+        if w['is_member'] and w['member_until'] >= 0 and w['worker_id'] in member_stats:
+            stats = member_stats[w['worker_id']]
+            total_reward = stats['total_reward']
+            total_cost = stats['total_cost']
+            total_fee_paid = stats['total_fee']
+            total_bonus = w['bonus_count'] * LGSC_PARAMS['member_bonus']
+            denominator = total_fee_paid + total_cost
+            if denominator > 0:
+                roi = (total_reward + total_bonus - total_fee_paid - total_cost) / denominator
+            else:
+                roi = -1.0
+            roi_list.append(roi)
+    avg_roi = np.mean(roi_list) if roi_list else 0.0
 
     result = {
         'total_rounds': greedy_rounds,
@@ -788,6 +804,7 @@ def greedy_recruitment_ours(workers, task_covered_count, required_workers, total
         'trusted_workers_list': list(Uc),
         'total_fee': total_fee,
         'total_bonus_paid': total_bonus_paid,
+        'avg_roi': avg_roi,
         'round_details': round_details
     }
 
@@ -863,8 +880,8 @@ def main():
     all_unknown_counts = []
     all_total_fees = []
     all_total_bonus_paid = []
-    # 新增：存储每次实验的工人类别序列
-    all_worker_categories = []  # 每个元素是列表，列表元素为字典{'round', 'trusted_count', ...}
+    all_worker_categories = []
+    all_roi = []          # 新增：存储每次实验的 avg_roi
 
     print("获取总任务数...")
     temp_seed = seeds[0]
@@ -897,11 +914,12 @@ def main():
         all_unknown_counts.append(result['unknown_count'])
         all_total_fees.append(result['total_fee'])
         all_total_bonus_paid.append(result['total_bonus_paid'])
+        all_roi.append(result['avg_roi'])                     # 新增
+        all_worker_categories.append(worker_cat)
         final_coverage = result['covered_task_count'] / TOTAL_TASKS
         all_final_coverages.append(final_coverage)
-        all_worker_categories.append(worker_cat)  # 存储工人类别序列
 
-    # 计算平均覆盖率曲线等（与之前相同）
+    # 计算平均曲线
     num_rounds = len(all_coverage_curves[0])
     avg_coverage = []
     std_coverage = []
@@ -916,7 +934,6 @@ def main():
         std_cumulative.append(np.std(round_cum))
 
     # 计算工人类别平均数量（每轮）
-    # 假设所有实验的 worker_cat 长度都是 R（因为我们已经强制记录R轮）
     avg_trusted_per_round = []
     avg_unknown_per_round = []
     avg_malicious_per_round = []
@@ -936,7 +953,7 @@ def main():
             writer.writerow([r, avg_trusted_per_round[r], avg_unknown_per_round[r], avg_malicious_per_round[r]])
     print("✅ 工人类别变化曲线已保存至 experiment1_step1_worker_category.csv")
 
-    # 其余指标的平均值和保存代码与之前相同
+    # 其他指标平均值
     avg_platform = np.mean(all_platform_utils)
     avg_final_coverage = np.mean(all_final_coverages)
     avg_cost = np.mean(all_total_costs)
@@ -946,6 +963,8 @@ def main():
     avg_unknown = np.mean(all_unknown_counts)
     avg_fee = np.mean(all_total_fees)
     avg_bonus = np.mean(all_total_bonus_paid)
+    avg_roi = np.mean(all_roi)                 # 新增
+    std_roi = np.std(all_roi)                 # 新增
 
     # 保存平均覆盖率曲线
     avg_coverage_records = [
@@ -986,6 +1005,7 @@ def main():
         'trusted_workers_list': [],
         'total_fee': round(avg_fee, 2),
         'total_bonus_paid': round(avg_bonus, 2),
+        'avg_roi': round(avg_roi, 4),          # 新增
         'round_details': []
     }
     save_json(avg_result, "step9_final_result_ours.json")
@@ -1002,7 +1022,8 @@ def main():
         "std_malicious_count": round(np.std(all_malicious_counts), 2),
         "std_unknown_count": round(np.std(all_unknown_counts), 2),
         "std_total_fee": round(np.std(all_total_fees), 2),
-        "std_total_bonus_paid": round(np.std(all_total_bonus_paid), 2)
+        "std_total_bonus_paid": round(np.std(all_total_bonus_paid), 2),
+        "std_avg_roi": round(std_roi, 4)       # 新增
     }
     save_json(std_result, "experiment1_step1_ours_std_results.json")
     print("✅ 标准差结果已保存至 experiment1_step1_ours_std_results.json")

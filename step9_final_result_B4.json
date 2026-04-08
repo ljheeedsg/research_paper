@@ -1,15 +1,16 @@
 {
-  "platform_utility": 2506.43,
+  "platform_utility": 2505.37,
   "total_rounds": 24,
-  "total_cost": 3436.89,
-  "remaining_budget": 6563.11,
+  "total_cost": 12.62,
+  "remaining_budget": 6562.46,
   "covered_task_count": 161,
   "trusted_count": 111,
   "malicious_count": 35,
-  "unknown_count": 10,
+  "unknown_count": 11,
   "init_select": 156,
   "later_select": 111,
   "trusted_workers_list": [],
-  "total_fee": 436.87,
+  "total_fee": 435.8,
+  "avg_roi": 0.1943,
   "round_details": []
 }

@@ -1,12 +1,12 @@
 {
-  "total_rounds": 24,
-  "total_cost": 4712.71,
-  "platform_utility": -758.77,
-  "remaining_budget": 5287.29,
-  "covered_task_count": 134,
-  "trusted_count": 82,
-  "init_select": 156,
-  "later_select": 82,
+  "total_rounds": 21,
+  "total_cost": 9985.96,
+  "platform_utility": -1554.38,
+  "remaining_budget": 14.04,
+  "covered_task_count": 296,
+  "trusted_count": 135,
+  "init_select": 285,
+  "later_select": 135,
   "trusted_workers_list": [],
   "round_details": []
 }

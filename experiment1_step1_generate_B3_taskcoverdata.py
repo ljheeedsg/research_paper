@@ -16,7 +16,7 @@ from collections import defaultdict
 # ========== 参数配置 ==========
 RANDOM_SEED = 2
 BUDGET = 10000
-K = 7
+K = 20
 R = 24
 M_VERIFY = 7
 

@@ -16,7 +16,7 @@ from collections import defaultdict
 # ========== 参数配置 ==========
 RANDOM_SEED = 2          # 基础种子，实际会基于此生成不同种子
 BUDGET = 10000
-K = 7
+K = 20
 R = 24
 
 # 信任度参数（B2 不使用，保留占位）
@@ -38,7 +38,7 @@ MEMBER_BONUS = 20
 RHO_INIT = 1.0
 
 # 重复次数
-NUM_SEEDS = 30
+NUM_SEEDS = 1
 
 # ========== 工具函数 ==========
 def load_json(filepath):
