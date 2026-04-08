@@ -1,4002 +1,1602 @@
 [
   {
-    "task_id": "t51_00",
-    "task_price": 36.0,
-    "worker_cost": 18.43,
-    "system_income": 59.37,
-    "pure_worker_income": 17.57,
+    "task_id": "t67_00",
+    "task_price": 35.46,
+    "worker_cost": 17.06,
+    "system_income": 42.61,
+    "pure_worker_income": 18.4,
     "type": "member"
   },
   {
-    "task_id": "t71_00",
-    "task_price": 34.92,
-    "worker_cost": 17.08,
-    "system_income": 60.68,
-    "pure_worker_income": 17.84,
+    "task_id": "t67_03",
+    "task_price": 34.38,
+    "worker_cost": 16.46,
+    "system_income": 51.1,
+    "pure_worker_income": 17.92,
     "type": "member"
   },
   {
-    "task_id": "t85_00",
-    "task_price": 33.3,
-    "worker_cost": 14.42,
-    "system_income": 45.62,
-    "pure_worker_income": 18.88,
+    "task_id": "t67_04",
+    "task_price": 34.38,
+    "worker_cost": 18.77,
+    "system_income": 54.28,
+    "pure_worker_income": 15.61,
     "type": "member"
   },
   {
-    "task_id": "t50_00",
-    "task_price": 31.32,
-    "worker_cost": 13.15,
-    "system_income": 60.69,
-    "pure_worker_income": 18.17,
+    "task_id": "t53_07",
+    "task_price": 33.57,
+    "worker_cost": 17.64,
+    "system_income": 66.27,
+    "pure_worker_income": 15.93,
     "type": "member"
   },
   {
-    "task_id": "t93_01",
-    "task_price": 30.78,
-    "worker_cost": 18.39,
-    "system_income": 59.6,
-    "pure_worker_income": 12.39,
+    "task_id": "t36_01",
+    "task_price": 33.48,
+    "worker_cost": 14.64,
+    "system_income": 45.53,
+    "pure_worker_income": 18.84,
     "type": "member"
   },
   {
-    "task_id": "t68_00",
-    "task_price": 30.78,
-    "worker_cost": 17.53,
-    "system_income": 47.91,
-    "pure_worker_income": 13.25,
+    "task_id": "t67_05",
+    "task_price": 33.42,
+    "worker_cost": 16.94,
+    "system_income": 40.21,
+    "pure_worker_income": 16.48,
     "type": "member"
   },
   {
-    "task_id": "t35_03",
-    "task_price": 28.23,
-    "worker_cost": 11.48,
-    "system_income": 55.11,
-    "pure_worker_income": 16.76,
+    "task_id": "t67_01",
+    "task_price": 33.42,
+    "worker_cost": 14.02,
+    "system_income": 54.19,
+    "pure_worker_income": 19.4,
     "type": "member"
   },
   {
-    "task_id": "t35_05",
-    "task_price": 27.81,
-    "worker_cost": 13.21,
-    "system_income": 44.07,
-    "pure_worker_income": 14.6,
+    "task_id": "t62_02",
+    "task_price": 33.39,
+    "worker_cost": 14.4,
+    "system_income": 42.22,
+    "pure_worker_income": 18.99,
     "type": "member"
   },
   {
-    "task_id": "t34_06",
-    "task_price": 27.23,
-    "worker_cost": 12.95,
-    "system_income": 44.99,
-    "pure_worker_income": 14.28,
+    "task_id": "t03_00",
+    "task_price": 32.76,
+    "worker_cost": 14.77,
+    "system_income": 56.92,
+    "pure_worker_income": 17.99,
     "type": "member"
   },
   {
-    "task_id": "t35_04",
-    "task_price": 26.91,
-    "worker_cost": 11.45,
-    "system_income": 50.13,
-    "pure_worker_income": 15.46,
-    "type": "member"
-  },
-  {
-    "task_id": "t35_02",
-    "task_price": 26.73,
-    "worker_cost": 15.09,
-    "system_income": 44.91,
-    "pure_worker_income": 11.64,
-    "type": "member"
-  },
-  {
-    "task_id": "t61_00",
-    "task_price": 26.64,
-    "worker_cost": 10.82,
-    "system_income": 37.44,
-    "pure_worker_income": 15.82,
-    "type": "member"
-  },
-  {
-    "task_id": "t35_01",
-    "task_price": 26.52,
-    "worker_cost": 13.52,
-    "system_income": 41.0,
-    "pure_worker_income": 13.0,
-    "type": "member"
-  },
-  {
-    "task_id": "t96_02",
-    "task_price": 26.43,
-    "worker_cost": 11.0,
-    "system_income": 41.3,
-    "pure_worker_income": 15.44,
-    "type": "member"
-  },
-  {
-    "task_id": "t96_00",
-    "task_price": 26.43,
-    "worker_cost": 13.33,
-    "system_income": 50.81,
-    "pure_worker_income": 13.1,
-    "type": "member"
-  },
-  {
-    "task_id": "t86_02",
-    "task_price": 26.35,
-    "worker_cost": 11.35,
-    "system_income": 37.55,
-    "pure_worker_income": 15.0,
-    "type": "member"
-  },
-  {
-    "task_id": "t63_22",
-    "task_price": 26.32,
-    "worker_cost": 13.6,
-    "system_income": 45.08,
-    "pure_worker_income": 12.72,
-    "type": "member"
-  },
-  {
-    "task_id": "t63_13",
-    "task_price": 26.32,
-    "worker_cost": 11.53,
-    "system_income": 52.04,
-    "pure_worker_income": 14.79,
-    "type": "member"
-  },
-  {
-    "task_id": "t52_07",
-    "task_price": 26.22,
-    "worker_cost": 12.31,
-    "system_income": 39.42,
-    "pure_worker_income": 13.91,
-    "type": "member"
-  },
-  {
-    "task_id": "t86_07",
-    "task_price": 25.94,
-    "worker_cost": 15.54,
-    "system_income": 51.31,
-    "pure_worker_income": 10.4,
-    "type": "member"
-  },
-  {
-    "task_id": "t93_00",
-    "task_price": 25.88,
-    "worker_cost": 12.36,
-    "system_income": 48.08,
-    "pure_worker_income": 13.52,
-    "type": "member"
-  },
-  {
-    "task_id": "t76_01",
-    "task_price": 25.82,
-    "worker_cost": 13.43,
-    "system_income": 41.05,
-    "pure_worker_income": 12.39,
-    "type": "member"
-  },
-  {
-    "task_id": "t35_00",
-    "task_price": 25.73,
-    "worker_cost": 12.41,
-    "system_income": 34.53,
-    "pure_worker_income": 13.32,
-    "type": "member"
-  },
-  {
-    "task_id": "t84_00",
-    "task_price": 25.65,
-    "worker_cost": 10.47,
-    "system_income": 33.17,
-    "pure_worker_income": 15.18,
-    "type": "member"
-  },
-  {
-    "task_id": "t96_06",
-    "task_price": 25.29,
-    "worker_cost": 10.86,
-    "system_income": 41.51,
-    "pure_worker_income": 14.43,
-    "type": "member"
-  },
-  {
-    "task_id": "t45_01",
-    "task_price": 25.24,
-    "worker_cost": 12.97,
-    "system_income": 42.36,
-    "pure_worker_income": 12.27,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_24",
-    "task_price": 25.09,
-    "worker_cost": 12.4,
-    "system_income": 46.87,
-    "pure_worker_income": 12.69,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_17",
-    "task_price": 25.09,
-    "worker_cost": 11.72,
-    "system_income": 37.61,
-    "pure_worker_income": 13.36,
-    "type": "member"
-  },
-  {
-    "task_id": "t56_06",
-    "task_price": 25.05,
-    "worker_cost": 10.19,
-    "system_income": 47.81,
-    "pure_worker_income": 14.86,
-    "type": "member"
-  },
-  {
-    "task_id": "t44_19",
-    "task_price": 25.04,
-    "worker_cost": 12.27,
-    "system_income": 30.4,
-    "pure_worker_income": 12.77,
-    "type": "member"
-  },
-  {
-    "task_id": "t44_21",
-    "task_price": 25.04,
-    "worker_cost": 15.02,
-    "system_income": 47.17,
-    "pure_worker_income": 10.02,
-    "type": "member"
-  },
-  {
-    "task_id": "t75_17",
-    "task_price": 24.92,
-    "worker_cost": 10.44,
-    "system_income": 39.0,
-    "pure_worker_income": 14.48,
-    "type": "member"
-  },
-  {
-    "task_id": "t75_16",
-    "task_price": 24.92,
-    "worker_cost": 11.97,
-    "system_income": 40.15,
-    "pure_worker_income": 12.94,
-    "type": "member"
-  },
-  {
-    "task_id": "t44_09",
-    "task_price": 24.89,
-    "worker_cost": 12.11,
-    "system_income": 31.37,
-    "pure_worker_income": 12.78,
-    "type": "member"
-  },
-  {
-    "task_id": "t92_00",
-    "task_price": 24.84,
-    "worker_cost": 14.35,
-    "system_income": 31.55,
-    "pure_worker_income": 10.49,
-    "type": "member"
-  },
-  {
-    "task_id": "t35_06",
-    "task_price": 24.82,
-    "worker_cost": 10.1,
-    "system_income": 32.49,
-    "pure_worker_income": 14.71,
-    "type": "member"
-  },
-  {
-    "task_id": "t97_07",
-    "task_price": 24.81,
-    "worker_cost": 11.54,
-    "system_income": 44.36,
-    "pure_worker_income": 13.27,
-    "type": "member"
-  },
-  {
-    "task_id": "t97_00",
-    "task_price": 24.81,
-    "worker_cost": 14.33,
-    "system_income": 42.05,
-    "pure_worker_income": 10.48,
-    "type": "member"
-  },
-  {
-    "task_id": "t52_01",
-    "task_price": 24.77,
-    "worker_cost": 13.77,
-    "system_income": 42.1,
-    "pure_worker_income": 11.0,
-    "type": "member"
-  },
-  {
-    "task_id": "t45_08",
-    "task_price": 24.73,
-    "worker_cost": 14.67,
-    "system_income": 36.61,
-    "pure_worker_income": 10.06,
-    "type": "member"
-  },
-  {
-    "task_id": "t52_06",
-    "task_price": 24.73,
-    "worker_cost": 10.73,
-    "system_income": 30.28,
-    "pure_worker_income": 14.0,
-    "type": "member"
-  },
-  {
-    "task_id": "t84_04",
-    "task_price": 24.69,
-    "worker_cost": 11.69,
-    "system_income": 47.57,
-    "pure_worker_income": 13.0,
-    "type": "member"
-  },
-  {
-    "task_id": "t63_00",
-    "task_price": 24.68,
-    "worker_cost": 11.62,
-    "system_income": 37.82,
-    "pure_worker_income": 13.05,
-    "type": "member"
-  },
-  {
-    "task_id": "t63_10",
-    "task_price": 24.68,
-    "worker_cost": 14.35,
-    "system_income": 39.26,
-    "pure_worker_income": 10.33,
-    "type": "member"
-  },
-  {
-    "task_id": "t63_18",
-    "task_price": 24.68,
-    "worker_cost": 14.65,
-    "system_income": 47.9,
-    "pure_worker_income": 10.03,
-    "type": "member"
-  },
-  {
-    "task_id": "t84_02",
-    "task_price": 24.68,
-    "worker_cost": 10.41,
-    "system_income": 48.57,
-    "pure_worker_income": 14.27,
-    "type": "member"
-  },
-  {
-    "task_id": "t63_06",
-    "task_price": 24.62,
-    "worker_cost": 11.21,
-    "system_income": 36.07,
-    "pure_worker_income": 13.41,
-    "type": "member"
-  },
-  {
-    "task_id": "t63_21",
-    "task_price": 24.62,
-    "worker_cost": 11.46,
-    "system_income": 39.36,
-    "pure_worker_income": 13.16,
-    "type": "member"
-  },
-  {
-    "task_id": "t63_15",
-    "task_price": 24.62,
-    "worker_cost": 14.0,
-    "system_income": 44.36,
-    "pure_worker_income": 10.62,
-    "type": "member"
-  },
-  {
-    "task_id": "t87_04",
-    "task_price": 24.48,
-    "worker_cost": 12.21,
-    "system_income": 39.24,
-    "pure_worker_income": 12.27,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_34",
-    "task_price": 24.44,
-    "worker_cost": 13.17,
-    "system_income": 30.56,
-    "pure_worker_income": 11.28,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_35",
-    "task_price": 24.44,
-    "worker_cost": 13.42,
-    "system_income": 37.45,
-    "pure_worker_income": 11.02,
-    "type": "member"
-  },
-  {
-    "task_id": "t52_00",
-    "task_price": 24.44,
-    "worker_cost": 12.8,
-    "system_income": 38.41,
-    "pure_worker_income": 11.64,
-    "type": "member"
-  },
-  {
-    "task_id": "t56_08",
-    "task_price": 24.42,
-    "worker_cost": 10.54,
-    "system_income": 39.41,
-    "pure_worker_income": 13.89,
-    "type": "member"
-  },
-  {
-    "task_id": "t56_00",
-    "task_price": 24.42,
-    "worker_cost": 13.47,
-    "system_income": 47.44,
-    "pure_worker_income": 10.95,
-    "type": "member"
-  },
-  {
-    "task_id": "t96_05",
-    "task_price": 24.41,
-    "worker_cost": 13.07,
-    "system_income": 31.25,
-    "pure_worker_income": 11.34,
-    "type": "member"
-  },
-  {
-    "task_id": "t86_05",
-    "task_price": 24.38,
-    "worker_cost": 12.35,
-    "system_income": 48.74,
-    "pure_worker_income": 12.04,
-    "type": "member"
-  },
-  {
-    "task_id": "t74_04",
-    "task_price": 24.3,
-    "worker_cost": 9.73,
-    "system_income": 37.86,
-    "pure_worker_income": 14.57,
-    "type": "member"
-  },
-  {
-    "task_id": "t74_12",
-    "task_price": 24.3,
-    "worker_cost": 10.66,
-    "system_income": 40.61,
-    "pure_worker_income": 13.64,
-    "type": "member"
-  },
-  {
-    "task_id": "t74_15",
-    "task_price": 24.27,
-    "worker_cost": 9.74,
-    "system_income": 35.08,
-    "pure_worker_income": 14.52,
-    "type": "member"
-  },
-  {
-    "task_id": "t74_10",
-    "task_price": 24.27,
-    "worker_cost": 12.84,
-    "system_income": 46.77,
-    "pure_worker_income": 11.43,
-    "type": "member"
-  },
-  {
-    "task_id": "t52_02",
-    "task_price": 24.21,
-    "worker_cost": 10.83,
-    "system_income": 44.65,
-    "pure_worker_income": 13.38,
-    "type": "member"
-  },
-  {
-    "task_id": "t25_01",
-    "task_price": 24.21,
-    "worker_cost": 10.59,
-    "system_income": 33.99,
-    "pure_worker_income": 13.62,
-    "type": "member"
-  },
-  {
-    "task_id": "t97_01",
-    "task_price": 24.09,
-    "worker_cost": 13.83,
-    "system_income": 30.63,
-    "pure_worker_income": 10.26,
-    "type": "member"
-  },
-  {
-    "task_id": "t43_19",
-    "task_price": 24.03,
-    "worker_cost": 12.9,
-    "system_income": 45.06,
-    "pure_worker_income": 11.14,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_03",
-    "task_price": 24.03,
-    "worker_cost": 11.53,
-    "system_income": 44.36,
-    "pure_worker_income": 12.51,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_09",
-    "task_price": 24.03,
-    "worker_cost": 12.07,
-    "system_income": 31.69,
-    "pure_worker_income": 11.96,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_18",
-    "task_price": 24.03,
-    "worker_cost": 13.51,
-    "system_income": 37.0,
-    "pure_worker_income": 10.53,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_19",
-    "task_price": 24.03,
-    "worker_cost": 10.43,
-    "system_income": 39.39,
-    "pure_worker_income": 13.61,
-    "type": "member"
-  },
-  {
-    "task_id": "t43_00",
-    "task_price": 24.03,
-    "worker_cost": 14.29,
-    "system_income": 32.37,
-    "pure_worker_income": 9.74,
-    "type": "member"
-  },
-  {
-    "task_id": "t63_03",
-    "task_price": 24.02,
-    "worker_cost": 11.9,
-    "system_income": 44.93,
-    "pure_worker_income": 12.12,
-    "type": "member"
-  },
-  {
-    "task_id": "t86_01",
-    "task_price": 23.97,
-    "worker_cost": 13.39,
-    "system_income": 34.2,
-    "pure_worker_income": 10.58,
-    "type": "member"
-  },
-  {
-    "task_id": "t95_00",
-    "task_price": 23.96,
-    "worker_cost": 14.37,
-    "system_income": 46.92,
-    "pure_worker_income": 9.59,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_29",
-    "task_price": 23.94,
-    "worker_cost": 12.0,
-    "system_income": 46.82,
-    "pure_worker_income": 11.94,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_10",
-    "task_price": 23.94,
-    "worker_cost": 14.29,
-    "system_income": 38.04,
-    "pure_worker_income": 9.64,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_07",
-    "task_price": 23.94,
-    "worker_cost": 12.83,
-    "system_income": 31.41,
-    "pure_worker_income": 11.11,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_31",
-    "task_price": 23.94,
-    "worker_cost": 11.97,
-    "system_income": 44.32,
-    "pure_worker_income": 11.96,
-    "type": "member"
-  },
-  {
-    "task_id": "t73_05",
-    "task_price": 23.93,
-    "worker_cost": 9.96,
-    "system_income": 42.45,
-    "pure_worker_income": 13.97,
-    "type": "member"
-  },
-  {
-    "task_id": "t96_04",
-    "task_price": 23.93,
-    "worker_cost": 10.91,
-    "system_income": 46.24,
-    "pure_worker_income": 13.01,
-    "type": "member"
-  },
-  {
-    "task_id": "t96_03",
-    "task_price": 23.93,
-    "worker_cost": 12.68,
-    "system_income": 39.55,
-    "pure_worker_income": 11.24,
-    "type": "member"
-  },
-  {
-    "task_id": "t84_03",
-    "task_price": 23.9,
-    "worker_cost": 10.88,
-    "system_income": 47.06,
-    "pure_worker_income": 13.02,
-    "type": "member"
-  },
-  {
-    "task_id": "t34_04",
-    "task_price": 23.88,
-    "worker_cost": 12.57,
-    "system_income": 38.59,
-    "pure_worker_income": 11.31,
-    "type": "member"
-  },
-  {
-    "task_id": "t98_03",
-    "task_price": 23.83,
-    "worker_cost": 12.43,
-    "system_income": 43.27,
-    "pure_worker_income": 11.4,
-    "type": "member"
-  },
-  {
-    "task_id": "t44_22",
-    "task_price": 23.82,
-    "worker_cost": 10.11,
-    "system_income": 44.59,
-    "pure_worker_income": 13.71,
-    "type": "member"
-  },
-  {
-    "task_id": "t44_12",
-    "task_price": 23.82,
-    "worker_cost": 11.58,
-    "system_income": 46.22,
-    "pure_worker_income": 12.24,
-    "type": "member"
-  },
-  {
-    "task_id": "t44_04",
-    "task_price": 23.82,
-    "worker_cost": 11.64,
-    "system_income": 31.91,
-    "pure_worker_income": 12.19,
-    "type": "member"
-  },
-  {
-    "task_id": "t83_00",
-    "task_price": 23.82,
-    "worker_cost": 11.29,
-    "system_income": 36.25,
-    "pure_worker_income": 12.53,
-    "type": "member"
-  },
-  {
-    "task_id": "t83_02",
-    "task_price": 23.82,
-    "worker_cost": 14.07,
-    "system_income": 29.92,
-    "pure_worker_income": 9.75,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_15",
-    "task_price": 23.79,
-    "worker_cost": 11.17,
-    "system_income": 34.92,
-    "pure_worker_income": 12.62,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_26",
-    "task_price": 23.79,
-    "worker_cost": 10.63,
-    "system_income": 42.36,
-    "pure_worker_income": 13.16,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_15",
-    "task_price": 23.79,
-    "worker_cost": 10.68,
-    "system_income": 41.84,
-    "pure_worker_income": 13.11,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_20",
-    "task_price": 23.79,
-    "worker_cost": 13.74,
-    "system_income": 38.61,
-    "pure_worker_income": 10.05,
-    "type": "member"
-  },
-  {
-    "task_id": "t62_03",
-    "task_price": 23.76,
-    "worker_cost": 10.26,
-    "system_income": 40.34,
-    "pure_worker_income": 13.5,
-    "type": "member"
-  },
-  {
-    "task_id": "t63_11",
-    "task_price": 23.76,
-    "worker_cost": 11.42,
-    "system_income": 30.21,
-    "pure_worker_income": 12.34,
-    "type": "member"
-  },
-  {
-    "task_id": "t43_21",
-    "task_price": 23.75,
-    "worker_cost": 13.08,
-    "system_income": 44.28,
-    "pure_worker_income": 10.68,
-    "type": "member"
-  },
-  {
-    "task_id": "t45_09",
-    "task_price": 23.74,
-    "worker_cost": 12.19,
-    "system_income": 35.11,
-    "pure_worker_income": 11.55,
-    "type": "member"
-  },
-  {
-    "task_id": "t86_03",
-    "task_price": 23.72,
-    "worker_cost": 12.62,
-    "system_income": 28.94,
-    "pure_worker_income": 11.1,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_06",
-    "task_price": 23.71,
-    "worker_cost": 13.65,
-    "system_income": 29.84,
-    "pure_worker_income": 10.06,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_18",
-    "task_price": 23.71,
-    "worker_cost": 10.14,
-    "system_income": 41.41,
-    "pure_worker_income": 13.57,
-    "type": "member"
-  },
-  {
-    "task_id": "t44_06",
-    "task_price": 23.71,
-    "worker_cost": 10.52,
-    "system_income": 45.52,
-    "pure_worker_income": 13.19,
-    "type": "member"
-  },
-  {
-    "task_id": "t44_07",
-    "task_price": 23.71,
-    "worker_cost": 9.94,
-    "system_income": 44.05,
-    "pure_worker_income": 13.77,
-    "type": "member"
-  },
-  {
-    "task_id": "t73_02",
-    "task_price": 23.7,
-    "worker_cost": 10.69,
-    "system_income": 32.35,
-    "pure_worker_income": 13.01,
-    "type": "member"
-  },
-  {
-    "task_id": "t44_13",
-    "task_price": 23.67,
-    "worker_cost": 11.32,
-    "system_income": 41.97,
-    "pure_worker_income": 12.35,
-    "type": "member"
-  },
-  {
-    "task_id": "t44_02",
-    "task_price": 23.66,
-    "worker_cost": 10.37,
-    "system_income": 44.04,
-    "pure_worker_income": 13.29,
-    "type": "member"
-  },
-  {
-    "task_id": "t44_15",
-    "task_price": 23.66,
-    "worker_cost": 11.46,
-    "system_income": 43.96,
-    "pure_worker_income": 12.2,
-    "type": "member"
-  },
-  {
-    "task_id": "t44_16",
-    "task_price": 23.66,
-    "worker_cost": 13.55,
-    "system_income": 33.0,
-    "pure_worker_income": 10.1,
-    "type": "member"
-  },
-  {
-    "task_id": "t75_02",
-    "task_price": 23.63,
-    "worker_cost": 11.27,
-    "system_income": 30.08,
-    "pure_worker_income": 12.35,
-    "type": "member"
-  },
-  {
-    "task_id": "t34_00",
-    "task_price": 23.59,
-    "worker_cost": 11.25,
-    "system_income": 29.59,
-    "pure_worker_income": 12.35,
-    "type": "member"
-  },
-  {
-    "task_id": "t98_02",
-    "task_price": 23.54,
-    "worker_cost": 9.65,
-    "system_income": 37.06,
-    "pure_worker_income": 13.89,
-    "type": "member"
-  },
-  {
-    "task_id": "t86_08",
-    "task_price": 23.51,
-    "worker_cost": 9.84,
-    "system_income": 35.19,
-    "pure_worker_income": 13.67,
-    "type": "member"
-  },
-  {
-    "task_id": "t76_03",
-    "task_price": 23.5,
-    "worker_cost": 11.55,
-    "system_income": 33.07,
-    "pure_worker_income": 11.94,
-    "type": "member"
-  },
-  {
-    "task_id": "t45_06",
-    "task_price": 23.44,
-    "worker_cost": 13.68,
-    "system_income": 44.64,
-    "pure_worker_income": 9.77,
-    "type": "member"
-  },
-  {
-    "task_id": "t45_00",
-    "task_price": 23.44,
-    "worker_cost": 9.66,
-    "system_income": 40.08,
-    "pure_worker_income": 13.78,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_01",
-    "task_price": 23.42,
-    "worker_cost": 13.62,
-    "system_income": 37.06,
-    "pure_worker_income": 9.8,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_17",
-    "task_price": 23.42,
-    "worker_cost": 13.44,
-    "system_income": 29.1,
-    "pure_worker_income": 9.98,
-    "type": "member"
-  },
-  {
-    "task_id": "t45_02",
-    "task_price": 23.33,
-    "worker_cost": 13.3,
-    "system_income": 32.12,
-    "pure_worker_income": 10.03,
-    "type": "member"
-  },
-  {
-    "task_id": "t45_07",
-    "task_price": 23.33,
-    "worker_cost": 13.8,
-    "system_income": 43.84,
-    "pure_worker_income": 9.53,
-    "type": "member"
-  },
-  {
-    "task_id": "t44_00",
-    "task_price": 23.32,
-    "worker_cost": 11.79,
-    "system_income": 29.49,
-    "pure_worker_income": 11.53,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_10",
-    "task_price": 23.27,
-    "worker_cost": 11.77,
-    "system_income": 33.6,
-    "pure_worker_income": 11.5,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_31",
-    "task_price": 23.27,
-    "worker_cost": 13.9,
-    "system_income": 42.38,
-    "pure_worker_income": 9.37,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_23",
-    "task_price": 23.27,
-    "worker_cost": 11.89,
-    "system_income": 36.85,
-    "pure_worker_income": 11.37,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_22",
-    "task_price": 23.25,
-    "worker_cost": 10.78,
-    "system_income": 41.86,
-    "pure_worker_income": 12.47,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_25",
-    "task_price": 23.25,
-    "worker_cost": 9.83,
-    "system_income": 45.17,
-    "pure_worker_income": 13.42,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_16",
-    "task_price": 23.25,
-    "worker_cost": 11.14,
-    "system_income": 38.88,
-    "pure_worker_income": 12.11,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_21",
-    "task_price": 23.25,
-    "worker_cost": 13.25,
-    "system_income": 45.51,
-    "pure_worker_income": 10.0,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_13",
-    "task_price": 23.25,
-    "worker_cost": 11.61,
-    "system_income": 29.47,
-    "pure_worker_income": 11.64,
-    "type": "member"
-  },
-  {
-    "task_id": "t56_03",
-    "task_price": 23.2,
-    "worker_cost": 13.24,
-    "system_income": 32.07,
-    "pure_worker_income": 9.96,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_11",
-    "task_price": 23.2,
-    "worker_cost": 12.1,
-    "system_income": 29.79,
-    "pure_worker_income": 11.1,
-    "type": "member"
-  },
-  {
-    "task_id": "t63_24",
-    "task_price": 23.18,
-    "worker_cost": 9.65,
-    "system_income": 44.31,
-    "pure_worker_income": 13.53,
-    "type": "member"
-  },
-  {
-    "task_id": "t63_17",
-    "task_price": 23.18,
-    "worker_cost": 10.66,
-    "system_income": 44.4,
-    "pure_worker_income": 12.52,
-    "type": "member"
-  },
-  {
-    "task_id": "t63_23",
-    "task_price": 23.18,
-    "worker_cost": 13.85,
-    "system_income": 41.82,
-    "pure_worker_income": 9.33,
-    "type": "member"
-  },
-  {
-    "task_id": "t75_01",
-    "task_price": 23.18,
-    "worker_cost": 11.04,
-    "system_income": 31.53,
-    "pure_worker_income": 12.14,
-    "type": "member"
-  },
-  {
-    "task_id": "t43_15",
-    "task_price": 23.15,
-    "worker_cost": 12.23,
-    "system_income": 41.88,
-    "pure_worker_income": 10.92,
-    "type": "member"
-  },
-  {
-    "task_id": "t63_05",
-    "task_price": 23.15,
-    "worker_cost": 10.27,
-    "system_income": 34.55,
-    "pure_worker_income": 12.88,
-    "type": "member"
-  },
-  {
-    "task_id": "t63_29",
-    "task_price": 23.15,
-    "worker_cost": 10.69,
-    "system_income": 37.94,
-    "pure_worker_income": 12.46,
-    "type": "member"
-  },
-  {
-    "task_id": "t87_01",
-    "task_price": 23.15,
-    "worker_cost": 12.49,
-    "system_income": 42.78,
-    "pure_worker_income": 10.66,
-    "type": "member"
-  },
-  {
-    "task_id": "t75_15",
-    "task_price": 23.12,
-    "worker_cost": 12.14,
-    "system_income": 40.55,
-    "pure_worker_income": 10.98,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_21",
-    "task_price": 23.11,
-    "worker_cost": 12.24,
-    "system_income": 29.72,
-    "pure_worker_income": 10.86,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_32",
-    "task_price": 23.1,
-    "worker_cost": 11.05,
-    "system_income": 35.16,
-    "pure_worker_income": 12.05,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_24",
-    "task_price": 23.1,
-    "worker_cost": 11.61,
-    "system_income": 29.06,
-    "pure_worker_income": 11.49,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_43",
-    "task_price": 23.1,
-    "worker_cost": 9.29,
-    "system_income": 31.48,
-    "pure_worker_income": 13.81,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_37",
-    "task_price": 23.1,
-    "worker_cost": 13.64,
-    "system_income": 34.25,
-    "pure_worker_income": 9.46,
-    "type": "member"
-  },
-  {
-    "task_id": "t74_11",
-    "task_price": 23.1,
-    "worker_cost": 11.2,
-    "system_income": 27.9,
-    "pure_worker_income": 11.9,
-    "type": "member"
-  },
-  {
-    "task_id": "t74_00",
-    "task_price": 23.1,
-    "worker_cost": 13.1,
-    "system_income": 30.76,
-    "pure_worker_income": 9.99,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_19",
-    "task_price": 23.08,
-    "worker_cost": 12.57,
-    "system_income": 29.59,
-    "pure_worker_income": 10.51,
-    "type": "member"
-  },
-  {
-    "task_id": "t97_06",
-    "task_price": 23.07,
-    "worker_cost": 12.31,
-    "system_income": 41.39,
-    "pure_worker_income": 10.76,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_25",
-    "task_price": 23.06,
-    "worker_cost": 9.88,
-    "system_income": 43.37,
-    "pure_worker_income": 13.18,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_15",
-    "task_price": 23.06,
-    "worker_cost": 10.58,
-    "system_income": 29.91,
-    "pure_worker_income": 12.49,
-    "type": "member"
-  },
-  {
-    "task_id": "t97_03",
-    "task_price": 23.05,
-    "worker_cost": 10.44,
-    "system_income": 32.4,
-    "pure_worker_income": 12.62,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_01",
-    "task_price": 23.05,
-    "worker_cost": 12.86,
-    "system_income": 29.78,
-    "pure_worker_income": 10.19,
-    "type": "member"
-  },
-  {
-    "task_id": "t43_20",
-    "task_price": 23.03,
-    "worker_cost": 9.82,
-    "system_income": 32.98,
-    "pure_worker_income": 13.21,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_16",
-    "task_price": 23.03,
-    "worker_cost": 12.31,
-    "system_income": 42.88,
-    "pure_worker_income": 10.72,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_21",
-    "task_price": 23.03,
-    "worker_cost": 11.29,
-    "system_income": 38.38,
-    "pure_worker_income": 11.74,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_06",
-    "task_price": 23.03,
-    "worker_cost": 10.29,
-    "system_income": 41.69,
-    "pure_worker_income": 12.74,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_23",
-    "task_price": 23.03,
-    "worker_cost": 13.37,
-    "system_income": 27.74,
-    "pure_worker_income": 9.66,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_28",
-    "task_price": 23.03,
-    "worker_cost": 10.76,
-    "system_income": 34.83,
-    "pure_worker_income": 12.26,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_29",
-    "task_price": 23.03,
-    "worker_cost": 12.0,
-    "system_income": 31.54,
-    "pure_worker_income": 11.02,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_41",
-    "task_price": 23.03,
-    "worker_cost": 11.8,
-    "system_income": 44.27,
-    "pure_worker_income": 11.23,
-    "type": "member"
-  },
-  {
-    "task_id": "t63_26",
-    "task_price": 23.01,
-    "worker_cost": 12.94,
-    "system_income": 40.86,
-    "pure_worker_income": 10.07,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_14",
-    "task_price": 23.01,
-    "worker_cost": 11.68,
-    "system_income": 35.51,
-    "pure_worker_income": 11.32,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_36",
-    "task_price": 23.01,
-    "worker_cost": 13.69,
-    "system_income": 43.29,
-    "pure_worker_income": 9.31,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_28",
-    "task_price": 23.01,
-    "worker_cost": 11.24,
-    "system_income": 44.78,
-    "pure_worker_income": 11.76,
-    "type": "member"
-  },
-  {
-    "task_id": "t74_02",
-    "task_price": 22.98,
-    "worker_cost": 13.56,
-    "system_income": 42.86,
-    "pure_worker_income": 9.42,
-    "type": "member"
-  },
-  {
-    "task_id": "t74_01",
-    "task_price": 22.98,
-    "worker_cost": 10.45,
-    "system_income": 43.24,
-    "pure_worker_income": 12.53,
-    "type": "member"
-  },
-  {
-    "task_id": "t42_02",
-    "task_price": 22.96,
-    "worker_cost": 13.25,
-    "system_income": 41.05,
-    "pure_worker_income": 9.71,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_39",
-    "task_price": 22.95,
-    "worker_cost": 11.64,
-    "system_income": 28.58,
-    "pure_worker_income": 11.31,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_05",
-    "task_price": 22.95,
-    "worker_cost": 10.19,
-    "system_income": 28.0,
-    "pure_worker_income": 12.77,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_38",
-    "task_price": 22.95,
-    "worker_cost": 10.06,
-    "system_income": 28.32,
-    "pure_worker_income": 12.89,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_35",
-    "task_price": 22.95,
-    "worker_cost": 12.67,
-    "system_income": 38.62,
-    "pure_worker_income": 10.29,
-    "type": "member"
-  },
-  {
-    "task_id": "t33_10",
-    "task_price": 22.95,
-    "worker_cost": 10.61,
-    "system_income": 36.71,
-    "pure_worker_income": 12.34,
-    "type": "member"
-  },
-  {
-    "task_id": "t87_03",
-    "task_price": 22.95,
-    "worker_cost": 11.44,
-    "system_income": 37.09,
-    "pure_worker_income": 11.51,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_30",
-    "task_price": 22.94,
-    "worker_cost": 11.69,
-    "system_income": 44.24,
-    "pure_worker_income": 11.25,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_50",
-    "task_price": 22.94,
-    "worker_cost": 12.54,
-    "system_income": 38.68,
-    "pure_worker_income": 10.4,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_02",
-    "task_price": 22.94,
-    "worker_cost": 13.49,
-    "system_income": 36.56,
-    "pure_worker_income": 9.44,
-    "type": "member"
-  },
-  {
-    "task_id": "t45_04",
-    "task_price": 22.94,
-    "worker_cost": 13.05,
-    "system_income": 29.73,
-    "pure_worker_income": 9.89,
-    "type": "member"
-  },
-  {
-    "task_id": "t34_03",
-    "task_price": 22.93,
-    "worker_cost": 10.57,
-    "system_income": 40.31,
-    "pure_worker_income": 12.36,
-    "type": "member"
-  },
-  {
-    "task_id": "t34_02",
-    "task_price": 22.93,
-    "worker_cost": 13.67,
-    "system_income": 39.56,
-    "pure_worker_income": 9.26,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_02",
-    "task_price": 22.9,
-    "worker_cost": 9.78,
-    "system_income": 31.14,
-    "pure_worker_income": 13.12,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_07",
-    "task_price": 22.9,
-    "worker_cost": 11.81,
-    "system_income": 31.47,
-    "pure_worker_income": 11.09,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_07",
-    "task_price": 22.87,
-    "worker_cost": 11.41,
-    "system_income": 37.23,
-    "pure_worker_income": 11.47,
-    "type": "member"
-  },
-  {
-    "task_id": "t25_00",
-    "task_price": 22.86,
-    "worker_cost": 9.65,
-    "system_income": 30.81,
-    "pure_worker_income": 13.21,
-    "type": "member"
-  },
-  {
-    "task_id": "t42_00",
-    "task_price": 22.86,
-    "worker_cost": 10.16,
-    "system_income": 28.48,
-    "pure_worker_income": 12.7,
-    "type": "member"
-  },
-  {
-    "task_id": "t44_14",
-    "task_price": 22.84,
-    "worker_cost": 12.69,
-    "system_income": 35.22,
-    "pure_worker_income": 10.15,
-    "type": "member"
-  },
-  {
-    "task_id": "t44_11",
-    "task_price": 22.84,
-    "worker_cost": 13.08,
-    "system_income": 39.44,
-    "pure_worker_income": 9.77,
-    "type": "member"
-  },
-  {
-    "task_id": "t44_10",
-    "task_price": 22.82,
-    "worker_cost": 10.4,
-    "system_income": 35.56,
-    "pure_worker_income": 12.42,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_28",
-    "task_price": 22.77,
-    "worker_cost": 12.48,
-    "system_income": 40.17,
-    "pure_worker_income": 10.29,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_41",
-    "task_price": 22.77,
-    "worker_cost": 11.98,
-    "system_income": 31.98,
-    "pure_worker_income": 10.79,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_22",
-    "task_price": 22.77,
-    "worker_cost": 9.19,
-    "system_income": 38.55,
-    "pure_worker_income": 13.58,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_08",
-    "task_price": 22.77,
-    "worker_cost": 11.87,
-    "system_income": 42.96,
-    "pure_worker_income": 10.9,
-    "type": "member"
-  },
-  {
-    "task_id": "t44_18",
-    "task_price": 22.75,
-    "worker_cost": 12.26,
-    "system_income": 37.58,
-    "pure_worker_income": 10.49,
-    "type": "member"
-  },
-  {
-    "task_id": "t63_01",
-    "task_price": 22.75,
-    "worker_cost": 11.38,
-    "system_income": 30.72,
-    "pure_worker_income": 11.37,
-    "type": "member"
-  },
-  {
-    "task_id": "t63_28",
-    "task_price": 22.75,
-    "worker_cost": 12.78,
-    "system_income": 30.32,
-    "pure_worker_income": 9.97,
-    "type": "member"
-  },
-  {
-    "task_id": "t63_20",
-    "task_price": 22.75,
-    "worker_cost": 10.66,
-    "system_income": 42.47,
-    "pure_worker_income": 12.09,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_14",
-    "task_price": 22.74,
-    "worker_cost": 12.26,
-    "system_income": 31.76,
-    "pure_worker_income": 10.47,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_12",
-    "task_price": 22.74,
-    "worker_cost": 10.42,
-    "system_income": 41.16,
-    "pure_worker_income": 12.32,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_30",
-    "task_price": 22.74,
-    "worker_cost": 12.55,
-    "system_income": 34.27,
-    "pure_worker_income": 10.18,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_04",
-    "task_price": 22.72,
-    "worker_cost": 13.31,
-    "system_income": 43.8,
-    "pure_worker_income": 9.41,
-    "type": "member"
-  },
-  {
-    "task_id": "t73_07",
-    "task_price": 22.72,
-    "worker_cost": 12.32,
+    "task_id": "t49_00",
+    "task_price": 32.76,
+    "worker_cost": 19.03,
     "system_income": 42.6,
-    "pure_worker_income": 10.4,
+    "pure_worker_income": 13.73,
     "type": "member"
   },
   {
-    "task_id": "t73_12",
-    "task_price": 22.72,
-    "worker_cost": 10.3,
-    "system_income": 36.76,
-    "pure_worker_income": 12.42,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_33",
-    "task_price": 22.7,
-    "worker_cost": 13.47,
-    "system_income": 34.42,
-    "pure_worker_income": 9.23,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_30",
-    "task_price": 22.7,
-    "worker_cost": 10.26,
-    "system_income": 29.18,
-    "pure_worker_income": 12.44,
-    "type": "member"
-  },
-  {
-    "task_id": "t42_05",
-    "task_price": 22.68,
-    "worker_cost": 12.69,
-    "system_income": 34.17,
-    "pure_worker_income": 9.99,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_29",
-    "task_price": 22.67,
-    "worker_cost": 10.51,
-    "system_income": 27.64,
-    "pure_worker_income": 12.17,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_27",
-    "task_price": 22.67,
-    "worker_cost": 10.9,
-    "system_income": 33.19,
-    "pure_worker_income": 11.76,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_35",
-    "task_price": 22.67,
-    "worker_cost": 13.55,
-    "system_income": 33.14,
-    "pure_worker_income": 9.12,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_37",
-    "task_price": 22.67,
-    "worker_cost": 11.27,
-    "system_income": 35.6,
-    "pure_worker_income": 11.39,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_12",
-    "task_price": 22.67,
-    "worker_cost": 11.21,
-    "system_income": 28.3,
-    "pure_worker_income": 11.45,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_01",
-    "task_price": 22.67,
-    "worker_cost": 13.05,
-    "system_income": 44.81,
-    "pure_worker_income": 9.61,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_15",
-    "task_price": 22.67,
-    "worker_cost": 12.49,
-    "system_income": 31.95,
-    "pure_worker_income": 10.17,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_26",
-    "task_price": 22.64,
-    "worker_cost": 11.11,
-    "system_income": 29.56,
-    "pure_worker_income": 11.53,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_00",
-    "task_price": 22.64,
-    "worker_cost": 13.08,
-    "system_income": 34.23,
-    "pure_worker_income": 9.57,
-    "type": "member"
-  },
-  {
-    "task_id": "t74_06",
-    "task_price": 22.6,
-    "worker_cost": 13.09,
-    "system_income": 41.07,
-    "pure_worker_income": 9.51,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_33",
-    "task_price": 22.6,
-    "worker_cost": 9.17,
-    "system_income": 42.36,
-    "pure_worker_income": 13.42,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_00",
-    "task_price": 22.6,
-    "worker_cost": 10.26,
-    "system_income": 42.64,
-    "pure_worker_income": 12.34,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_49",
-    "task_price": 22.6,
-    "worker_cost": 10.15,
-    "system_income": 35.69,
-    "pure_worker_income": 12.44,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_03",
-    "task_price": 22.6,
-    "worker_cost": 13.04,
-    "system_income": 36.08,
-    "pure_worker_income": 9.56,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_17",
-    "task_price": 22.6,
-    "worker_cost": 9.51,
-    "system_income": 39.97,
-    "pure_worker_income": 13.08,
-    "type": "member"
-  },
-  {
-    "task_id": "t48_00",
-    "task_price": 22.59,
-    "worker_cost": 13.49,
-    "system_income": 34.74,
-    "pure_worker_income": 9.1,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_00",
-    "task_price": 22.57,
-    "worker_cost": 12.51,
-    "system_income": 30.08,
-    "pure_worker_income": 10.06,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_08",
-    "task_price": 22.57,
-    "worker_cost": 9.57,
-    "system_income": 33.23,
-    "pure_worker_income": 13.01,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_31",
-    "task_price": 22.57,
-    "worker_cost": 12.32,
-    "system_income": 30.5,
-    "pure_worker_income": 10.25,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_09",
-    "task_price": 22.57,
-    "worker_cost": 10.72,
-    "system_income": 43.7,
-    "pure_worker_income": 11.85,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_37",
-    "task_price": 22.57,
-    "worker_cost": 11.94,
-    "system_income": 27.18,
-    "pure_worker_income": 10.63,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_22",
-    "task_price": 22.57,
-    "worker_cost": 12.92,
-    "system_income": 36.68,
-    "pure_worker_income": 9.65,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_10",
-    "task_price": 22.57,
-    "worker_cost": 10.58,
-    "system_income": 28.29,
-    "pure_worker_income": 11.99,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_16",
-    "task_price": 22.57,
-    "worker_cost": 13.29,
-    "system_income": 38.19,
-    "pure_worker_income": 9.28,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_32",
-    "task_price": 22.56,
-    "worker_cost": 13.1,
-    "system_income": 30.2,
-    "pure_worker_income": 9.46,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_22",
-    "task_price": 22.56,
-    "worker_cost": 11.58,
-    "system_income": 38.66,
-    "pure_worker_income": 10.97,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_39",
-    "task_price": 22.56,
-    "worker_cost": 12.37,
-    "system_income": 36.9,
-    "pure_worker_income": 10.18,
-    "type": "member"
-  },
-  {
-    "task_id": "t73_08",
-    "task_price": 22.55,
-    "worker_cost": 9.03,
-    "system_income": 28.35,
-    "pure_worker_income": 13.52,
-    "type": "member"
-  },
-  {
-    "task_id": "t44_03",
-    "task_price": 22.55,
-    "worker_cost": 10.68,
-    "system_income": 37.05,
-    "pure_worker_income": 11.86,
-    "type": "member"
-  },
-  {
-    "task_id": "t44_20",
-    "task_price": 22.55,
-    "worker_cost": 12.99,
-    "system_income": 34.59,
-    "pure_worker_income": 9.56,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_09",
-    "task_price": 22.54,
-    "worker_cost": 10.5,
-    "system_income": 30.29,
-    "pure_worker_income": 12.03,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_28",
-    "task_price": 22.54,
-    "worker_cost": 13.17,
-    "system_income": 40.85,
-    "pure_worker_income": 9.37,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_16",
-    "task_price": 22.54,
-    "worker_cost": 13.38,
-    "system_income": 28.82,
-    "pure_worker_income": 9.16,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_14",
-    "task_price": 22.54,
-    "worker_cost": 12.98,
-    "system_income": 39.71,
-    "pure_worker_income": 9.55,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_32",
-    "task_price": 22.54,
-    "worker_cost": 10.24,
-    "system_income": 31.39,
-    "pure_worker_income": 12.3,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_11",
-    "task_price": 22.54,
-    "worker_cost": 10.16,
-    "system_income": 31.76,
-    "pure_worker_income": 12.37,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_12",
-    "task_price": 22.5,
-    "worker_cost": 12.87,
-    "system_income": 40.42,
-    "pure_worker_income": 9.63,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_04",
-    "task_price": 22.5,
-    "worker_cost": 12.74,
-    "system_income": 32.92,
-    "pure_worker_income": 9.76,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_23",
-    "task_price": 22.5,
-    "worker_cost": 10.85,
-    "system_income": 34.44,
-    "pure_worker_income": 11.66,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_33",
-    "task_price": 22.49,
-    "worker_cost": 10.66,
-    "system_income": 37.72,
-    "pure_worker_income": 11.83,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_27",
-    "task_price": 22.48,
-    "worker_cost": 12.93,
-    "system_income": 29.79,
-    "pure_worker_income": 9.55,
-    "type": "member"
-  },
-  {
-    "task_id": "t75_19",
-    "task_price": 22.46,
-    "worker_cost": 13.31,
-    "system_income": 31.49,
-    "pure_worker_income": 9.15,
-    "type": "member"
-  },
-  {
-    "task_id": "t43_12",
-    "task_price": 22.45,
-    "worker_cost": 13.1,
-    "system_income": 37.52,
-    "pure_worker_income": 9.35,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_24",
-    "task_price": 22.41,
-    "worker_cost": 13.02,
-    "system_income": 41.55,
-    "pure_worker_income": 9.4,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_26",
-    "task_price": 22.41,
-    "worker_cost": 13.34,
-    "system_income": 36.44,
-    "pure_worker_income": 9.08,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_30",
-    "task_price": 22.41,
-    "worker_cost": 10.82,
-    "system_income": 31.68,
-    "pure_worker_income": 11.59,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_10",
-    "task_price": 22.41,
-    "worker_cost": 9.49,
-    "system_income": 43.83,
-    "pure_worker_income": 12.92,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_09",
-    "task_price": 22.4,
-    "worker_cost": 11.54,
-    "system_income": 30.09,
-    "pure_worker_income": 10.86,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_11",
-    "task_price": 22.4,
-    "worker_cost": 10.54,
-    "system_income": 36.82,
-    "pure_worker_income": 11.86,
-    "type": "member"
-  },
-  {
-    "task_id": "t97_05",
-    "task_price": 22.39,
-    "worker_cost": 13.38,
-    "system_income": 41.94,
-    "pure_worker_income": 9.0,
-    "type": "member"
-  },
-  {
-    "task_id": "t97_02",
-    "task_price": 22.39,
-    "worker_cost": 12.92,
-    "system_income": 41.01,
-    "pure_worker_income": 9.46,
-    "type": "member"
-  },
-  {
-    "task_id": "t34_01",
-    "task_price": 22.36,
-    "worker_cost": 13.32,
-    "system_income": 37.1,
-    "pure_worker_income": 9.05,
-    "type": "member"
-  },
-  {
-    "task_id": "t43_07",
-    "task_price": 22.36,
-    "worker_cost": 9.54,
-    "system_income": 27.4,
-    "pure_worker_income": 12.82,
-    "type": "member"
-  },
-  {
-    "task_id": "t43_04",
-    "task_price": 22.36,
-    "worker_cost": 11.98,
-    "system_income": 27.89,
-    "pure_worker_income": 10.37,
-    "type": "member"
-  },
-  {
-    "task_id": "t43_13",
-    "task_price": 22.36,
-    "worker_cost": 9.39,
-    "system_income": 32.66,
-    "pure_worker_income": 12.97,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_13",
-    "task_price": 22.31,
-    "worker_cost": 9.79,
-    "system_income": 41.86,
-    "pure_worker_income": 12.52,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_38",
-    "task_price": 22.31,
-    "worker_cost": 11.99,
-    "system_income": 34.33,
-    "pure_worker_income": 10.32,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_05",
-    "task_price": 22.3,
-    "worker_cost": 13.24,
-    "system_income": 43.01,
-    "pure_worker_income": 9.07,
-    "type": "member"
-  },
-  {
-    "task_id": "t63_19",
-    "task_price": 22.28,
-    "worker_cost": 10.35,
-    "system_income": 42.09,
-    "pure_worker_income": 11.93,
-    "type": "member"
-  },
-  {
-    "task_id": "t63_25",
-    "task_price": 22.28,
-    "worker_cost": 11.32,
-    "system_income": 29.28,
-    "pure_worker_income": 10.96,
-    "type": "member"
-  },
-  {
-    "task_id": "t73_06",
-    "task_price": 22.26,
-    "worker_cost": 13.06,
-    "system_income": 39.15,
-    "pure_worker_income": 9.2,
-    "type": "member"
-  },
-  {
-    "task_id": "t74_16",
-    "task_price": 22.23,
-    "worker_cost": 9.53,
-    "system_income": 30.79,
-    "pure_worker_income": 12.7,
-    "type": "member"
-  },
-  {
-    "task_id": "t31_00",
-    "task_price": 22.23,
-    "worker_cost": 11.29,
-    "system_income": 31.75,
-    "pure_worker_income": 10.94,
-    "type": "member"
-  },
-  {
-    "task_id": "t44_08",
-    "task_price": 22.21,
-    "worker_cost": 11.67,
-    "system_income": 32.15,
-    "pure_worker_income": 10.55,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_26",
-    "task_price": 22.21,
-    "worker_cost": 8.94,
-    "system_income": 37.02,
+    "task_id": "t49_01",
+    "task_price": 32.13,
+    "worker_cost": 18.86,
+    "system_income": 50.63,
     "pure_worker_income": 13.27,
     "type": "member"
   },
   {
     "task_id": "t53_04",
-    "task_price": 22.21,
-    "worker_cost": 11.08,
-    "system_income": 34.2,
-    "pure_worker_income": 11.13,
+    "task_price": 31.54,
+    "worker_cost": 13.9,
+    "system_income": 52.29,
+    "pure_worker_income": 17.64,
     "type": "member"
   },
   {
-    "task_id": "t53_47",
-    "task_price": 22.21,
-    "worker_cost": 10.18,
-    "system_income": 38.48,
-    "pure_worker_income": 12.03,
+    "task_id": "t05_00",
+    "task_price": 31.5,
+    "worker_cost": 15.58,
+    "system_income": 60.52,
+    "pure_worker_income": 15.92,
     "type": "member"
   },
   {
-    "task_id": "t53_25",
-    "task_price": 22.21,
-    "worker_cost": 8.89,
-    "system_income": 44.05,
-    "pure_worker_income": 13.32,
+    "task_id": "t62_04",
+    "task_price": 31.5,
+    "worker_cost": 16.26,
+    "system_income": 62.11,
+    "pure_worker_income": 15.24,
     "type": "member"
   },
   {
-    "task_id": "t53_21",
-    "task_price": 22.21,
-    "worker_cost": 9.31,
-    "system_income": 29.61,
-    "pure_worker_income": 12.9,
-    "type": "member"
-  },
-  {
-    "task_id": "t44_01",
-    "task_price": 22.21,
-    "worker_cost": 13.11,
-    "system_income": 40.48,
-    "pure_worker_income": 9.1,
-    "type": "member"
-  },
-  {
-    "task_id": "t44_17",
-    "task_price": 22.21,
-    "worker_cost": 10.08,
-    "system_income": 44.19,
-    "pure_worker_income": 12.13,
-    "type": "member"
-  },
-  {
-    "task_id": "t75_10",
-    "task_price": 22.16,
-    "worker_cost": 9.78,
-    "system_income": 37.95,
-    "pure_worker_income": 12.39,
-    "type": "member"
-  },
-  {
-    "task_id": "t94_04",
-    "task_price": 22.16,
-    "worker_cost": 9.58,
-    "system_income": 35.22,
-    "pure_worker_income": 12.58,
-    "type": "member"
-  },
-  {
-    "task_id": "t94_00",
-    "task_price": 22.16,
-    "worker_cost": 12.21,
-    "system_income": 32.39,
-    "pure_worker_income": 9.95,
-    "type": "member"
-  },
-  {
-    "task_id": "t33_03",
-    "task_price": 22.14,
-    "worker_cost": 12.46,
-    "system_income": 41.5,
-    "pure_worker_income": 9.68,
-    "type": "member"
-  },
-  {
-    "task_id": "t52_05",
-    "task_price": 22.12,
-    "worker_cost": 11.08,
-    "system_income": 32.16,
-    "pure_worker_income": 11.04,
-    "type": "member"
-  },
-  {
-    "task_id": "t98_00",
-    "task_price": 22.1,
-    "worker_cost": 13.18,
-    "system_income": 27.49,
-    "pure_worker_income": 8.92,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_18",
-    "task_price": 22.1,
-    "worker_cost": 12.31,
-    "system_income": 30.97,
-    "pure_worker_income": 9.79,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_10",
-    "task_price": 22.1,
-    "worker_cost": 11.87,
-    "system_income": 32.07,
-    "pure_worker_income": 10.22,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_23",
-    "task_price": 22.1,
-    "worker_cost": 9.88,
-    "system_income": 31.69,
-    "pure_worker_income": 12.22,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_51",
-    "task_price": 22.1,
-    "worker_cost": 9.69,
-    "system_income": 44.17,
-    "pure_worker_income": 12.4,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_02",
-    "task_price": 22.07,
-    "worker_cost": 12.55,
-    "system_income": 40.17,
-    "pure_worker_income": 9.52,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_36",
-    "task_price": 22.07,
-    "worker_cost": 12.66,
-    "system_income": 31.32,
-    "pure_worker_income": 9.41,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_17",
-    "task_price": 22.07,
-    "worker_cost": 11.61,
-    "system_income": 41.23,
-    "pure_worker_income": 10.47,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_27",
-    "task_price": 22.07,
-    "worker_cost": 9.97,
-    "system_income": 33.08,
-    "pure_worker_income": 12.1,
-    "type": "member"
-  },
-  {
-    "task_id": "t63_12",
-    "task_price": 22.04,
-    "worker_cost": 11.53,
-    "system_income": 30.95,
-    "pure_worker_income": 10.5,
-    "type": "member"
-  },
-  {
-    "task_id": "t63_08",
-    "task_price": 22.04,
-    "worker_cost": 11.11,
-    "system_income": 36.6,
-    "pure_worker_income": 10.93,
-    "type": "member"
-  },
-  {
-    "task_id": "t75_12",
-    "task_price": 22.02,
-    "worker_cost": 10.92,
-    "system_income": 36.41,
-    "pure_worker_income": 11.1,
-    "type": "member"
-  },
-  {
-    "task_id": "t75_13",
-    "task_price": 22.02,
-    "worker_cost": 11.93,
-    "system_income": 30.58,
-    "pure_worker_income": 10.09,
-    "type": "member"
-  },
-  {
-    "task_id": "t75_06",
-    "task_price": 22.02,
-    "worker_cost": 9.8,
-    "system_income": 40.41,
-    "pure_worker_income": 12.22,
-    "type": "member"
-  },
-  {
-    "task_id": "t75_11",
-    "task_price": 22.02,
-    "worker_cost": 10.94,
-    "system_income": 34.69,
-    "pure_worker_income": 11.08,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_00",
-    "task_price": 22.02,
-    "worker_cost": 10.01,
-    "system_income": 34.69,
-    "pure_worker_income": 12.0,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_20",
-    "task_price": 22.02,
-    "worker_cost": 12.25,
-    "system_income": 41.46,
-    "pure_worker_income": 9.76,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_41",
-    "task_price": 21.96,
-    "worker_cost": 12.47,
-    "system_income": 32.44,
-    "pure_worker_income": 9.49,
-    "type": "member"
-  },
-  {
-    "task_id": "t45_10",
-    "task_price": 21.95,
-    "worker_cost": 11.11,
-    "system_income": 33.55,
-    "pure_worker_income": 10.84,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_05",
-    "task_price": 21.94,
-    "worker_cost": 12.17,
-    "system_income": 35.4,
-    "pure_worker_income": 9.77,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_01",
-    "task_price": 21.94,
-    "worker_cost": 8.94,
-    "system_income": 35.37,
-    "pure_worker_income": 13.0,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_03",
-    "task_price": 21.94,
-    "worker_cost": 10.3,
-    "system_income": 37.63,
-    "pure_worker_income": 11.63,
-    "type": "member"
-  },
-  {
-    "task_id": "t33_11",
-    "task_price": 21.92,
-    "worker_cost": 11.02,
-    "system_income": 32.47,
-    "pure_worker_income": 10.9,
-    "type": "member"
-  },
-  {
-    "task_id": "t83_03",
-    "task_price": 21.91,
-    "worker_cost": 10.86,
-    "system_income": 29.35,
-    "pure_worker_income": 11.05,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_33",
-    "task_price": 21.88,
-    "worker_cost": 11.33,
-    "system_income": 32.75,
-    "pure_worker_income": 10.54,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_40",
-    "task_price": 21.88,
-    "worker_cost": 12.26,
-    "system_income": 32.77,
-    "pure_worker_income": 9.62,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_11",
-    "task_price": 21.87,
-    "worker_cost": 11.43,
-    "system_income": 39.29,
-    "pure_worker_income": 10.44,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_31",
-    "task_price": 21.86,
-    "worker_cost": 9.59,
-    "system_income": 33.67,
-    "pure_worker_income": 12.27,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_25",
-    "task_price": 21.86,
-    "worker_cost": 9.59,
-    "system_income": 31.62,
-    "pure_worker_income": 12.26,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_40",
-    "task_price": 21.86,
-    "worker_cost": 12.49,
-    "system_income": 39.49,
-    "pure_worker_income": 9.36,
-    "type": "member"
-  },
-  {
-    "task_id": "t44_05",
-    "task_price": 21.85,
-    "worker_cost": 10.72,
-    "system_income": 31.39,
-    "pure_worker_income": 11.13,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_00",
-    "task_price": 21.83,
-    "worker_cost": 12.16,
-    "system_income": 30.25,
-    "pure_worker_income": 9.67,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_08",
-    "task_price": 21.83,
-    "worker_cost": 11.17,
-    "system_income": 26.44,
-    "pure_worker_income": 10.65,
-    "type": "member"
-  },
-  {
-    "task_id": "t32_00",
-    "task_price": 21.82,
-    "worker_cost": 11.18,
-    "system_income": 33.1,
-    "pure_worker_income": 10.65,
-    "type": "member"
-  },
-  {
-    "task_id": "t75_04",
-    "task_price": 21.82,
-    "worker_cost": 9.78,
-    "system_income": 39.38,
-    "pure_worker_income": 12.05,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_11",
-    "task_price": 21.8,
-    "worker_cost": 11.54,
-    "system_income": 39.85,
-    "pure_worker_income": 10.26,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_20",
-    "task_price": 21.8,
-    "worker_cost": 12.36,
-    "system_income": 27.68,
-    "pure_worker_income": 9.44,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_31",
-    "task_price": 21.8,
-    "worker_cost": 9.25,
-    "system_income": 38.34,
-    "pure_worker_income": 12.55,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_13",
-    "task_price": 21.77,
-    "worker_cost": 12.29,
-    "system_income": 30.22,
-    "pure_worker_income": 9.48,
-    "type": "member"
-  },
-  {
-    "task_id": "t65_38",
-    "task_price": 21.77,
-    "worker_cost": 12.37,
-    "system_income": 43.29,
-    "pure_worker_income": 9.4,
-    "type": "member"
-  },
-  {
-    "task_id": "t75_03",
-    "task_price": 21.77,
-    "worker_cost": 11.59,
-    "system_income": 33.75,
-    "pure_worker_income": 10.18,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_27",
-    "task_price": 21.75,
-    "worker_cost": 11.36,
-    "system_income": 39.26,
-    "pure_worker_income": 10.39,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_04",
-    "task_price": 21.75,
-    "worker_cost": 9.84,
-    "system_income": 36.75,
-    "pure_worker_income": 11.91,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_13",
-    "task_price": 21.75,
-    "worker_cost": 9.76,
-    "system_income": 28.85,
-    "pure_worker_income": 11.99,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_37",
-    "task_price": 21.73,
-    "worker_cost": 13.0,
-    "system_income": 29.08,
-    "pure_worker_income": 8.73,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_06",
-    "task_price": 21.73,
-    "worker_cost": 9.41,
-    "system_income": 42.01,
-    "pure_worker_income": 12.32,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_16",
-    "task_price": 21.71,
-    "worker_cost": 11.28,
-    "system_income": 37.66,
-    "pure_worker_income": 10.43,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_29",
-    "task_price": 21.71,
-    "worker_cost": 12.37,
-    "system_income": 37.6,
-    "pure_worker_income": 9.34,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_35",
-    "task_price": 21.71,
-    "worker_cost": 12.06,
-    "system_income": 33.83,
-    "pure_worker_income": 9.65,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_23",
-    "task_price": 21.71,
-    "worker_cost": 9.69,
-    "system_income": 26.38,
-    "pure_worker_income": 12.02,
-    "type": "member"
-  },
-  {
-    "task_id": "t57_00",
-    "task_price": 21.69,
-    "worker_cost": 12.26,
-    "system_income": 27.55,
-    "pure_worker_income": 9.43,
-    "type": "member"
-  },
-  {
-    "task_id": "t94_01",
-    "task_price": 21.69,
-    "worker_cost": 9.85,
-    "system_income": 32.35,
-    "pure_worker_income": 11.84,
-    "type": "member"
-  },
-  {
-    "task_id": "t73_14",
-    "task_price": 21.68,
-    "worker_cost": 12.04,
-    "system_income": 33.12,
-    "pure_worker_income": 9.65,
-    "type": "member"
-  },
-  {
-    "task_id": "t75_20",
-    "task_price": 21.67,
-    "worker_cost": 11.64,
-    "system_income": 30.74,
-    "pure_worker_income": 10.04,
-    "type": "member"
-  },
-  {
-    "task_id": "t75_07",
-    "task_price": 21.67,
-    "worker_cost": 9.41,
-    "system_income": 26.55,
-    "pure_worker_income": 12.27,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_34",
-    "task_price": 21.66,
-    "worker_cost": 8.77,
-    "system_income": 28.25,
-    "pure_worker_income": 12.89,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_12",
-    "task_price": 21.63,
-    "worker_cost": 10.68,
-    "system_income": 40.18,
-    "pure_worker_income": 10.95,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_09",
-    "task_price": 21.63,
-    "worker_cost": 10.66,
-    "system_income": 38.68,
-    "pure_worker_income": 10.97,
-    "type": "member"
-  },
-  {
-    "task_id": "t43_22",
-    "task_price": 21.6,
-    "worker_cost": 12.56,
-    "system_income": 36.34,
-    "pure_worker_income": 9.04,
-    "type": "member"
-  },
-  {
-    "task_id": "t43_08",
-    "task_price": 21.6,
-    "worker_cost": 10.94,
-    "system_income": 32.83,
-    "pure_worker_income": 10.66,
-    "type": "member"
-  },
-  {
-    "task_id": "t51_01",
-    "task_price": 21.6,
-    "worker_cost": 12.86,
-    "system_income": 30.69,
-    "pure_worker_income": 8.74,
-    "type": "member"
-  },
-  {
-    "task_id": "t63_07",
-    "task_price": 21.59,
-    "worker_cost": 12.41,
-    "system_income": 39.83,
-    "pure_worker_income": 9.19,
-    "type": "member"
-  },
-  {
-    "task_id": "t63_14",
-    "task_price": 21.59,
-    "worker_cost": 12.19,
-    "system_income": 36.93,
-    "pure_worker_income": 9.4,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_15",
-    "task_price": 21.59,
-    "worker_cost": 10.86,
-    "system_income": 28.76,
-    "pure_worker_income": 10.73,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_28",
-    "task_price": 21.59,
-    "worker_cost": 11.7,
-    "system_income": 42.88,
-    "pure_worker_income": 9.89,
-    "type": "member"
-  },
-  {
-    "task_id": "t73_03",
-    "task_price": 21.58,
-    "worker_cost": 12.77,
-    "system_income": 35.11,
-    "pure_worker_income": 8.81,
-    "type": "member"
-  },
-  {
-    "task_id": "t73_01",
-    "task_price": 21.58,
-    "worker_cost": 11.75,
-    "system_income": 37.93,
-    "pure_worker_income": 9.83,
-    "type": "member"
-  },
-  {
-    "task_id": "t74_05",
-    "task_price": 21.57,
-    "worker_cost": 9.77,
-    "system_income": 41.38,
-    "pure_worker_income": 11.8,
-    "type": "member"
-  },
-  {
-    "task_id": "t63_16",
-    "task_price": 21.57,
-    "worker_cost": 9.44,
-    "system_income": 35.85,
-    "pure_worker_income": 12.13,
-    "type": "member"
-  },
-  {
-    "task_id": "t76_02",
-    "task_price": 21.55,
-    "worker_cost": 9.65,
-    "system_income": 34.44,
-    "pure_worker_income": 11.9,
-    "type": "member"
-  },
-  {
-    "task_id": "t75_09",
-    "task_price": 21.55,
-    "worker_cost": 12.18,
-    "system_income": 29.78,
-    "pure_worker_income": 9.37,
-    "type": "member"
-  },
-  {
-    "task_id": "t75_00",
-    "task_price": 21.54,
-    "worker_cost": 9.18,
-    "system_income": 42.4,
-    "pure_worker_income": 12.36,
-    "type": "member"
-  },
-  {
-    "task_id": "t75_05",
-    "task_price": 21.54,
-    "worker_cost": 9.43,
-    "system_income": 26.31,
-    "pure_worker_income": 12.11,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_39",
-    "task_price": 21.51,
-    "worker_cost": 11.26,
-    "system_income": 26.02,
-    "pure_worker_income": 10.25,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_34",
-    "task_price": 21.51,
-    "worker_cost": 12.51,
-    "system_income": 29.54,
-    "pure_worker_income": 9.0,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_29",
-    "task_price": 21.51,
-    "worker_cost": 10.64,
-    "system_income": 29.68,
-    "pure_worker_income": 10.87,
-    "type": "member"
-  },
-  {
-    "task_id": "t83_01",
-    "task_price": 21.5,
-    "worker_cost": 12.55,
-    "system_income": 39.99,
-    "pure_worker_income": 8.95,
-    "type": "member"
-  },
-  {
-    "task_id": "t86_09",
-    "task_price": 21.49,
-    "worker_cost": 11.24,
-    "system_income": 37.54,
-    "pure_worker_income": 10.25,
-    "type": "member"
-  },
-  {
-    "task_id": "t55_12",
-    "task_price": 21.47,
-    "worker_cost": 11.09,
-    "system_income": 32.56,
-    "pure_worker_income": 10.38,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_24",
-    "task_price": 21.46,
-    "worker_cost": 12.03,
-    "system_income": 28.83,
-    "pure_worker_income": 9.42,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_03",
-    "task_price": 21.46,
-    "worker_cost": 11.74,
-    "system_income": 36.5,
-    "pure_worker_income": 9.71,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_14",
-    "task_price": 21.46,
-    "worker_cost": 12.5,
-    "system_income": 34.83,
-    "pure_worker_income": 8.96,
-    "type": "member"
-  },
-  {
-    "task_id": "t75_14",
-    "task_price": 21.44,
-    "worker_cost": 9.68,
-    "system_income": 38.0,
-    "pure_worker_income": 11.76,
-    "type": "member"
-  },
-  {
-    "task_id": "t75_08",
-    "task_price": 21.44,
-    "worker_cost": 8.95,
-    "system_income": 38.81,
-    "pure_worker_income": 12.49,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_33",
-    "task_price": 21.4,
-    "worker_cost": 9.19,
-    "system_income": 40.09,
-    "pure_worker_income": 12.2,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_17",
-    "task_price": 21.4,
-    "worker_cost": 9.13,
-    "system_income": 29.46,
-    "pure_worker_income": 12.27,
-    "type": "member"
-  },
-  {
-    "task_id": "t54_18",
-    "task_price": 21.4,
-    "worker_cost": 9.42,
-    "system_income": 32.03,
-    "pure_worker_income": 11.98,
+    "task_id": "t62_00",
+    "task_price": 31.32,
+    "worker_cost": 15.55,
+    "system_income": 56.17,
+    "pure_worker_income": 15.77,
     "type": "member"
   },
   {
     "task_id": "t62_01",
-    "task_price": 21.39,
-    "worker_cost": 10.2,
-    "system_income": 28.48,
-    "pure_worker_income": 11.2,
+    "task_price": 31.32,
+    "worker_cost": 12.78,
+    "system_income": 62.16,
+    "pure_worker_income": 18.54,
     "type": "member"
   },
   {
-    "task_id": "t54_30",
-    "task_price": 21.38,
-    "worker_cost": 10.47,
-    "system_income": 27.09,
-    "pure_worker_income": 10.9,
+    "task_id": "t12_01",
+    "task_price": 31.32,
+    "worker_cost": 14.56,
+    "system_income": 38.94,
+    "pure_worker_income": 16.76,
+    "type": "member"
+  },
+  {
+    "task_id": "t64_02",
+    "task_price": 31.01,
+    "worker_cost": 16.4,
+    "system_income": 42.16,
+    "pure_worker_income": 14.6,
+    "type": "member"
+  },
+  {
+    "task_id": "t53_03",
+    "task_price": 29.95,
+    "worker_cost": 14.64,
+    "system_income": 51.36,
+    "pure_worker_income": 15.31,
+    "type": "member"
+  },
+  {
+    "task_id": "t44_01",
+    "task_price": 29.82,
+    "worker_cost": 16.81,
+    "system_income": 55.04,
+    "pure_worker_income": 13.01,
+    "type": "member"
+  },
+  {
+    "task_id": "t53_00",
+    "task_price": 29.82,
+    "worker_cost": 12.65,
+    "system_income": 58.72,
+    "pure_worker_income": 17.17,
+    "type": "member"
+  },
+  {
+    "task_id": "t12_00",
+    "task_price": 29.61,
+    "worker_cost": 17.28,
+    "system_income": 55.69,
+    "pure_worker_income": 12.33,
+    "type": "member"
+  },
+  {
+    "task_id": "t42_01",
+    "task_price": 29.04,
+    "worker_cost": 14.65,
+    "system_income": 51.37,
+    "pure_worker_income": 14.39,
+    "type": "member"
+  },
+  {
+    "task_id": "t23_04",
+    "task_price": 28.73,
+    "worker_cost": 15.24,
+    "system_income": 41.72,
+    "pure_worker_income": 13.49,
+    "type": "member"
+  },
+  {
+    "task_id": "t66_00",
+    "task_price": 28.62,
+    "worker_cost": 11.89,
+    "system_income": 35.36,
+    "pure_worker_income": 16.73,
+    "type": "member"
+  },
+  {
+    "task_id": "t22_00",
+    "task_price": 28.44,
+    "worker_cost": 13.52,
+    "system_income": 39.67,
+    "pure_worker_income": 14.92,
+    "type": "member"
+  },
+  {
+    "task_id": "t53_10",
+    "task_price": 28.13,
+    "worker_cost": 12.17,
+    "system_income": 46.33,
+    "pure_worker_income": 15.96,
+    "type": "member"
+  },
+  {
+    "task_id": "t53_05",
+    "task_price": 27.42,
+    "worker_cost": 13.68,
+    "system_income": 40.88,
+    "pure_worker_income": 13.74,
+    "type": "member"
+  },
+  {
+    "task_id": "t57_00",
+    "task_price": 27.18,
+    "worker_cost": 16.18,
+    "system_income": 50.84,
+    "pure_worker_income": 11.0,
+    "type": "member"
+  },
+  {
+    "task_id": "t42_00",
+    "task_price": 27.18,
+    "worker_cost": 14.8,
+    "system_income": 40.78,
+    "pure_worker_income": 12.38,
+    "type": "member"
+  },
+  {
+    "task_id": "t26_00",
+    "task_price": 27.09,
+    "worker_cost": 12.34,
+    "system_income": 38.47,
+    "pure_worker_income": 14.75,
     "type": "member"
   },
   {
     "task_id": "t54_01",
-    "task_price": 21.38,
-    "worker_cost": 12.1,
-    "system_income": 39.18,
-    "pure_worker_income": 9.27,
+    "task_price": 26.92,
+    "worker_cost": 13.5,
+    "system_income": 50.45,
+    "pure_worker_income": 13.42,
     "type": "member"
   },
   {
-    "task_id": "t54_38",
-    "task_price": 21.38,
-    "worker_cost": 9.06,
-    "system_income": 35.64,
-    "pure_worker_income": 12.32,
+    "task_id": "t23_02",
+    "task_price": 26.64,
+    "worker_cost": 14.21,
+    "system_income": 44.47,
+    "pure_worker_income": 12.43,
     "type": "member"
   },
   {
-    "task_id": "t54_04",
-    "task_price": 21.38,
-    "worker_cost": 10.86,
-    "system_income": 32.45,
-    "pure_worker_income": 10.52,
+    "task_id": "t23_05",
+    "task_price": 26.64,
+    "worker_cost": 11.62,
+    "system_income": 45.36,
+    "pure_worker_income": 15.02,
     "type": "member"
   },
   {
-    "task_id": "t54_43",
-    "task_price": 21.38,
-    "worker_cost": 11.79,
-    "system_income": 30.97,
-    "pure_worker_income": 9.59,
+    "task_id": "t57_03",
+    "task_price": 26.58,
+    "worker_cost": 13.57,
+    "system_income": 53.15,
+    "pure_worker_income": 13.01,
     "type": "member"
   },
   {
-    "task_id": "t54_21",
-    "task_price": 21.38,
-    "worker_cost": 11.81,
-    "system_income": 27.14,
-    "pure_worker_income": 9.56,
+    "task_id": "t64_03",
+    "task_price": 26.34,
+    "worker_cost": 15.61,
+    "system_income": 43.38,
+    "pure_worker_income": 10.73,
     "type": "member"
   },
   {
-    "task_id": "t54_08",
-    "task_price": 21.38,
-    "worker_cost": 9.1,
-    "system_income": 40.04,
-    "pure_worker_income": 12.27,
+    "task_id": "t64_00",
+    "task_price": 26.34,
+    "worker_cost": 13.75,
+    "system_income": 47.55,
+    "pure_worker_income": 12.59,
     "type": "member"
   },
   {
-    "task_id": "t54_34",
-    "task_price": 21.38,
-    "worker_cost": 9.21,
-    "system_income": 35.68,
-    "pure_worker_income": 12.16,
+    "task_id": "t33_01",
+    "task_price": 26.1,
+    "worker_cost": 11.63,
+    "system_income": 48.07,
+    "pure_worker_income": 14.47,
     "type": "member"
   },
   {
-    "task_id": "t54_24",
-    "task_price": 21.37,
-    "worker_cost": 10.62,
-    "system_income": 34.87,
-    "pure_worker_income": 10.75,
+    "task_id": "t62_03",
+    "task_price": 26.03,
+    "worker_cost": 15.56,
+    "system_income": 40.53,
+    "pure_worker_income": 10.47,
     "type": "member"
   },
   {
-    "task_id": "t54_27",
-    "task_price": 21.37,
-    "worker_cost": 10.85,
-    "system_income": 42.12,
-    "pure_worker_income": 10.51,
+    "task_id": "t33_02",
+    "task_price": 26.01,
+    "worker_cost": 13.31,
+    "system_income": 34.77,
+    "pure_worker_income": 12.7,
     "type": "member"
   },
   {
-    "task_id": "t33_00",
-    "task_price": 21.35,
-    "worker_cost": 9.44,
-    "system_income": 31.83,
-    "pure_worker_income": 11.9,
+    "task_id": "t02_00",
+    "task_price": 25.92,
+    "worker_cost": 12.55,
+    "system_income": 50.98,
+    "pure_worker_income": 13.37,
     "type": "member"
   },
   {
-    "task_id": "t33_04",
-    "task_price": 21.35,
-    "worker_cost": 10.32,
-    "system_income": 30.18,
-    "pure_worker_income": 11.03,
+    "task_id": "t02_01",
+    "task_price": 25.92,
+    "worker_cost": 12.44,
+    "system_income": 48.0,
+    "pure_worker_income": 13.48,
     "type": "member"
   },
   {
-    "task_id": "t64_32",
-    "task_price": 21.34,
-    "worker_cost": 11.83,
-    "system_income": 41.32,
-    "pure_worker_income": 9.51,
+    "task_id": "t73_02",
+    "task_price": 25.79,
+    "worker_cost": 15.28,
+    "system_income": 35.88,
+    "pure_worker_income": 10.5,
     "type": "member"
   },
   {
-    "task_id": "t86_06",
-    "task_price": 21.28,
-    "worker_cost": 10.33,
-    "system_income": 42.22,
-    "pure_worker_income": 10.95,
+    "task_id": "t72_00",
+    "task_price": 25.74,
+    "worker_cost": 11.86,
+    "system_income": 43.43,
+    "pure_worker_income": 13.88,
     "type": "member"
   },
   {
-    "task_id": "t53_36",
-    "task_price": 21.27,
-    "worker_cost": 11.28,
-    "system_income": 29.66,
-    "pure_worker_income": 9.99,
+    "task_id": "t53_09",
+    "task_price": 25.69,
+    "worker_cost": 14.58,
+    "system_income": 41.61,
+    "pure_worker_income": 11.11,
     "type": "member"
   },
   {
-    "task_id": "t53_48",
-    "task_price": 21.27,
-    "worker_cost": 9.03,
-    "system_income": 38.09,
-    "pure_worker_income": 12.24,
+    "task_id": "t55_08",
+    "task_price": 25.61,
+    "worker_cost": 14.56,
+    "system_income": 43.13,
+    "pure_worker_income": 11.05,
     "type": "member"
   },
   {
-    "task_id": "t53_08",
-    "task_price": 21.27,
-    "worker_cost": 8.71,
-    "system_income": 42.52,
-    "pure_worker_income": 12.56,
+    "task_id": "t55_06",
+    "task_price": 25.61,
+    "worker_cost": 14.51,
+    "system_income": 44.14,
+    "pure_worker_income": 11.1,
     "type": "member"
   },
   {
-    "task_id": "t53_19",
-    "task_price": 21.27,
-    "worker_cost": 8.6,
-    "system_income": 35.15,
-    "pure_worker_income": 12.67,
-    "type": "member"
-  },
-  {
-    "task_id": "t75_18",
-    "task_price": 21.25,
-    "worker_cost": 12.43,
-    "system_income": 40.08,
-    "pure_worker_income": 8.82,
-    "type": "member"
-  },
-  {
-    "task_id": "t74_13",
-    "task_price": 21.24,
-    "worker_cost": 11.9,
-    "system_income": 37.72,
-    "pure_worker_income": 9.34,
-    "type": "member"
-  },
-  {
-    "task_id": "t74_07",
-    "task_price": 21.24,
-    "worker_cost": 11.71,
-    "system_income": 38.6,
-    "pure_worker_income": 9.53,
-    "type": "member"
-  },
-  {
-    "task_id": "t73_00",
-    "task_price": 21.22,
-    "worker_cost": 9.04,
-    "system_income": 41.18,
-    "pure_worker_income": 12.18,
-    "type": "member"
-  },
-  {
-    "task_id": "t56_05",
-    "task_price": 21.22,
-    "worker_cost": 8.84,
-    "system_income": 28.2,
-    "pure_worker_income": 12.37,
-    "type": "member"
-  },
-  {
-    "task_id": "t56_01",
-    "task_price": 21.22,
-    "worker_cost": 9.56,
-    "system_income": 25.67,
+    "task_id": "t10_02",
+    "task_price": 25.56,
+    "worker_cost": 13.91,
+    "system_income": 37.7,
     "pure_worker_income": 11.65,
     "type": "member"
   },
   {
-    "task_id": "t63_32",
-    "task_price": 21.2,
-    "worker_cost": 9.5,
-    "system_income": 27.52,
-    "pure_worker_income": 11.71,
+    "task_id": "t73_03",
+    "task_price": 25.56,
+    "worker_cost": 14.6,
+    "system_income": 32.66,
+    "pure_worker_income": 10.96,
     "type": "member"
   },
   {
-    "task_id": "t63_34",
-    "task_price": 21.2,
-    "worker_cost": 12.58,
-    "system_income": 34.72,
-    "pure_worker_income": 8.62,
+    "task_id": "t94_00",
+    "task_price": 25.56,
+    "worker_cost": 11.32,
+    "system_income": 37.07,
+    "pure_worker_income": 14.24,
     "type": "member"
   },
   {
-    "task_id": "t54_03",
-    "task_price": 21.2,
-    "worker_cost": 8.64,
-    "system_income": 34.17,
-    "pure_worker_income": 12.55,
+    "task_id": "t44_00",
+    "task_price": 25.56,
+    "worker_cost": 14.54,
+    "system_income": 46.75,
+    "pure_worker_income": 11.02,
+    "type": "member"
+  },
+  {
+    "task_id": "t94_01",
+    "task_price": 25.56,
+    "worker_cost": 13.83,
+    "system_income": 41.01,
+    "pure_worker_income": 11.73,
+    "type": "member"
+  },
+  {
+    "task_id": "t36_00",
+    "task_price": 25.56,
+    "worker_cost": 14.54,
+    "system_income": 37.79,
+    "pure_worker_income": 11.02,
+    "type": "member"
+  },
+  {
+    "task_id": "t53_06",
+    "task_price": 25.54,
+    "worker_cost": 13.68,
+    "system_income": 43.62,
+    "pure_worker_income": 11.85,
+    "type": "member"
+  },
+  {
+    "task_id": "t44_03",
+    "task_price": 25.51,
+    "worker_cost": 14.82,
+    "system_income": 38.59,
+    "pure_worker_income": 10.7,
+    "type": "member"
+  },
+  {
+    "task_id": "t53_01",
+    "task_price": 25.45,
+    "worker_cost": 13.36,
+    "system_income": 46.44,
+    "pure_worker_income": 12.09,
+    "type": "member"
+  },
+  {
+    "task_id": "t53_11",
+    "task_price": 25.45,
+    "worker_cost": 11.69,
+    "system_income": 46.96,
+    "pure_worker_income": 13.76,
+    "type": "member"
+  },
+  {
+    "task_id": "t53_12",
+    "task_price": 25.45,
+    "worker_cost": 13.95,
+    "system_income": 46.05,
+    "pure_worker_income": 11.49,
+    "type": "member"
+  },
+  {
+    "task_id": "t71_00",
+    "task_price": 25.2,
+    "worker_cost": 10.68,
+    "system_income": 42.63,
+    "pure_worker_income": 14.52,
+    "type": "member"
+  },
+  {
+    "task_id": "t33_00",
+    "task_price": 25.2,
+    "worker_cost": 11.97,
+    "system_income": 49.67,
+    "pure_worker_income": 13.23,
+    "type": "member"
+  },
+  {
+    "task_id": "t72_01",
+    "task_price": 25.14,
+    "worker_cost": 11.48,
+    "system_income": 46.12,
+    "pure_worker_income": 13.66,
+    "type": "member"
+  },
+  {
+    "task_id": "t10_04",
+    "task_price": 25.11,
+    "worker_cost": 13.23,
+    "system_income": 47.5,
+    "pure_worker_income": 11.88,
+    "type": "member"
+  },
+  {
+    "task_id": "t52_00",
+    "task_price": 24.93,
+    "worker_cost": 10.21,
+    "system_income": 45.8,
+    "pure_worker_income": 14.72,
+    "type": "member"
+  },
+  {
+    "task_id": "t53_02",
+    "task_price": 24.84,
+    "worker_cost": 14.39,
+    "system_income": 40.59,
+    "pure_worker_income": 10.45,
+    "type": "member"
+  },
+  {
+    "task_id": "t64_05",
+    "task_price": 24.84,
+    "worker_cost": 13.23,
+    "system_income": 33.74,
+    "pure_worker_income": 11.61,
+    "type": "member"
+  },
+  {
+    "task_id": "t56_01",
+    "task_price": 24.6,
+    "worker_cost": 11.81,
+    "system_income": 45.39,
+    "pure_worker_income": 12.79,
+    "type": "member"
+  },
+  {
+    "task_id": "t54_29",
+    "task_price": 24.39,
+    "worker_cost": 13.58,
+    "system_income": 38.6,
+    "pure_worker_income": 10.81,
+    "type": "member"
+  },
+  {
+    "task_id": "t54_17",
+    "task_price": 24.39,
+    "worker_cost": 12.57,
+    "system_income": 31.7,
+    "pure_worker_income": 11.82,
+    "type": "member"
+  },
+  {
+    "task_id": "t65_02",
+    "task_price": 24.21,
+    "worker_cost": 12.53,
+    "system_income": 30.34,
+    "pure_worker_income": 11.68,
+    "type": "member"
+  },
+  {
+    "task_id": "t65_01",
+    "task_price": 24.21,
+    "worker_cost": 9.94,
+    "system_income": 42.9,
+    "pure_worker_income": 14.27,
+    "type": "member"
+  },
+  {
+    "task_id": "t65_04",
+    "task_price": 24.21,
+    "worker_cost": 12.88,
+    "system_income": 34.67,
+    "pure_worker_income": 11.33,
+    "type": "member"
+  },
+  {
+    "task_id": "t54_23",
+    "task_price": 24.13,
+    "worker_cost": 10.39,
+    "system_income": 48.04,
+    "pure_worker_income": 13.75,
     "type": "member"
   },
   {
     "task_id": "t54_13",
-    "task_price": 21.2,
-    "worker_cost": 10.87,
-    "system_income": 28.64,
-    "pure_worker_income": 10.33,
+    "task_price": 24.12,
+    "worker_cost": 9.72,
+    "system_income": 30.67,
+    "pure_worker_income": 14.4,
     "type": "member"
   },
   {
-    "task_id": "t62_02",
-    "task_price": 21.18,
-    "worker_cost": 10.9,
-    "system_income": 32.89,
-    "pure_worker_income": 10.28,
+    "task_id": "t40_00",
+    "task_price": 24.12,
+    "worker_cost": 10.89,
+    "system_income": 38.1,
+    "pure_worker_income": 13.23,
     "type": "member"
   },
   {
-    "task_id": "t84_01",
-    "task_price": 21.15,
-    "worker_cost": 9.26,
-    "system_income": 37.83,
-    "pure_worker_income": 11.89,
+    "task_id": "t64_14",
+    "task_price": 24.06,
+    "worker_cost": 10.96,
+    "system_income": 36.03,
+    "pure_worker_income": 13.1,
     "type": "member"
   },
   {
-    "task_id": "t52_04",
-    "task_price": 21.15,
-    "worker_cost": 12.21,
-    "system_income": 36.36,
-    "pure_worker_income": 8.94,
+    "task_id": "t64_11",
+    "task_price": 24.06,
+    "worker_cost": 14.19,
+    "system_income": 44.7,
+    "pure_worker_income": 9.87,
     "type": "member"
   },
   {
-    "task_id": "t63_02",
-    "task_price": 21.14,
-    "worker_cost": 9.03,
-    "system_income": 27.76,
-    "pure_worker_income": 12.11,
+    "task_id": "t64_01",
+    "task_price": 24.06,
+    "worker_cost": 10.59,
+    "system_income": 43.36,
+    "pure_worker_income": 13.47,
     "type": "member"
-  },
-  {
-    "task_id": "t63_09",
-    "task_price": 21.14,
-    "worker_cost": 9.44,
-    "system_income": 41.35,
-    "pure_worker_income": 11.7,
-    "type": "member"
-  },
-  {
-    "task_id": "t53_22",
-    "task_price": 21.11,
-    "worker_cost": 10.31,
-    "system_income": 34.39,
-    "pure_worker_income": 10.8,
-    "type": "member"
-  },
-  {
-    "task_id": "t64_26",
-    "task_price": 11.72,
-    "worker_cost": 9.93,
-    "system_income": 16.68,
-    "pure_worker_income": 1.79,
-    "type": "normal"
-  },
-  {
-    "task_id": "t54_06",
-    "task_price": 11.72,
-    "worker_cost": 10.17,
-    "system_income": 21.58,
-    "pure_worker_income": 1.55,
-    "type": "normal"
-  },
-  {
-    "task_id": "t54_19",
-    "task_price": 11.72,
-    "worker_cost": 9.63,
-    "system_income": 20.25,
-    "pure_worker_income": 2.08,
-    "type": "normal"
-  },
-  {
-    "task_id": "t33_09",
-    "task_price": 11.7,
-    "worker_cost": 9.55,
-    "system_income": 19.82,
-    "pure_worker_income": 2.15,
-    "type": "normal"
-  },
-  {
-    "task_id": "t65_25",
-    "task_price": 11.68,
-    "worker_cost": 9.38,
-    "system_income": 21.3,
-    "pure_worker_income": 2.31,
-    "type": "normal"
-  },
-  {
-    "task_id": "t65_32",
-    "task_price": 11.68,
-    "worker_cost": 10.2,
-    "system_income": 20.81,
-    "pure_worker_income": 1.48,
-    "type": "normal"
-  },
-  {
-    "task_id": "t54_02",
-    "task_price": 11.65,
-    "worker_cost": 9.18,
-    "system_income": 20.19,
-    "pure_worker_income": 2.48,
-    "type": "normal"
-  },
-  {
-    "task_id": "t54_42",
-    "task_price": 11.65,
-    "worker_cost": 9.6,
-    "system_income": 15.55,
-    "pure_worker_income": 2.05,
-    "type": "normal"
-  },
-  {
-    "task_id": "t24_00",
-    "task_price": 11.65,
-    "worker_cost": 10.0,
-    "system_income": 15.41,
-    "pure_worker_income": 1.65,
-    "type": "normal"
-  },
-  {
-    "task_id": "t43_03",
-    "task_price": 11.65,
-    "worker_cost": 8.99,
-    "system_income": 16.69,
-    "pure_worker_income": 2.66,
-    "type": "normal"
-  },
-  {
-    "task_id": "t43_09",
-    "task_price": 11.65,
-    "worker_cost": 9.68,
-    "system_income": 15.48,
-    "pure_worker_income": 1.97,
-    "type": "normal"
-  },
-  {
-    "task_id": "t42_04",
-    "task_price": 11.64,
-    "worker_cost": 9.45,
-    "system_income": 17.89,
-    "pure_worker_income": 2.19,
-    "type": "normal"
-  },
-  {
-    "task_id": "t95_01",
-    "task_price": 11.64,
-    "worker_cost": 9.85,
-    "system_income": 20.97,
-    "pure_worker_income": 1.79,
-    "type": "normal"
-  },
-  {
-    "task_id": "t76_00",
-    "task_price": 11.63,
-    "worker_cost": 8.89,
-    "system_income": 18.34,
-    "pure_worker_income": 2.74,
-    "type": "normal"
-  },
-  {
-    "task_id": "t65_36",
-    "task_price": 11.63,
-    "worker_cost": 10.22,
-    "system_income": 16.57,
-    "pure_worker_income": 1.41,
-    "type": "normal"
-  },
-  {
-    "task_id": "t53_07",
-    "task_price": 11.61,
-    "worker_cost": 10.37,
-    "system_income": 19.98,
-    "pure_worker_income": 1.24,
-    "type": "normal"
-  },
-  {
-    "task_id": "t53_46",
-    "task_price": 11.61,
-    "worker_cost": 10.44,
-    "system_income": 20.38,
-    "pure_worker_income": 1.17,
-    "type": "normal"
-  },
-  {
-    "task_id": "t53_44",
-    "task_price": 11.61,
-    "worker_cost": 8.37,
-    "system_income": 18.42,
-    "pure_worker_income": 3.24,
-    "type": "normal"
-  },
-  {
-    "task_id": "t97_04",
-    "task_price": 11.57,
-    "worker_cost": 9.02,
-    "system_income": 16.14,
-    "pure_worker_income": 2.55,
-    "type": "normal"
-  },
-  {
-    "task_id": "t53_06",
-    "task_price": 11.57,
-    "worker_cost": 8.24,
-    "system_income": 14.29,
-    "pure_worker_income": 3.32,
-    "type": "normal"
-  },
-  {
-    "task_id": "t53_14",
-    "task_price": 11.57,
-    "worker_cost": 8.59,
-    "system_income": 17.89,
-    "pure_worker_income": 2.97,
-    "type": "normal"
-  },
-  {
-    "task_id": "t98_01",
-    "task_price": 11.57,
-    "worker_cost": 8.74,
-    "system_income": 14.22,
-    "pure_worker_income": 2.83,
-    "type": "normal"
-  },
-  {
-    "task_id": "t43_06",
-    "task_price": 11.54,
-    "worker_cost": 9.26,
-    "system_income": 17.52,
-    "pure_worker_income": 2.28,
-    "type": "normal"
-  },
-  {
-    "task_id": "t43_01",
-    "task_price": 11.54,
-    "worker_cost": 8.47,
-    "system_income": 18.29,
-    "pure_worker_income": 3.07,
-    "type": "normal"
-  },
-  {
-    "task_id": "t43_05",
-    "task_price": 11.54,
-    "worker_cost": 9.14,
-    "system_income": 14.58,
-    "pure_worker_income": 2.4,
-    "type": "normal"
-  },
-  {
-    "task_id": "t43_24",
-    "task_price": 11.54,
-    "worker_cost": 9.44,
-    "system_income": 22.94,
-    "pure_worker_income": 2.1,
-    "type": "normal"
-  },
-  {
-    "task_id": "t43_23",
-    "task_price": 11.54,
-    "worker_cost": 8.84,
-    "system_income": 21.36,
-    "pure_worker_income": 2.7,
-    "type": "normal"
-  },
-  {
-    "task_id": "t73_11",
-    "task_price": 11.5,
-    "worker_cost": 10.27,
-    "system_income": 16.18,
-    "pure_worker_income": 1.22,
-    "type": "normal"
-  },
-  {
-    "task_id": "t63_31",
-    "task_price": 11.42,
-    "worker_cost": 10.08,
-    "system_income": 17.29,
-    "pure_worker_income": 1.35,
-    "type": "normal"
-  },
-  {
-    "task_id": "t45_03",
-    "task_price": 11.41,
-    "worker_cost": 8.56,
-    "system_income": 13.79,
-    "pure_worker_income": 2.85,
-    "type": "normal"
-  },
-  {
-    "task_id": "t63_27",
-    "task_price": 11.41,
-    "worker_cost": 8.75,
-    "system_income": 18.5,
-    "pure_worker_income": 2.66,
-    "type": "normal"
-  },
-  {
-    "task_id": "t63_04",
-    "task_price": 11.41,
-    "worker_cost": 9.74,
-    "system_income": 15.29,
-    "pure_worker_income": 1.67,
-    "type": "normal"
-  },
-  {
-    "task_id": "t65_05",
-    "task_price": 11.41,
-    "worker_cost": 10.01,
-    "system_income": 21.85,
-    "pure_worker_income": 1.39,
-    "type": "normal"
-  },
-  {
-    "task_id": "t65_19",
-    "task_price": 11.41,
-    "worker_cost": 8.82,
-    "system_income": 18.31,
-    "pure_worker_income": 2.59,
-    "type": "normal"
-  },
-  {
-    "task_id": "t74_03",
-    "task_price": 11.39,
-    "worker_cost": 8.38,
-    "system_income": 18.32,
-    "pure_worker_income": 3.01,
-    "type": "normal"
-  },
-  {
-    "task_id": "t74_09",
-    "task_price": 11.39,
-    "worker_cost": 9.87,
-    "system_income": 17.33,
-    "pure_worker_income": 1.52,
-    "type": "normal"
-  },
-  {
-    "task_id": "t74_14",
-    "task_price": 11.39,
-    "worker_cost": 8.3,
-    "system_income": 16.17,
-    "pure_worker_income": 3.09,
-    "type": "normal"
-  },
-  {
-    "task_id": "t74_08",
-    "task_price": 11.39,
-    "worker_cost": 9.18,
-    "system_income": 22.33,
-    "pure_worker_income": 2.22,
-    "type": "normal"
-  },
-  {
-    "task_id": "t87_00",
-    "task_price": 11.38,
-    "worker_cost": 8.01,
-    "system_income": 18.33,
-    "pure_worker_income": 3.37,
-    "type": "normal"
-  },
-  {
-    "task_id": "t45_11",
-    "task_price": 11.38,
-    "worker_cost": 8.14,
-    "system_income": 16.12,
-    "pure_worker_income": 3.23,
-    "type": "normal"
-  },
-  {
-    "task_id": "t53_40",
-    "task_price": 11.36,
-    "worker_cost": 10.21,
-    "system_income": 16.83,
-    "pure_worker_income": 1.14,
-    "type": "normal"
-  },
-  {
-    "task_id": "t53_05",
-    "task_price": 11.36,
-    "worker_cost": 9.03,
-    "system_income": 17.23,
-    "pure_worker_income": 2.33,
-    "type": "normal"
-  },
-  {
-    "task_id": "t42_03",
-    "task_price": 11.32,
-    "worker_cost": 8.85,
-    "system_income": 21.21,
-    "pure_worker_income": 2.47,
-    "type": "normal"
-  },
-  {
-    "task_id": "t42_01",
-    "task_price": 11.32,
-    "worker_cost": 8.44,
-    "system_income": 15.76,
-    "pure_worker_income": 2.87,
-    "type": "normal"
-  },
-  {
-    "task_id": "t43_02",
-    "task_price": 11.27,
-    "worker_cost": 8.95,
-    "system_income": 20.81,
-    "pure_worker_income": 2.32,
-    "type": "normal"
-  },
-  {
-    "task_id": "t43_16",
-    "task_price": 11.27,
-    "worker_cost": 9.32,
-    "system_income": 14.34,
-    "pure_worker_income": 1.95,
-    "type": "normal"
-  },
-  {
-    "task_id": "t43_10",
-    "task_price": 11.25,
-    "worker_cost": 8.62,
-    "system_income": 16.16,
-    "pure_worker_income": 2.63,
-    "type": "normal"
-  },
-  {
-    "task_id": "t43_17",
-    "task_price": 11.23,
-    "worker_cost": 9.59,
-    "system_income": 19.14,
-    "pure_worker_income": 1.64,
-    "type": "normal"
-  },
-  {
-    "task_id": "t43_11",
-    "task_price": 11.23,
-    "worker_cost": 8.15,
-    "system_income": 15.51,
-    "pure_worker_income": 3.08,
-    "type": "normal"
-  },
-  {
-    "task_id": "t96_01",
-    "task_price": 11.21,
-    "worker_cost": 7.93,
-    "system_income": 18.78,
-    "pure_worker_income": 3.28,
-    "type": "normal"
-  },
-  {
-    "task_id": "t65_18",
-    "task_price": 11.2,
-    "worker_cost": 8.42,
-    "system_income": 15.7,
-    "pure_worker_income": 2.77,
-    "type": "normal"
-  },
-  {
-    "task_id": "t86_04",
-    "task_price": 11.18,
-    "worker_cost": 9.49,
-    "system_income": 19.79,
-    "pure_worker_income": 1.69,
-    "type": "normal"
-  },
-  {
-    "task_id": "t53_45",
-    "task_price": 11.17,
-    "worker_cost": 8.03,
-    "system_income": 18.6,
-    "pure_worker_income": 3.14,
-    "type": "normal"
-  },
-  {
-    "task_id": "t53_42",
-    "task_price": 11.17,
-    "worker_cost": 9.48,
-    "system_income": 21.33,
-    "pure_worker_income": 1.69,
-    "type": "normal"
-  },
-  {
-    "task_id": "t56_07",
-    "task_price": 11.14,
-    "worker_cost": 8.74,
-    "system_income": 17.56,
-    "pure_worker_income": 2.4,
-    "type": "normal"
-  },
-  {
-    "task_id": "t64_02",
-    "task_price": 11.11,
-    "worker_cost": 9.77,
-    "system_income": 14.47,
-    "pure_worker_income": 1.34,
-    "type": "normal"
-  },
-  {
-    "task_id": "t45_05",
-    "task_price": 11.1,
-    "worker_cost": 9.36,
-    "system_income": 14.14,
-    "pure_worker_income": 1.74,
-    "type": "normal"
-  },
-  {
-    "task_id": "t33_02",
-    "task_price": 11.1,
-    "worker_cost": 7.77,
-    "system_income": 13.53,
-    "pure_worker_income": 3.33,
-    "type": "normal"
-  },
-  {
-    "task_id": "t63_33",
-    "task_price": 11.01,
-    "worker_cost": 9.59,
-    "system_income": 21.69,
-    "pure_worker_income": 1.43,
-    "type": "normal"
-  },
-  {
-    "task_id": "t63_30",
-    "task_price": 11.01,
-    "worker_cost": 8.63,
-    "system_income": 18.87,
-    "pure_worker_income": 2.38,
-    "type": "normal"
-  },
-  {
-    "task_id": "t64_20",
-    "task_price": 10.87,
-    "worker_cost": 9.01,
-    "system_income": 18.8,
-    "pure_worker_income": 1.86,
-    "type": "normal"
-  },
-  {
-    "task_id": "t56_02",
-    "task_price": 10.86,
-    "worker_cost": 7.75,
-    "system_income": 20.78,
-    "pure_worker_income": 3.11,
-    "type": "normal"
-  },
-  {
-    "task_id": "t73_13",
-    "task_price": 10.84,
-    "worker_cost": 9.02,
-    "system_income": 20.55,
-    "pure_worker_income": 1.82,
-    "type": "normal"
-  },
-  {
-    "task_id": "t96_07",
-    "task_price": 10.82,
-    "worker_cost": 7.94,
-    "system_income": 14.02,
-    "pure_worker_income": 2.88,
-    "type": "normal"
-  },
-  {
-    "task_id": "t43_14",
-    "task_price": 10.77,
-    "worker_cost": 8.3,
-    "system_income": 20.48,
-    "pure_worker_income": 2.47,
-    "type": "normal"
-  },
-  {
-    "task_id": "t43_18",
-    "task_price": 10.77,
-    "worker_cost": 7.89,
-    "system_income": 14.79,
-    "pure_worker_income": 2.88,
-    "type": "normal"
-  },
-  {
-    "task_id": "t18_00",
-    "task_price": 10.7,
-    "worker_cost": 8.87,
-    "system_income": 21.05,
-    "pure_worker_income": 1.83,
-    "type": "normal"
-  },
-  {
-    "task_id": "t52_03",
-    "task_price": 10.64,
-    "worker_cost": 8.99,
-    "system_income": 14.89,
-    "pure_worker_income": 1.65,
-    "type": "normal"
-  },
-  {
-    "task_id": "t66_00",
-    "task_price": 10.61,
-    "worker_cost": 8.41,
-    "system_income": 13.61,
-    "pure_worker_income": 2.2,
-    "type": "normal"
   },
   {
     "task_id": "t66_01",
-    "task_price": 10.61,
-    "worker_cost": 7.51,
-    "system_income": 13.84,
-    "pure_worker_income": 3.1,
-    "type": "normal"
+    "task_price": 23.88,
+    "worker_cost": 9.55,
+    "system_income": 46.38,
+    "pure_worker_income": 14.33,
+    "type": "member"
   },
   {
-    "task_id": "t72_01",
-    "task_price": 10.54,
-    "worker_cost": 7.47,
-    "system_income": 20.47,
-    "pure_worker_income": 3.07,
-    "type": "normal"
+    "task_id": "t63_03",
+    "task_price": 23.79,
+    "worker_cost": 12.33,
+    "system_income": 41.13,
+    "pure_worker_income": 11.46,
+    "type": "member"
   },
   {
-    "task_id": "t33_06",
-    "task_price": 10.43,
-    "worker_cost": 9.13,
-    "system_income": 13.49,
-    "pure_worker_income": 1.3,
-    "type": "normal"
+    "task_id": "t45_01",
+    "task_price": 23.67,
+    "worker_cost": 11.28,
+    "system_income": 39.87,
+    "pure_worker_income": 12.39,
+    "type": "member"
   },
   {
-    "task_id": "t33_01",
-    "task_price": 10.43,
-    "worker_cost": 7.95,
-    "system_income": 15.12,
-    "pure_worker_income": 2.47,
-    "type": "normal"
+    "task_id": "t64_07",
+    "task_price": 23.6,
+    "worker_cost": 14.05,
+    "system_income": 35.66,
+    "pure_worker_income": 9.56,
+    "type": "member"
   },
   {
-    "task_id": "t56_04",
-    "task_price": 10.43,
-    "worker_cost": 8.67,
-    "system_income": 18.73,
-    "pure_worker_income": 1.76,
-    "type": "normal"
+    "task_id": "t64_19",
+    "task_price": 23.6,
+    "worker_cost": 9.44,
+    "system_income": 34.2,
+    "pure_worker_income": 14.16,
+    "type": "member"
   },
   {
-    "task_id": "t73_09",
-    "task_price": 10.42,
-    "worker_cost": 7.85,
-    "system_income": 16.69,
-    "pure_worker_income": 2.57,
-    "type": "normal"
+    "task_id": "t54_09",
+    "task_price": 23.58,
+    "worker_cost": 10.66,
+    "system_income": 36.46,
+    "pure_worker_income": 12.92,
+    "type": "member"
   },
   {
-    "task_id": "t34_08",
-    "task_price": 10.35,
-    "worker_cost": 7.51,
-    "system_income": 13.03,
-    "pure_worker_income": 2.84,
-    "type": "normal"
+    "task_id": "t54_08",
+    "task_price": 23.58,
+    "worker_cost": 9.7,
+    "system_income": 42.72,
+    "pure_worker_income": 13.88,
+    "type": "member"
   },
   {
-    "task_id": "t86_00",
-    "task_price": 10.28,
-    "worker_cost": 8.13,
-    "system_income": 15.14,
-    "pure_worker_income": 2.15,
-    "type": "normal"
+    "task_id": "t23_06",
+    "task_price": 23.54,
+    "worker_cost": 12.64,
+    "system_income": 29.19,
+    "pure_worker_income": 10.9,
+    "type": "member"
   },
   {
-    "task_id": "t73_04",
-    "task_price": 10.26,
-    "worker_cost": 8.79,
-    "system_income": 12.65,
-    "pure_worker_income": 1.47,
-    "type": "normal"
+    "task_id": "t54_05",
+    "task_price": 23.37,
+    "worker_cost": 10.86,
+    "system_income": 39.91,
+    "pure_worker_income": 12.5,
+    "type": "member"
   },
   {
-    "task_id": "t39_00",
-    "task_price": 10.23,
-    "worker_cost": 8.55,
-    "system_income": 18.53,
-    "pure_worker_income": 1.68,
-    "type": "normal"
+    "task_id": "t54_16",
+    "task_price": 23.37,
+    "worker_cost": 12.6,
+    "system_income": 41.16,
+    "pure_worker_income": 10.77,
+    "type": "member"
   },
   {
-    "task_id": "t33_07",
-    "task_price": 10.09,
-    "worker_cost": 7.48,
-    "system_income": 13.7,
-    "pure_worker_income": 2.6,
-    "type": "normal"
+    "task_id": "t24_02",
+    "task_price": 23.22,
+    "worker_cost": 12.43,
+    "system_income": 37.26,
+    "pure_worker_income": 10.79,
+    "type": "member"
   },
   {
-    "task_id": "t62_00",
-    "task_price": 10.05,
-    "worker_cost": 8.53,
-    "system_income": 14.38,
-    "pure_worker_income": 1.52,
-    "type": "normal"
+    "task_id": "t24_06",
+    "task_price": 23.22,
+    "worker_cost": 12.88,
+    "system_income": 33.48,
+    "pure_worker_income": 10.34,
+    "type": "member"
   },
   {
-    "task_id": "t94_02",
-    "task_price": 10.03,
-    "worker_cost": 7.18,
-    "system_income": 16.77,
-    "pure_worker_income": 2.84,
-    "type": "normal"
+    "task_id": "t57_04",
+    "task_price": 23.13,
+    "worker_cost": 10.77,
+    "system_income": 41.77,
+    "pure_worker_income": 12.36,
+    "type": "member"
   },
   {
-    "task_id": "t94_03",
-    "task_price": 9.87,
-    "worker_cost": 8.1,
-    "system_income": 16.03,
-    "pure_worker_income": 1.77,
-    "type": "normal"
+    "task_id": "t57_01",
+    "task_price": 23.13,
+    "worker_cost": 13.21,
+    "system_income": 35.68,
+    "pure_worker_income": 9.92,
+    "type": "member"
   },
   {
-    "task_id": "t55_20",
-    "task_price": 9.84,
-    "worker_cost": 8.38,
-    "system_income": 17.46,
-    "pure_worker_income": 1.46,
-    "type": "normal"
+    "task_id": "t57_02",
+    "task_price": 23.04,
+    "worker_cost": 10.36,
+    "system_income": 34.77,
+    "pure_worker_income": 12.68,
+    "type": "member"
+  },
+  {
+    "task_id": "t64_13",
+    "task_price": 22.99,
+    "worker_cost": 12.76,
+    "system_income": 31.68,
+    "pure_worker_income": 10.23,
+    "type": "member"
+  },
+  {
+    "task_id": "t64_06",
+    "task_price": 22.99,
+    "worker_cost": 12.84,
+    "system_income": 43.69,
+    "pure_worker_income": 10.16,
+    "type": "member"
+  },
+  {
+    "task_id": "t33_03",
+    "task_price": 22.98,
+    "worker_cost": 13.76,
+    "system_income": 34.28,
+    "pure_worker_income": 9.22,
+    "type": "member"
+  },
+  {
+    "task_id": "t23_01",
+    "task_price": 22.96,
+    "worker_cost": 12.57,
+    "system_income": 41.22,
+    "pure_worker_income": 10.39,
+    "type": "member"
+  },
+  {
+    "task_id": "t55_00",
+    "task_price": 22.94,
+    "worker_cost": 12.68,
+    "system_income": 37.19,
+    "pure_worker_income": 10.26,
+    "type": "member"
   },
   {
     "task_id": "t55_07",
-    "task_price": 9.84,
-    "worker_cost": 7.64,
-    "system_income": 17.79,
-    "pure_worker_income": 2.2,
-    "type": "normal"
+    "task_price": 22.94,
+    "worker_cost": 13.24,
+    "system_income": 41.09,
+    "pure_worker_income": 9.7,
+    "type": "member"
   },
   {
-    "task_id": "t98_04",
-    "task_price": 9.8,
-    "worker_cost": 7.83,
-    "system_income": 15.42,
-    "pure_worker_income": 1.97,
-    "type": "normal"
+    "task_id": "t54_22",
+    "task_price": 22.9,
+    "worker_cost": 13.21,
+    "system_income": 32.05,
+    "pure_worker_income": 9.7,
+    "type": "member"
   },
   {
-    "task_id": "t33_05",
-    "task_price": 9.76,
-    "worker_cost": 7.1,
-    "system_income": 14.95,
-    "pure_worker_income": 2.65,
-    "type": "normal"
+    "task_id": "t10_05",
+    "task_price": 22.79,
+    "worker_cost": 12.31,
+    "system_income": 44.75,
+    "pure_worker_income": 10.48,
+    "type": "member"
   },
   {
-    "task_id": "t33_08",
-    "task_price": 9.76,
-    "worker_cost": 6.86,
-    "system_income": 16.0,
-    "pure_worker_income": 2.9,
-    "type": "normal"
+    "task_id": "t76_03",
+    "task_price": 22.74,
+    "worker_cost": 12.3,
+    "system_income": 39.32,
+    "pure_worker_income": 10.44,
+    "type": "member"
   },
   {
-    "task_id": "t32_01",
-    "task_price": 9.73,
-    "worker_cost": 7.47,
-    "system_income": 19.04,
-    "pure_worker_income": 2.27,
-    "type": "normal"
+    "task_id": "t64_16",
+    "task_price": 22.7,
+    "worker_cost": 13.1,
+    "system_income": 38.08,
+    "pure_worker_income": 9.59,
+    "type": "member"
   },
   {
-    "task_id": "t60_00",
-    "task_price": 9.7,
-    "worker_cost": 6.97,
-    "system_income": 18.95,
-    "pure_worker_income": 2.73,
-    "type": "normal"
+    "task_id": "t64_10",
+    "task_price": 22.59,
+    "worker_cost": 11.17,
+    "system_income": 37.44,
+    "pure_worker_income": 11.42,
+    "type": "member"
   },
   {
-    "task_id": "t73_10",
-    "task_price": 9.66,
-    "worker_cost": 7.26,
-    "system_income": 12.06,
-    "pure_worker_income": 2.4,
-    "type": "normal"
+    "task_id": "t55_05",
+    "task_price": 22.5,
+    "worker_cost": 12.72,
+    "system_income": 29.87,
+    "pure_worker_income": 9.78,
+    "type": "member"
   },
   {
-    "task_id": "t72_00",
-    "task_price": 9.6,
-    "worker_cost": 8.12,
-    "system_income": 13.09,
-    "pure_worker_income": 1.48,
-    "type": "normal"
+    "task_id": "t23_07",
+    "task_price": 22.47,
+    "worker_cost": 9.94,
+    "system_income": 31.1,
+    "pure_worker_income": 12.53,
+    "type": "member"
   },
   {
-    "task_id": "t34_05",
-    "task_price": 9.41,
-    "worker_cost": 8.37,
-    "system_income": 13.97,
-    "pure_worker_income": 1.04,
-    "type": "normal"
+    "task_id": "t43_08",
+    "task_price": 22.46,
+    "worker_cost": 12.07,
+    "system_income": 27.0,
+    "pure_worker_income": 10.39,
+    "type": "member"
   },
   {
-    "task_id": "t34_07",
-    "task_price": 9.41,
-    "worker_cost": 7.72,
-    "system_income": 13.03,
-    "pure_worker_income": 1.69,
-    "type": "normal"
+    "task_id": "t63_01",
+    "task_price": 22.44,
+    "worker_cost": 12.53,
+    "system_income": 31.64,
+    "pure_worker_income": 9.91,
+    "type": "member"
   },
   {
-    "task_id": "t87_02",
-    "task_price": 9.22,
-    "worker_cost": 6.65,
-    "system_income": 12.59,
-    "pure_worker_income": 2.58,
-    "type": "normal"
+    "task_id": "t43_02",
+    "task_price": 22.44,
+    "worker_cost": 13.25,
+    "system_income": 29.95,
+    "pure_worker_income": 9.19,
+    "type": "member"
   },
   {
-    "task_id": "t29_01",
-    "task_price": 9.03,
-    "worker_cost": 7.11,
-    "system_income": 14.47,
-    "pure_worker_income": 1.92,
-    "type": "normal"
+    "task_id": "t54_11",
+    "task_price": 22.44,
+    "worker_cost": 12.42,
+    "system_income": 41.32,
+    "pure_worker_income": 10.02,
+    "type": "member"
   },
   {
-    "task_id": "t49_00",
-    "task_price": 8.7,
-    "worker_cost": 7.08,
-    "system_income": 10.99,
-    "pure_worker_income": 1.62,
+    "task_id": "t54_15",
+    "task_price": 22.44,
+    "worker_cost": 10.87,
+    "system_income": 40.51,
+    "pure_worker_income": 11.57,
+    "type": "member"
+  },
+  {
+    "task_id": "t54_02",
+    "task_price": 22.44,
+    "worker_cost": 10.66,
+    "system_income": 31.36,
+    "pure_worker_income": 11.78,
+    "type": "member"
+  },
+  {
+    "task_id": "t54_14",
+    "task_price": 22.44,
+    "worker_cost": 12.27,
+    "system_income": 29.85,
+    "pure_worker_income": 10.17,
+    "type": "member"
+  },
+  {
+    "task_id": "t24_03",
+    "task_price": 22.35,
+    "worker_cost": 11.91,
+    "system_income": 40.72,
+    "pure_worker_income": 10.44,
+    "type": "member"
+  },
+  {
+    "task_id": "t24_04",
+    "task_price": 22.35,
+    "worker_cost": 9.91,
+    "system_income": 41.98,
+    "pure_worker_income": 12.44,
+    "type": "member"
+  },
+  {
+    "task_id": "t54_24",
+    "task_price": 22.33,
+    "worker_cost": 10.07,
+    "system_income": 40.88,
+    "pure_worker_income": 12.26,
+    "type": "member"
+  },
+  {
+    "task_id": "t54_26",
+    "task_price": 22.33,
+    "worker_cost": 11.48,
+    "system_income": 30.63,
+    "pure_worker_income": 10.85,
+    "type": "member"
+  },
+  {
+    "task_id": "t54_25",
+    "task_price": 22.33,
+    "worker_cost": 11.41,
+    "system_income": 39.46,
+    "pure_worker_income": 10.92,
+    "type": "member"
+  },
+  {
+    "task_id": "t24_00",
+    "task_price": 22.28,
+    "worker_cost": 10.74,
+    "system_income": 37.34,
+    "pure_worker_income": 11.54,
+    "type": "member"
+  },
+  {
+    "task_id": "t57_05",
+    "task_price": 22.26,
+    "worker_cost": 11.8,
+    "system_income": 35.23,
+    "pure_worker_income": 10.46,
+    "type": "member"
+  },
+  {
+    "task_id": "t64_12",
+    "task_price": 22.24,
+    "worker_cost": 10.37,
+    "system_income": 34.55,
+    "pure_worker_income": 11.87,
+    "type": "member"
+  },
+  {
+    "task_id": "t64_04",
+    "task_price": 22.24,
+    "worker_cost": 10.55,
+    "system_income": 43.66,
+    "pure_worker_income": 11.69,
+    "type": "member"
+  },
+  {
+    "task_id": "t10_00",
+    "task_price": 22.22,
+    "worker_cost": 9.08,
+    "system_income": 35.93,
+    "pure_worker_income": 13.14,
+    "type": "member"
+  },
+  {
+    "task_id": "t54_19",
+    "task_price": 22.17,
+    "worker_cost": 10.72,
+    "system_income": 35.85,
+    "pure_worker_income": 11.46,
+    "type": "member"
+  },
+  {
+    "task_id": "t54_28",
+    "task_price": 22.17,
+    "worker_cost": 9.32,
+    "system_income": 42.15,
+    "pure_worker_income": 12.86,
+    "type": "member"
+  },
+  {
+    "task_id": "t24_07",
+    "task_price": 22.14,
+    "worker_cost": 10.31,
+    "system_income": 30.09,
+    "pure_worker_income": 11.83,
+    "type": "member"
+  },
+  {
+    "task_id": "t54_06",
+    "task_price": 22.02,
+    "worker_cost": 12.97,
+    "system_income": 33.6,
+    "pure_worker_income": 9.05,
+    "type": "member"
+  },
+  {
+    "task_id": "t54_07",
+    "task_price": 22.01,
+    "worker_cost": 9.59,
+    "system_income": 30.69,
+    "pure_worker_income": 12.42,
+    "type": "member"
+  },
+  {
+    "task_id": "t54_03",
+    "task_price": 22.01,
+    "worker_cost": 12.13,
+    "system_income": 35.32,
+    "pure_worker_income": 9.88,
+    "type": "member"
+  },
+  {
+    "task_id": "t54_00",
+    "task_price": 21.98,
+    "worker_cost": 13.03,
+    "system_income": 37.46,
+    "pure_worker_income": 8.95,
+    "type": "member"
+  },
+  {
+    "task_id": "t54_04",
+    "task_price": 21.98,
+    "worker_cost": 9.83,
+    "system_income": 37.28,
+    "pure_worker_income": 12.15,
+    "type": "member"
+  },
+  {
+    "task_id": "t64_08",
+    "task_price": 21.98,
+    "worker_cost": 8.85,
+    "system_income": 36.5,
+    "pure_worker_income": 13.13,
+    "type": "member"
+  },
+  {
+    "task_id": "t64_17",
+    "task_price": 21.98,
+    "worker_cost": 12.49,
+    "system_income": 27.85,
+    "pure_worker_income": 9.49,
+    "type": "member"
+  },
+  {
+    "task_id": "t64_09",
+    "task_price": 21.98,
+    "worker_cost": 11.69,
+    "system_income": 36.11,
+    "pure_worker_income": 10.29,
+    "type": "member"
+  },
+  {
+    "task_id": "t54_18",
+    "task_price": 21.89,
+    "worker_cost": 10.49,
+    "system_income": 26.89,
+    "pure_worker_income": 11.4,
+    "type": "member"
+  },
+  {
+    "task_id": "t54_21",
+    "task_price": 21.89,
+    "worker_cost": 10.43,
+    "system_income": 35.06,
+    "pure_worker_income": 11.46,
+    "type": "member"
+  },
+  {
+    "task_id": "t54_27",
+    "task_price": 21.89,
+    "worker_cost": 9.28,
+    "system_income": 42.58,
+    "pure_worker_income": 12.61,
+    "type": "member"
+  },
+  {
+    "task_id": "t55_03",
+    "task_price": 21.86,
+    "worker_cost": 11.63,
+    "system_income": 32.77,
+    "pure_worker_income": 10.22,
+    "type": "member"
+  },
+  {
+    "task_id": "t52_03",
+    "task_price": 21.81,
+    "worker_cost": 10.74,
+    "system_income": 30.62,
+    "pure_worker_income": 11.07,
+    "type": "member"
+  },
+  {
+    "task_id": "t52_02",
+    "task_price": 21.72,
+    "worker_cost": 11.17,
+    "system_income": 40.16,
+    "pure_worker_income": 10.55,
+    "type": "member"
+  },
+  {
+    "task_id": "t64_15",
+    "task_price": 21.71,
+    "worker_cost": 11.83,
+    "system_income": 26.21,
+    "pure_worker_income": 9.87,
+    "type": "member"
+  },
+  {
+    "task_id": "t24_05",
+    "task_price": 21.6,
+    "worker_cost": 11.86,
+    "system_income": 36.23,
+    "pure_worker_income": 9.74,
+    "type": "member"
+  },
+  {
+    "task_id": "t10_03",
+    "task_price": 21.57,
+    "worker_cost": 9.95,
+    "system_income": 27.47,
+    "pure_worker_income": 11.62,
+    "type": "member"
+  },
+  {
+    "task_id": "t56_00",
+    "task_price": 21.42,
+    "worker_cost": 10.31,
+    "system_income": 26.6,
+    "pure_worker_income": 11.11,
+    "type": "member"
+  },
+  {
+    "task_id": "t55_02",
+    "task_price": 21.42,
+    "worker_cost": 11.31,
+    "system_income": 26.79,
+    "pure_worker_income": 10.11,
+    "type": "member"
+  },
+  {
+    "task_id": "t67_02",
+    "task_price": 21.42,
+    "worker_cost": 9.76,
+    "system_income": 30.52,
+    "pure_worker_income": 11.66,
+    "type": "member"
+  },
+  {
+    "task_id": "t55_04",
+    "task_price": 21.42,
+    "worker_cost": 9.67,
+    "system_income": 35.2,
+    "pure_worker_income": 11.75,
+    "type": "member"
+  },
+  {
+    "task_id": "t54_20",
+    "task_price": 21.3,
+    "worker_cost": 8.91,
+    "system_income": 27.01,
+    "pure_worker_income": 12.39,
+    "type": "member"
+  },
+  {
+    "task_id": "t54_10",
+    "task_price": 21.3,
+    "worker_cost": 8.76,
+    "system_income": 38.99,
+    "pure_worker_income": 12.54,
+    "type": "member"
+  },
+  {
+    "task_id": "t73_05",
+    "task_price": 21.24,
+    "worker_cost": 10.9,
+    "system_income": 35.65,
+    "pure_worker_income": 10.34,
+    "type": "member"
+  },
+  {
+    "task_id": "t15_00",
+    "task_price": 21.06,
+    "worker_cost": 12.55,
+    "system_income": 29.16,
+    "pure_worker_income": 8.51,
+    "type": "member"
+  },
+  {
+    "task_id": "t64_21",
+    "task_price": 20.95,
+    "worker_cost": 8.62,
+    "system_income": 35.87,
+    "pure_worker_income": 12.33,
+    "type": "member"
+  },
+  {
+    "task_id": "t64_20",
+    "task_price": 20.95,
+    "worker_cost": 9.87,
+    "system_income": 41.49,
+    "pure_worker_income": 11.09,
+    "type": "member"
+  },
+  {
+    "task_id": "t10_01",
+    "task_price": 20.81,
+    "worker_cost": 10.81,
+    "system_income": 32.99,
+    "pure_worker_income": 10.0,
+    "type": "member"
+  },
+  {
+    "task_id": "t45_00",
+    "task_price": 20.7,
+    "worker_cost": 8.9,
+    "system_income": 31.86,
+    "pure_worker_income": 11.8,
+    "type": "member"
+  },
+  {
+    "task_id": "t73_01",
+    "task_price": 20.52,
+    "worker_cost": 9.99,
+    "system_income": 39.53,
+    "pure_worker_income": 10.53,
+    "type": "member"
+  },
+  {
+    "task_id": "t52_01",
+    "task_price": 20.38,
+    "worker_cost": 8.39,
+    "system_income": 34.19,
+    "pure_worker_income": 12.0,
+    "type": "member"
+  },
+  {
+    "task_id": "t61_02",
+    "task_price": 20.34,
+    "worker_cost": 9.49,
+    "system_income": 32.8,
+    "pure_worker_income": 10.85,
+    "type": "member"
+  },
+  {
+    "task_id": "t61_00",
+    "task_price": 20.34,
+    "worker_cost": 10.78,
+    "system_income": 36.93,
+    "pure_worker_income": 9.56,
+    "type": "member"
+  },
+  {
+    "task_id": "t61_01",
+    "task_price": 20.34,
+    "worker_cost": 9.24,
+    "system_income": 33.56,
+    "pure_worker_income": 11.1,
+    "type": "member"
+  },
+  {
+    "task_id": "t63_00",
+    "task_price": 20.28,
+    "worker_cost": 10.12,
+    "system_income": 38.19,
+    "pure_worker_income": 10.16,
+    "type": "member"
+  },
+  {
+    "task_id": "t73_00",
+    "task_price": 11.25,
+    "worker_cost": 7.95,
+    "system_income": 15.12,
+    "pure_worker_income": 3.3,
     "type": "normal"
   },
   {
     "task_id": "t38_00",
-    "task_price": 8.3,
-    "worker_cost": 7.08,
-    "system_income": 14.07,
-    "pure_worker_income": 1.22,
+    "task_price": 11.2,
+    "worker_cost": 7.98,
+    "system_income": 16.56,
+    "pure_worker_income": 3.22,
     "type": "normal"
   },
   {
-    "task_id": "t82_00",
-    "task_price": 7.5,
-    "worker_cost": 6.61,
+    "task_id": "t65_03",
+    "task_price": 11.15,
+    "worker_cost": 9.57,
+    "system_income": 13.52,
+    "pure_worker_income": 1.58,
+    "type": "normal"
+  },
+  {
+    "task_id": "t65_06",
+    "task_price": 11.15,
+    "worker_cost": 9.4,
+    "system_income": 19.3,
+    "pure_worker_income": 1.75,
+    "type": "normal"
+  },
+  {
+    "task_id": "t76_02",
+    "task_price": 11.1,
+    "worker_cost": 9.62,
+    "system_income": 16.93,
+    "pure_worker_income": 1.48,
+    "type": "normal"
+  },
+  {
+    "task_id": "t23_00",
+    "task_price": 11.07,
+    "worker_cost": 9.83,
+    "system_income": 19.85,
+    "pure_worker_income": 1.24,
+    "type": "normal"
+  },
+  {
+    "task_id": "t63_02",
+    "task_price": 11.07,
+    "worker_cost": 7.93,
+    "system_income": 18.88,
+    "pure_worker_income": 3.14,
+    "type": "normal"
+  },
+  {
+    "task_id": "t54_12",
+    "task_price": 11.05,
+    "worker_cost": 8.49,
+    "system_income": 17.91,
+    "pure_worker_income": 2.56,
+    "type": "normal"
+  },
+  {
+    "task_id": "t43_03",
+    "task_price": 10.85,
+    "worker_cost": 8.54,
+    "system_income": 20.2,
+    "pure_worker_income": 2.31,
+    "type": "normal"
+  },
+  {
+    "task_id": "t64_18",
+    "task_price": 10.73,
+    "worker_cost": 9.18,
+    "system_income": 18.67,
+    "pure_worker_income": 1.55,
+    "type": "normal"
+  },
+  {
+    "task_id": "t37_00",
+    "task_price": 10.7,
+    "worker_cost": 8.06,
+    "system_income": 15.79,
+    "pure_worker_income": 2.64,
+    "type": "normal"
+  },
+  {
+    "task_id": "t37_01",
+    "task_price": 10.7,
+    "worker_cost": 8.97,
+    "system_income": 16.95,
+    "pure_worker_income": 1.73,
+    "type": "normal"
+  },
+  {
+    "task_id": "t55_09",
+    "task_price": 10.64,
+    "worker_cost": 9.2,
+    "system_income": 15.09,
+    "pure_worker_income": 1.44,
+    "type": "normal"
+  },
+  {
+    "task_id": "t55_01",
+    "task_price": 10.61,
+    "worker_cost": 8.47,
+    "system_income": 15.53,
+    "pure_worker_income": 2.15,
+    "type": "normal"
+  },
+  {
+    "task_id": "t11_00",
+    "task_price": 10.4,
+    "worker_cost": 8.22,
+    "system_income": 20.28,
+    "pure_worker_income": 2.18,
+    "type": "normal"
+  },
+  {
+    "task_id": "t02_02",
+    "task_price": 10.35,
+    "worker_cost": 9.24,
+    "system_income": 17.76,
+    "pure_worker_income": 1.11,
+    "type": "normal"
+  },
+  {
+    "task_id": "t65_05",
+    "task_price": 10.27,
+    "worker_cost": 7.2,
+    "system_income": 18.58,
+    "pure_worker_income": 3.07,
+    "type": "normal"
+  },
+  {
+    "task_id": "t65_07",
+    "task_price": 10.27,
+    "worker_cost": 8.71,
+    "system_income": 15.37,
+    "pure_worker_income": 1.55,
+    "type": "normal"
+  },
+  {
+    "task_id": "t53_08",
+    "task_price": 10.26,
+    "worker_cost": 8.65,
+    "system_income": 16.07,
+    "pure_worker_income": 1.61,
+    "type": "normal"
+  },
+  {
+    "task_id": "t55_10",
+    "task_price": 10.12,
+    "worker_cost": 7.52,
+    "system_income": 14.59,
+    "pure_worker_income": 2.61,
+    "type": "normal"
+  },
+  {
+    "task_id": "t34_01",
+    "task_price": 9.9,
+    "worker_cost": 8.4,
+    "system_income": 16.42,
+    "pure_worker_income": 1.5,
+    "type": "normal"
+  },
+  {
+    "task_id": "t34_03",
+    "task_price": 9.82,
+    "worker_cost": 7.19,
+    "system_income": 18.9,
+    "pure_worker_income": 2.64,
+    "type": "normal"
+  },
+  {
+    "task_id": "t34_02",
+    "task_price": 9.82,
+    "worker_cost": 7.41,
     "system_income": 12.35,
-    "pure_worker_income": 0.89,
+    "pure_worker_income": 2.41,
     "type": "normal"
   },
   {
-    "task_id": "t29_00",
-    "task_price": 6.85,
-    "worker_cost": 5.88,
-    "system_income": 11.68,
-    "pure_worker_income": 0.97,
+    "task_id": "t23_03",
+    "task_price": 9.7,
+    "worker_cost": 7.65,
+    "system_income": 12.29,
+    "pure_worker_income": 2.05,
+    "type": "normal"
+  },
+  {
+    "task_id": "t24_01",
+    "task_price": 9.6,
+    "worker_cost": 7.04,
+    "system_income": 12.22,
+    "pure_worker_income": 2.56,
+    "type": "normal"
+  },
+  {
+    "task_id": "t65_00",
+    "task_price": 9.37,
+    "worker_cost": 8.16,
+    "system_income": 16.25,
+    "pure_worker_income": 1.21,
+    "type": "normal"
+  },
+  {
+    "task_id": "t63_04",
+    "task_price": 9.28,
+    "worker_cost": 7.84,
+    "system_income": 13.18,
+    "pure_worker_income": 1.43,
+    "type": "normal"
+  },
+  {
+    "task_id": "t43_00",
+    "task_price": 9.24,
+    "worker_cost": 7.37,
+    "system_income": 15.24,
+    "pure_worker_income": 1.87,
+    "type": "normal"
+  },
+  {
+    "task_id": "t43_01",
+    "task_price": 9.24,
+    "worker_cost": 7.33,
+    "system_income": 18.22,
+    "pure_worker_income": 1.91,
+    "type": "normal"
+  },
+  {
+    "task_id": "t43_07",
+    "task_price": 9.24,
+    "worker_cost": 7.29,
+    "system_income": 17.0,
+    "pure_worker_income": 1.95,
+    "type": "normal"
+  },
+  {
+    "task_id": "t76_00",
+    "task_price": 9.05,
+    "worker_cost": 6.48,
+    "system_income": 15.9,
+    "pure_worker_income": 2.57,
+    "type": "normal"
+  },
+  {
+    "task_id": "t43_05",
+    "task_price": 8.53,
+    "worker_cost": 7.07,
+    "system_income": 12.8,
+    "pure_worker_income": 1.45,
+    "type": "normal"
+  },
+  {
+    "task_id": "t43_06",
+    "task_price": 7.8,
+    "worker_cost": 5.7,
+    "system_income": 14.02,
+    "pure_worker_income": 2.1,
+    "type": "normal"
+  },
+  {
+    "task_id": "t44_02",
+    "task_price": 7.8,
+    "worker_cost": 6.31,
+    "system_income": 13.33,
+    "pure_worker_income": 1.49,
+    "type": "normal"
+  },
+  {
+    "task_id": "t43_04",
+    "task_price": 7.8,
+    "worker_cost": 5.67,
+    "system_income": 9.4,
+    "pure_worker_income": 2.13,
+    "type": "normal"
+  },
+  {
+    "task_id": "t73_04",
+    "task_price": 6.9,
+    "worker_cost": 4.9,
+    "system_income": 8.88,
+    "pure_worker_income": 2.0,
+    "type": "normal"
+  },
+  {
+    "task_id": "t76_01",
+    "task_price": 6.4,
+    "worker_cost": 5.12,
+    "system_income": 12.57,
+    "pure_worker_income": 1.28,
+    "type": "normal"
+  },
+  {
+    "task_id": "t34_00",
+    "task_price": 5.5,
+    "worker_cost": 4.33,
+    "system_income": 7.76,
+    "pure_worker_income": 1.17,
+    "type": "normal"
+  },
+  {
+    "task_id": "t30_01",
+    "task_price": 5.1,
+    "worker_cost": 4.56,
+    "system_income": 7.88,
+    "pure_worker_income": 0.54,
+    "type": "normal"
+  },
+  {
+    "task_id": "t30_00",
+    "task_price": 5.1,
+    "worker_cost": 3.86,
+    "system_income": 6.42,
+    "pure_worker_income": 1.24,
     "type": "normal"
   }
 ]

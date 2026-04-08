@@ -110,8 +110,8 @@ def generate_task_weights(tasks):
 
 def main():
     # 输入文件
-    WORKER_SEGMENTS_FILE = 'step6_worker_segments.json'
-    TASK_SEGMENTS_FILE = 'step6_task_segments.json'
+    WORKER_SEGMENTS_FILE = 'experiment3_worker_segments.json'
+    TASK_SEGMENTS_FILE = 'experiment3_task_segments.json'
 
     # 输出文件
     OUTPUT_WORKER_OPTIONS = 'step7_worker_option_set.json'

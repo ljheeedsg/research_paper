@@ -2,8 +2,8 @@ import csv
 import json
 from collections import defaultdict
 
-INPUT_CSV = 'step6_vehicle.csv'
-OUTPUT_JSON = 'step6_worker_segments.json'
+INPUT_CSV = 'experiment2_vehicle.csv'
+OUTPUT_JSON = 'experiment2_worker_segments.json'
 
 # 读取 CSV，按 region_id 分组
 region_groups = defaultdict(list)

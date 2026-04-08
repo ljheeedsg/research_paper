@@ -8,107 +8,83 @@ import numpy as np
 from matplotlib.patches import Patch, Circle
 
 # ==================== 配置 ====================
-VEHICLE_FILE = 'step6_vehicle.csv'          # 车辆轨迹文件
-TASK_CSV = 'step6_tasks.csv'                # 输出任务 CSV
-TASK_JSON = 'step6_task_segments.json'      # 输出任务 JSON
-PLOT_FILE = 'step6_tasks_distribution.png'  # 输出图片
+VEHICLE_FILE = 'experiment2_vehicle.csv'          # 车辆轨迹文件
+TASK_CSV = 'experiment2_tasks.csv'                # 输出任务 CSV
+TASK_JSON = 'experiment2_task_segments.json'      # 输出任务 JSON
+PLOT_FILE = 'experiment2_tasks_distribution.png'  # 输出图片
 
-TOTAL_TASKS = 500                           # 总任务数（将尽力生成，如果容量不足则输出实际数量）
-TIME_SLOT_HOURS = 1                         # 时间片长度（小时），固定为1
-HOURS_PER_DAY = 24
+TOTAL_TASKS = 400                           # 总任务数
+SLOT_SEC = 600                              # 10分钟时段长度
+SLOTS_PER_DAY = 86400 // SLOT_SEC           # 144个时段
 
-random.seed(1)
+random.seed(2)
 # ==============================================
 
-def get_hour(t_seconds):
-    """秒转小时（0-23）"""
-    return t_seconds // 3600
+def get_slot_index(t_seconds):
+    """秒转时段索引 (0 ~ SLOTS_PER_DAY-1)"""
+    return t_seconds // SLOT_SEC
 
 def main():
     # ---------- 1. 读取车辆轨迹，构建工人时空容量 ----------
-    # capacity[region][hour] = 不同工人数量
+    # capacity[region][slot] = 不同工人数量
     capacity = defaultdict(lambda: defaultdict(set))
     with open(VEHICLE_FILE, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
             region = int(row['region_id'])
             start = int(row['start_time'])
-            end = int(row['end_time'])
+            # 使用起始时间所在的时段（也可考虑整个段覆盖的时段，这里简化）
+            slot = get_slot_index(start)
             vehicle = row['vehicle_id']
-            # 轨迹段可能跨多个小时，简化：取起始时间所在小时
-            hour = get_hour(start)
-            capacity[region][hour].add(vehicle)
+            capacity[region][slot].add(vehicle)
     
     # 转换为整数数量
     capacity_count = {}
     total_capacity = 0
-    for region, hour_dict in capacity.items():
+    for region, slot_dict in capacity.items():
         capacity_count[region] = {}
-        for hour, workers in hour_dict.items():
+        for slot, workers in slot_dict.items():
             cnt = len(workers)
-            capacity_count[region][hour] = cnt
+            capacity_count[region][slot] = cnt
             total_capacity += cnt
     
     if total_capacity == 0:
         print("错误：没有找到任何工人轨迹。")
         return
     
-    # ---------- 2. 计算每个时空单元可支持的最大任务数 ----------
-    # 假设平均每个任务需要 required_workers，我们取平均 2，也可以动态分配
-    # 为避免过度分配，每个时空单元最多分配 capacity // min_required 个任务（min_required=1）
-    # 更合理：按容量比例分配总任务数，但确保不超出 capacity // required
-    # 这里采用：生成任务时实时检查，不预先分配，避免复杂整数规划
-    
-    # 为了方便，我们先生成一个候选任务池：所有 (region, hour) 组合，以及该小时内可用的工人数
+    # ---------- 2. 生成任务 ----------
     candidate_slots = []
-    for region, hour_dict in capacity_count.items():
-        for hour, cap in hour_dict.items():
-            candidate_slots.append((region, hour, cap))
+    for region, slot_dict in capacity_count.items():
+        for slot, cap in slot_dict.items():
+            candidate_slots.append((region, slot, cap))
     
-    # 按容量加权随机选择时空单元生成任务
-    # 每个任务从候选池中按容量比例选择 (region, hour)，然后随机生成 required_workers <= cap
-    # 同时保证每个时空单元生成的任务数不超过其容量（例如 cap // 1，因为 required_workers 至少为1）
-    
-    # 统计每个时空单元已生成的任务数
-    generated_count = defaultdict(int)  # (region, hour) -> 任务数
-    
-    tasks = []               # (region, start, end, required, task_id)
+    weights = [cap for (_, _, cap) in candidate_slots]
+    generated_count = defaultdict(int)  # (region, slot) -> 任务数
+    tasks = []
     tasks_by_region = defaultdict(list)
     seq_counter = defaultdict(int)
     
-    # 权重 = 容量（工人数），高容量区域/时段更容易被选中
-    weights = [cap for (_, _, cap) in candidate_slots]
-    
-    # 为了避免死循环，设置最大尝试次数
     max_attempts = TOTAL_TASKS * 10
     attempts = 0
     
     while len(tasks) < TOTAL_TASKS and attempts < max_attempts:
         attempts += 1
-        # 按容量加权选择一个时空单元
         slot = random.choices(candidate_slots, weights=weights, k=1)[0]
-        region, hour, cap = slot
+        region, slot_idx, cap = slot
         
-        # 该时空单元还能生成多少任务？简单限制：不超过 cap（因为每个任务至少需要1个工人）
-        # 更严格：累计所需工人数不超过 cap * 某个因子，但为了简单，每个任务需要1~3人，限制任务数 <= cap // 1
-        max_tasks_in_slot = cap  # 保守：每个任务至少1人，所以最多 cap 个任务
-        if generated_count[(region, hour)] >= max_tasks_in_slot:
+        max_tasks_in_slot = cap
+        if generated_count[(region, slot_idx)] >= max_tasks_in_slot:
             continue
         
-        # 随机生成 required_workers，不能超过 cap 且不能超过3
         max_req = min(3, cap)
         if max_req < 1:
             continue
-        required = random.randint(1, 1)
+        required = random.randint(1, 1)   # 固定需要1个工人
         
-        # 生成起始时间：在 [hour*3600, (hour+1)*3600 - 3600] 内随机（保证任务完全在该小时内）
-        start_sec = random.randint(hour * 3600, (hour + 1) * 3600 - 3600)
-        end_sec = start_sec + 3600
+        # 起始时间：在该时段内随机
+        start_sec = random.randint(slot_idx * SLOT_SEC, (slot_idx + 1) * SLOT_SEC - SLOT_SEC)
+        end_sec = start_sec + SLOT_SEC
         
-        # 确保不跨午夜（hour 最大23，start_sec <= 23*3600=82800，end_sec <= 86400，没问题）
-        # 但如果 hour=23，end_sec 可能等于 86400，刚好午夜，可以接受（86400 视为次日0点，但我们的时间系统不跨日，所以允许边界）
-        
-        # 生成 task_id
         seq = seq_counter[region]
         task_id = f"t{region:02d}_{seq:02d}"
         
@@ -120,7 +96,7 @@ def main():
             'required_workers': required
         })
         seq_counter[region] += 1
-        generated_count[(region, hour)] += 1
+        generated_count[(region, slot_idx)] += 1
     
     actual_tasks = len(tasks)
     print(f"实际生成任务数: {actual_tasks} / 目标 {TOTAL_TASKS}")
@@ -143,14 +119,12 @@ def main():
         json.dump(result, f, indent=2, ensure_ascii=False)
     print(f"已生成 {TASK_JSON}")
     
-    # ---------- 5. 绘制分布图（与原脚本类似，但使用新生成的任务统计）----------
-    # 需要统计每个区域的任务数（tasks_per_region）
+    # ---------- 5. 绘制分布图 ----------
     tasks_per_region = {region: len(tasks_by_region[region]) for region in tasks_by_region}
     
     GRID_X_NUM = 10
     GRID_Y_NUM = 10
     
-    # 工人密度矩阵（仍然用轨迹段数，保持与原图一致，也可改用工人容量）
     region_density = defaultdict(int)
     with open(VEHICLE_FILE, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)

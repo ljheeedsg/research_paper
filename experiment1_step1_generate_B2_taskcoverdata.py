@@ -38,7 +38,7 @@ MEMBER_BONUS = 20
 RHO_INIT = 1.0
 
 # 重复次数
-NUM_SEEDS = 1
+NUM_SEEDS = 30
 
 # ========== 工具函数 ==========
 def load_json(filepath):

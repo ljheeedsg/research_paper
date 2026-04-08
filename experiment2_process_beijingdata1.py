@@ -6,8 +6,8 @@ import random
 
 # ==================== 配置参数 ====================
 INPUT_CSV = "dataset/beijing_300_cars_2008-02-03.csv"
-OUTPUT_SEG = "step6_vehicle.csv"
-OUTPUT_PLOT = "step6_grid_partition.png"
+OUTPUT_SEG = "experiment2_vehicle.csv"
+OUTPUT_PLOT = 'experiment2_grid_partition.png'
 
 LOW_PERCENTILE = 1
 HIGH_PERCENTILE = 99
@@ -23,7 +23,9 @@ TRUSTED_RATIO = 0.5
 POINT_SIZE = 1
 POINT_ALPHA = 0.5
 
-random.seed(42)
+SLOT_SEC = 600   # 10分钟切片
+
+random.seed(2)
 # =================================================
 
 def read_input_data():
@@ -56,7 +58,7 @@ def read_input_data():
             except:
                 continue
     print(f"读取 {len(rows)} 个点，共 {len(taxi_ids)} 辆不同的车")
-    return rows, sorted(taxi_ids, key=lambda x: int(x))  # 按数值排序
+    return rows, sorted(taxi_ids, key=lambda x: int(x))
 
 def get_shifted_bbox(rows):
     lats = [r[2] for r in rows]
@@ -84,7 +86,7 @@ def assign_region_ids(rows, lon_min, lon_max, lat_min, lat_max):
     step_lat = (lat_max - lat_min) / GRID_Y_NUM
     region_rows = []
     all_points = []
-    grid_counts = np.zeros((GRID_Y_NUM, GRID_X_NUM))   # 新增：统计每个网格的点数
+    grid_counts = np.zeros((GRID_Y_NUM, GRID_X_NUM))
     for orig_id, ts, lat, lon in rows:
         if not (lon_min <= lon <= lon_max and lat_min <= lat <= lat_max):
             continue
@@ -132,34 +134,26 @@ def merge_segments(segments):
         merged.append((orig_id, cur_rid, cur_start, cur_end))
     return merged
 
-def split_by_hour(merged_segments):
+def split_by_slot(merged_segments):
+    """按固定时间片（SLOT_SEC秒）切分段，确保每个段不跨片"""
     result = []
     for orig_id, rid, start, end in merged_segments:
         cur = start
         while cur <= end:
-            next_boundary = ((cur // 3600) + 1) * 3600
+            next_boundary = ((cur // SLOT_SEC) + 1) * SLOT_SEC
             seg_end = min(end, next_boundary)
             result.append((orig_id, rid, cur, seg_end))
             cur = seg_end + 1
     return result
 
 def final_renumber_and_attributes(segments, original_ids_sorted):
-    """
-    只对实际出现在 segments 中的车辆重新编号（连续从1开始），
-    并按原始ID排序顺序分配新ID。
-    同时生成 cost 和 is_trusted。
-    """
-    # 找出所有出现在 segments 中的原始ID，并按 original_ids_sorted 顺序排序
     present_orig_ids = sorted(set(orig for orig, _, _, _ in segments), key=lambda x: int(x))
-    # 映射到连续新ID
     new_id_map = {orig: idx+1 for idx, orig in enumerate(present_orig_ids)}
-    # 为每个新ID生成属性
     attributes = {}
     for new_id in new_id_map.values():
         cost = round(random.uniform(COST_MIN, COST_MAX), 1)
         is_trusted = random.random() < TRUSTED_RATIO
         attributes[new_id] = (cost, is_trusted)
-    # 转换段
     new_segments = []
     for orig_id, rid, start, end in segments:
         new_id = new_id_map[orig_id]
@@ -169,7 +163,6 @@ def final_renumber_and_attributes(segments, original_ids_sorted):
     return new_segments
 
 def save_csv(segments, filepath):
-    # 按 vehicle_id 排序
     segments_sorted = sorted(segments, key=lambda x: x[0])
     with open(filepath, 'w', encoding='utf-8', newline='') as f:
         writer = csv.writer(f)
@@ -178,21 +171,12 @@ def save_csv(segments, filepath):
     print(f"已保存 {filepath}，共 {len(segments_sorted)} 个段，已按 vehicle_id 排序")
 
 def plot_grid(lon_min, lon_max, lat_min, lat_max, all_points, grid_counts):
-    """
-    绘制左右两个子图：
-    左：原始散点图（矩形内点）+ 网格线
-    右：每个网格的点数热力图
-    """
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
-
-    # 左图：散点图
     if all_points:
         lons, lats = zip(*all_points)
         ax1.scatter(lons, lats, s=POINT_SIZE, alpha=POINT_ALPHA, c='blue')
-    # 绘制矩形边界
     ax1.plot([lon_min, lon_max, lon_max, lon_min, lon_min],
              [lat_min, lat_min, lat_max, lat_max, lat_min], 'k-', linewidth=2)
-    # 绘制网格线
     x_edges = np.linspace(lon_min, lon_max, GRID_X_NUM+1)
     y_edges = np.linspace(lat_min, lat_max, GRID_Y_NUM+1)
     for x in x_edges:
@@ -207,7 +191,6 @@ def plot_grid(lon_min, lon_max, lat_min, lat_max, all_points, grid_counts):
     ax1.set_xticklabels([f"{t:.4f}" for t in x_edges], rotation=45, fontsize=8)
     ax1.set_yticklabels([f"{t:.4f}" for t in y_edges], fontsize=8)
 
-    # 右图：热力图
     im = ax2.imshow(grid_counts, origin='lower',
                     extent=[lon_min, lon_max, lat_min, lat_max],
                     cmap='hot', interpolation='nearest')
@@ -215,7 +198,6 @@ def plot_grid(lon_min, lon_max, lat_min, lat_max, all_points, grid_counts):
     ax2.set_ylabel('Latitude')
     ax2.set_title('Point Density per Grid')
     plt.colorbar(im, ax=ax2, label='Point count')
-
     plt.tight_layout()
     plt.savefig(OUTPUT_PLOT, dpi=150, bbox_inches='tight')
     print(f"已保存图片 {OUTPUT_PLOT}")
@@ -232,8 +214,8 @@ def main():
         return
     segments = build_trajectory_segments(region_rows)
     merged = merge_segments(segments)
-    hour_split = split_by_hour(merged)
-    final_segments = final_renumber_and_attributes(hour_split, original_ids)
+    slot_split = split_by_slot(merged)
+    final_segments = final_renumber_and_attributes(slot_split, original_ids)
     save_csv(final_segments, OUTPUT_SEG)
     plot_grid(lon_min, lon_max, lat_min, lat_max, all_points, grid_counts)
     print("全部完成")
