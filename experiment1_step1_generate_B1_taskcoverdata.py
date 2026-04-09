@@ -19,10 +19,10 @@ RANDOM_SEED = 2
 BUDGET = 10000
 K = 7
 R = 24
-M_VERIFY = 7
+M_VERIFY = 3
 
 # 任务分类参数
-MEMBER_RATIO = 0.5
+MEMBER_RATIO = 0.8
 MEMBER_MULTIPLIER = 1.8
 NORMAL_MULTIPLIER = 1.0
 MEMBER_COST_RANGE = (0.4, 0.6)
@@ -470,12 +470,13 @@ def main():
 
     all_coverage_curves = []
     all_cumulative_curves = []
-    all_worker_categories = []      # 新增
+    all_worker_categories = []
     all_platform_utils = []
     all_final_coverages = []
     all_total_costs = []
     all_remaining_budgets = []
     all_trusted_counts = []
+    all_unit_costs = []   # 新增：存储每次实验的单位任务成本
 
     # 获取总任务数（从第一次实验的任务分类文件获取，所有实验相同）
     print("获取总任务数...")
@@ -499,13 +500,17 @@ def main():
         )
         all_coverage_curves.append(coverage_curve)
         all_cumulative_curves.append(cumulative_curve)
-        all_worker_categories.append(worker_cat)   # 新增
+        all_worker_categories.append(worker_cat)
         all_platform_utils.append(result['platform_utility'])
         all_total_costs.append(result['total_cost'])
         all_remaining_budgets.append(result['remaining_budget'])
         all_trusted_counts.append(result['trusted_count'])
         final_coverage = result['covered_task_count'] / TOTAL_TASKS
         all_final_coverages.append(final_coverage)
+
+        # 计算单位任务成本
+        unit_cost = result['total_cost'] / result['covered_task_count'] if result['covered_task_count'] > 0 else 0
+        all_unit_costs.append(unit_cost)
 
     # 计算平均曲线（假设所有实验轮数相同）
     num_rounds = len(all_coverage_curves[0])
@@ -539,6 +544,8 @@ def main():
     avg_cost = np.mean(all_total_costs)
     avg_remaining = np.mean(all_remaining_budgets)
     avg_trusted = np.mean(all_trusted_counts)
+    avg_unit_cost = np.mean(all_unit_costs) if all_unit_costs else 0
+    std_unit_cost = np.std(all_unit_costs) if all_unit_costs else 0
 
     # ========== 保存平均结果到原文件名 ==========
     # 1. 保存平均覆盖率曲线
@@ -565,30 +572,32 @@ def main():
     save_json(avg_cumulative_records, "experiment1_step1_B1_cumulative_trusted_ratio.json")
     print("✅ 平均累积可信任务占比曲线已保存至 experiment1_step1_B1_cumulative_trusted_ratio.json")
 
-    # 3. 保存平均最终结果
+    # 3. 保存平均最终结果（增加 avg_unit_cost）
     avg_result = {
-        'total_rounds': num_rounds,  # 实际平均轮数可能不同，这里用最大轮数
+        'total_rounds': num_rounds,
         'total_cost': round(avg_cost, 2),
         'platform_utility': round(avg_platform, 2),
         'remaining_budget': round(avg_remaining, 2),
         'covered_task_count': int(round(avg_final_coverage * TOTAL_TASKS)),
         'trusted_count': int(round(avg_trusted)),
         'init_select': len(load_json(temp_worker_options)['worker_options']),
-        'later_select': int(round(avg_trusted)),  # B1 中 later_select 与 trusted_count 相同
-        'trusted_workers_list': [],  # 平均结果中无法列出具体工人ID
-        'round_details': []
+        'later_select': int(round(avg_trusted)),
+        'trusted_workers_list': [],
+        'round_details': [],
+        'avg_unit_cost': round(avg_unit_cost, 2)   # 新增
     }
     save_json(avg_result, "step9_final_result_B1.json")
     print("✅ 平均最终结果已保存至 step9_final_result_B1.json")
 
-    # 4. 保存标准差结果
+    # 4. 保存标准差结果（增加 std_unit_cost）
     std_result = {
         "std_coverage_per_round": [round(x, 4) for x in std_coverage],
         "std_cumulative_trusted_ratio_per_round": [round(x, 4) for x in std_cumulative],
         "std_platform_utility": round(np.std(all_platform_utils), 2),
         "std_final_coverage_rate": round(np.std(all_final_coverages), 4),
         "std_total_cost": round(np.std(all_total_costs), 2),
-        "std_trusted_count": round(np.std(all_trusted_counts), 2)
+        "std_trusted_count": round(np.std(all_trusted_counts), 2),
+        "std_unit_cost": round(std_unit_cost, 2)   # 新增
     }
     save_json(std_result, "experiment1_step1_B1_std_results.json")
     print("✅ 标准差结果已保存至 experiment1_step1_B1_std_results.json")

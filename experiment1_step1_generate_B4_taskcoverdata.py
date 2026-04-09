@@ -16,7 +16,7 @@ from collections import defaultdict
 # ========== 参数配置 ==========
 RANDOM_SEED = 2
 BUDGET = 10000
-K = 20
+K = 3
 R = 24
 M_VERIFY = 3
 
@@ -32,7 +32,7 @@ ZETA = 1.2
 LAMBDA = 1.8
 SIGMA = 0.85
 PSI_TH = 0.6
-FEE = 20
+FEE = 0
 MEMBER_VALIDITY = 3
 
 # 任务分类参数
@@ -541,7 +541,7 @@ def greedy_recruitment_B4(workers, task_covered_count, required_workers, total_l
                           Uc, Uu, Um, R_m, R_n, B, K, R, task_grid_map, task_time_map,
                           M_VERIFY, ETA, THETA_HIGH, THETA_LOW,
                           PGRD_PARAMS, task_class):
-    total_cost = 0.0
+    total_system_cost = 0.0
     remaining_budget = B
     greedy_selected = []
     greedy_rounds = 0
@@ -614,7 +614,8 @@ def greedy_recruitment_B4(workers, task_covered_count, required_workers, total_l
             workers, task_covered_count, required_workers, remaining_budget, K, total_learned_counts, r, bid_tasks, task_price_map
         )
 
-        total_cost += round_cost
+        total_system_cost += round_cost
+        
 
         # 累加会员的报酬和成本
         for w, task_list in completed_tasks:
@@ -658,7 +659,7 @@ def greedy_recruitment_B4(workers, task_covered_count, required_workers, total_l
 
         completed = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
         total_task_num = len(required_workers)
-        print(f"总成本: {total_cost:.2f}, 剩余预算: {remaining_budget:.2f}, 已完成任务: {completed}/{total_task_num}")
+        print(f"总成本: {total_system_cost:.2f}, 剩余预算: {remaining_budget:.2f}, 已完成任务: {completed}/{total_task_num}")
         print(f"可信: {len(Uc)}, 未知: {len(Uu)}, 恶意: {len(Um)}")
         print(f"平均报酬: 会员任务 R_m={R_m:.2f}, 普通任务 R_n={R_n:.2f}")
 
@@ -680,7 +681,7 @@ def greedy_recruitment_B4(workers, task_covered_count, required_workers, total_l
         })
 
     covered_task_count = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
-    platform_utility = total_system_income + total_fee - total_cost
+    platform_utility = total_system_income + total_fee - total_system_cost
 
     # 计算平均 ROI（累加会费）
     roi_list = []
@@ -692,14 +693,14 @@ def greedy_recruitment_B4(workers, task_covered_count, required_workers, total_l
         if denominator > 0:
             roi = (total_reward - total_fee_paid - total_cost) / denominator
         else:
-            roi = -1.0
+            roi = 0
         roi_list.append(roi)
     avg_roi = np.mean(roi_list) if roi_list else 0.0
 
     result = {
         'platform_utility': platform_utility,
         'total_rounds': greedy_rounds,
-        'total_cost': total_cost,
+        'total_cost': total_system_cost,
         'remaining_budget': remaining_budget,
         'selected_workers': greedy_selected,
         'init_select': len(workers),
@@ -792,6 +793,7 @@ def main():
     all_unknown_counts = []
     all_total_fees = []
     all_roi = []          # 新增：存储每次实验的 avg_roi
+    all_unit_costs = []   # 新增：存储每次实验的单位任务成本
 
     # 获取总任务数（从第一次实验的任务分类文件获取，所有实验相同）
     print("获取总任务数...")
@@ -828,6 +830,10 @@ def main():
         final_coverage = result['covered_task_count'] / TOTAL_TASKS
         all_final_coverages.append(final_coverage)
 
+        # 计算单位任务成本
+        unit_cost = result['total_cost'] / result['covered_task_count'] if result['covered_task_count'] > 0 else 0
+        all_unit_costs.append(unit_cost)
+
     # 计算平均曲线
     num_rounds = len(all_coverage_curves[0])
     avg_coverage = []
@@ -853,6 +859,8 @@ def main():
     avg_fee = np.mean(all_total_fees)
     avg_roi = np.mean(all_roi)                 # 新增
     std_roi = np.std(all_roi)                 # 新增
+    avg_unit_cost = np.mean(all_unit_costs) if all_unit_costs else 0
+    std_unit_cost = np.std(all_unit_costs) if all_unit_costs else 0
 
     # ========== 保存平均结果 ==========
     # 1. 保存平均覆盖率曲线
@@ -894,7 +902,8 @@ def main():
         'trusted_workers_list': [],
         'total_fee': round(avg_fee, 2),
         'avg_roi': round(avg_roi, 4),          # 新增
-        'round_details': []
+        'round_details': [],
+        'avg_unit_cost': round(avg_unit_cost, 2)   # 新增：平均单位任务成本
     }
     save_json(avg_result, "experiment1_step1_final_result_B4.json")
     print("✅ 平均最终结果已保存至 experiment1_step1_final_result_B4.json")
@@ -910,7 +919,8 @@ def main():
         "std_malicious_count": round(np.std(all_malicious_counts), 2),
         "std_unknown_count": round(np.std(all_unknown_counts), 2),
         "std_total_fee": round(np.std(all_total_fees), 2),
-        "std_avg_roi": round(std_roi, 4)       # 新增
+        "std_avg_roi": round(std_roi, 4),       # 新增
+        "std_unit_cost": round(std_unit_cost, 2)   # 新增：单位任务成本的标准差
     }
     save_json(std_result, "experiment1_step1_B4_std_results.json")
     print("✅ 标准差结果已保存至 experiment1_step1_B4_std_results.json")

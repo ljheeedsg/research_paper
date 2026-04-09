@@ -25,7 +25,7 @@ POINT_ALPHA = 0.5
 
 SLOT_SEC = 600   # 10分钟切片
 
-random.seed(2)
+random.seed(1)
 # =================================================
 
 def read_input_data():

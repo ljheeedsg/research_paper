@@ -19,7 +19,7 @@ import os
 
 # ========== 参数配置 ==========
 RANDOM_SEED = 2
-BUDGET = 10000
+BUDGET = 50000
 K = 7
 R = 144                     # 北京数据 144 轮
 SLOT_SEC = 600              # 10 分钟时段
@@ -27,13 +27,13 @@ SLOT_SEC = 600              # 10 分钟时段
 # 信任度参数（B2 不使用，保留占位）
 ETA = 0.6
 THETA_HIGH = 0.75
-THETA_LOW = 0.3
+THETA_LOW = 0.6
 
 # 任务分类参数（B2 不使用 PGRD，但需生成任务数据占位）
-MEMBER_RATIO = 0.5
+MEMBER_RATIO = 0.8
 MEMBER_MULTIPLIER = 1.8
 NORMAL_MULTIPLIER = 1.0
-MEMBER_COST_RANGE = (0.4, 0.6)
+MEMBER_COST_RANGE = (0.1, 0.3)
 NORMAL_COST_RANGE = (0.7, 0.9)
 PROFIT_RANGE = (1.2, 2.0)
 
@@ -553,6 +553,7 @@ def main():
     all_total_costs = []
     all_remaining_budgets = []
     all_total_rounds = []
+    all_unit_costs = []   # 新增：存储每次实验的单位任务成本
 
     # 定义要删除的中间文件列表
     intermediate_files = [
@@ -588,6 +589,10 @@ def main():
         final_coverage = result['covered_task_count'] / TOTAL_TASKS
         all_final_coverages.append(final_coverage)
 
+        # 计算单位任务成本
+        unit_cost = result['total_cost'] / result['covered_task_count'] if result['covered_task_count'] > 0 else 0
+        all_unit_costs.append(unit_cost)
+
     num_rounds = len(all_coverage_curves[0])
     avg_coverage = []
     std_coverage = []
@@ -618,6 +623,8 @@ def main():
     avg_cost = np.mean(all_total_costs)
     avg_remaining = np.mean(all_remaining_budgets)
     avg_rounds = np.mean(all_total_rounds)
+    avg_unit_cost = np.mean(all_unit_costs) if all_unit_costs else 0
+    std_unit_cost = np.std(all_unit_costs) if all_unit_costs else 0
 
     # 保存平均覆盖率曲线（JSON + CSV）
     avg_coverage_records = [
@@ -662,7 +669,8 @@ def main():
         'covered_task_count': int(round(avg_final_coverage * TOTAL_TASKS)),
         'init_select': len(load_json(temp_worker_opts)['worker_options']),
         'later_select': int(round(avg_rounds * K)),
-        'round_details': []
+        'round_details': [],
+        'avg_unit_cost': round(avg_unit_cost, 2)   # 新增
     }
     save_json(avg_result, "experiment2_final_result_B2.json")
 
@@ -672,7 +680,8 @@ def main():
         "std_cumulative_trusted_ratio_per_round": [round(x, 4) for x in std_cumulative],
         "std_platform_utility": round(np.std(all_platform_utils), 2),
         "std_final_coverage_rate": round(np.std(all_final_coverages), 4),
-        "std_total_cost": round(np.std(all_total_costs), 2)
+        "std_total_cost": round(np.std(all_total_costs), 2),
+        "std_unit_cost": round(std_unit_cost, 2)   # 新增
     }
     save_json(std_result, "experiment2_step1_B2_std_results.json")
 

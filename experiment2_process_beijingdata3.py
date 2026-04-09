@@ -17,7 +17,7 @@ TOTAL_TASKS = 400                           # 总任务数
 SLOT_SEC = 600                              # 10分钟时段长度
 SLOTS_PER_DAY = 86400 // SLOT_SEC           # 144个时段
 
-random.seed(2)
+random.seed(1)
 # ==============================================
 
 def get_slot_index(t_seconds):

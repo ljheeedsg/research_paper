@@ -46,7 +46,7 @@ NORMAL_COST_RANGE = (0.7, 0.9)
 PROFIT_RANGE = (1.2, 2.0)
 
 # LGSC 参数
-SUNK_THRESHOLD = 30
+SUNK_THRESHOLD = 20
 MEMBER_BONUS = 20
 RHO_INIT = 1.0 
 
@@ -575,7 +575,7 @@ def greedy_recruitment_ours(workers, task_covered_count, required_workers, total
                             Uc, Uu, Um, R_m, R_n, B, K, R, task_grid_map, task_time_map,
                             M_VERIFY, ETA, THETA_HIGH, THETA_LOW,
                             PGRD_PARAMS, LGSC_PARAMS, task_class, member_validity):
-    total_cost = 0.0
+    total_system_cost = 0.0
     remaining_budget = B
     greedy_selected = []
     greedy_rounds = 0
@@ -688,7 +688,7 @@ def greedy_recruitment_ours(workers, task_covered_count, required_workers, total
             workers, task_covered_count, required_workers, remaining_budget, K, total_learned_counts, r, bid_tasks, task_price_map
         )
 
-        total_cost += round_cost
+        total_system_cost += round_cost
 
         for w, task_list in completed_tasks:
             for tid in task_list:
@@ -736,7 +736,7 @@ def greedy_recruitment_ours(workers, task_covered_count, required_workers, total
 
         completed = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
         total_task_num = len(required_workers)
-        print(f"总成本: {total_cost:.2f}, 剩余预算: {remaining_budget:.2f}, 已完成任务: {completed}/{total_task_num}")
+        print(f"总成本: {total_system_cost:.2f}, 剩余预算: {remaining_budget:.2f}, 已完成任务: {completed}/{total_task_num}")
         print(f"可信: {len(Uc)}, 未知: {len(Uu)}, 恶意: {len(Um)}")
         print(f"平均报酬: 会员任务 R_m={R_m:.2f}, 普通任务 R_n={R_n:.2f}")
         print(f"LGSC: 奖励金 {bonus_paid:.2f}, 平均沉没损失 {avg_sunk_loss:.2f}, 平均ROI {avg_roi_lgsc:.2f}")
@@ -770,7 +770,7 @@ def greedy_recruitment_ours(workers, task_covered_count, required_workers, total
         })
 
     covered_task_count = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
-    platform_utility = total_system_income + total_fee - total_cost - total_bonus_paid
+    platform_utility = total_system_income + total_fee - total_system_cost - total_bonus_paid
 
     # 计算平均 ROI（含奖励金，累加会费）
     roi_list = []
@@ -785,7 +785,7 @@ def greedy_recruitment_ours(workers, task_covered_count, required_workers, total
             if denominator > 0:
                 roi = (total_reward + total_bonus - total_fee_paid - total_cost) / denominator
             else:
-                roi = -1.0
+                roi = 0
             roi_list.append(roi)
     avg_roi = np.mean(roi_list) if roi_list else 0.0
 
@@ -793,7 +793,7 @@ def greedy_recruitment_ours(workers, task_covered_count, required_workers, total
         'total_rounds': greedy_rounds,
         'platform_utility': platform_utility,
         'task_price_map': task_price_map,
-        'total_cost': total_cost,
+        'total_cost': total_system_cost,
         'remaining_budget': remaining_budget,
         'selected_workers': greedy_selected,
         'init_select': len(workers),

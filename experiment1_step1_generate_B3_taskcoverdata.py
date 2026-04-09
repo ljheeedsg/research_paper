@@ -16,16 +16,16 @@ from collections import defaultdict
 # ========== 参数配置 ==========
 RANDOM_SEED = 2
 BUDGET = 10000
-K = 20
+K = 7
 R = 24
-M_VERIFY = 7
+M_VERIFY = 3
 
 ETA = 0.6
 THETA_HIGH = 0.75
 THETA_LOW = 0.3
 
 # 任务分类参数（B3 虽不使用 PGRD，但仍需生成任务数据）
-MEMBER_RATIO = 0.5
+MEMBER_RATIO = 0.8
 MEMBER_MULTIPLIER = 1.8
 NORMAL_MULTIPLIER = 1.0
 MEMBER_COST_RANGE = (0.4, 0.6)
@@ -652,6 +652,7 @@ def main():
     all_trusted_counts = []
     all_malicious_counts = []
     all_unknown_counts = []
+    all_unit_costs = []   # 新增：存储每次实验的单位任务成本
 
     # 获取总任务数（从第一次实验的任务分类文件获取，所有实验相同）
     print("获取总任务数...")
@@ -685,6 +686,10 @@ def main():
         final_coverage = result['covered_task_count'] / TOTAL_TASKS
         all_final_coverages.append(final_coverage)
 
+        # 计算单位任务成本
+        unit_cost = result['total_cost'] / result['covered_task_count'] if result['covered_task_count'] > 0 else 0
+        all_unit_costs.append(unit_cost)
+
     # 计算平均曲线（假设所有实验轮数相同）
     num_rounds = len(all_coverage_curves[0])
     avg_coverage = []
@@ -707,6 +712,8 @@ def main():
     avg_trusted = np.mean(all_trusted_counts)
     avg_malicious = np.mean(all_malicious_counts)
     avg_unknown = np.mean(all_unknown_counts)
+    avg_unit_cost = np.mean(all_unit_costs) if all_unit_costs else 0
+    std_unit_cost = np.std(all_unit_costs) if all_unit_costs else 0
 
     # ========== 保存平均结果到原文件名 ==========
     # 1. 保存平均覆盖率曲线
@@ -746,7 +753,8 @@ def main():
         'init_select': len(load_json(temp_worker_options)['worker_options']),
         'later_select': int(round(avg_trusted)),  # 近似
         'trusted_workers_list': [],  # 平均结果无法列出具体工人ID
-        'round_details': []           # 平均后无法保留详细轮次信息
+        'round_details': [],
+        'avg_unit_cost': round(avg_unit_cost, 2)   # 新增：平均单位任务成本
     }
     save_json(avg_result, "step9_final_result_B3.json")
     print("✅ 平均最终结果已保存至 step9_final_result_B3.json")
@@ -760,7 +768,8 @@ def main():
         "std_total_cost": round(np.std(all_total_costs), 2),
         "std_trusted_count": round(np.std(all_trusted_counts), 2),
         "std_malicious_count": round(np.std(all_malicious_counts), 2),
-        "std_unknown_count": round(np.std(all_unknown_counts), 2)
+        "std_unknown_count": round(np.std(all_unknown_counts), 2),
+        "std_unit_cost": round(std_unit_cost, 2)   # 新增：单位任务成本的标准差
     }
     save_json(std_result, "experiment1_step1_B3_std_results.json")
     print("✅ 标准差结果已保存至 experiment1_step1_B3_std_results.json")
