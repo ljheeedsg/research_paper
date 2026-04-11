@@ -37,7 +37,7 @@ ZETA = 1.2
 LAMBDA = 1.8
 SIGMA = 0.85
 PSI_TH = 0.5
-FEE = 10
+FEE = 2
 MEMBER_VALIDITY = 10
 
 # 任务分类参数

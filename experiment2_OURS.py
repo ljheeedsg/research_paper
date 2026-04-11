@@ -24,7 +24,7 @@ BUDGET = 10000
 K = 7                       # 改为 7（原为 20，适配北京）
 R = 144                     # 北京数据 144 轮
 SLOT_SEC = 600              # 10 分钟时段
-M_VERIFY = 3                # 改为 3（原为 9）
+M_VERIFY = 10                # 改为 3（原为 9）
 
 # 信任度参数
 ETA = 0.6
@@ -42,7 +42,7 @@ FEE = 2
 MEMBER_VALIDITY = 10
 
 # 任务分类参数
-MEMBER_RATIO = 0.4
+MEMBER_RATIO = 0.8
 MEMBER_MULTIPLIER = 1.8
 NORMAL_MULTIPLIER = 1.0
 MEMBER_COST_RANGE = (0.1, 0.3)
@@ -591,17 +591,15 @@ def greedy_recruitment_ours(workers, task_covered_count, required_workers, total
     task_system_income_map = {t['task_id']: t['system_income'] for t in task_class}
     task_cost_map = {t['task_id']: t['worker_cost'] for t in task_class}
     total_system_income = 0.0
+    total_worker_reward = 0.0
 
-    # 会员 ROI 统计：累加总报酬、总成本、总会费（奖励金通过 bonus_count 计算）
-    member_stats = {}   # worker_id -> {'total_reward': 0.0, 'total_cost': 0.0, 'total_fee': 0.0}
+    member_stats = {}
 
     cumulative_total_tasks = 0
     cumulative_trusted_tasks = 0
     cumulative_trusted_ratio = []
     task_coverage_records = []
-
-    worker_category_per_round = []
-    # 移除 stop_recruitment 变量，每轮独立判断
+    worker_category_per_round = []   # 将与 task_coverage_records 对齐
 
     for r in range(R):
         print(f"\n--- 第 {r} 轮 ---")
@@ -609,14 +607,7 @@ def greedy_recruitment_ours(workers, task_covered_count, required_workers, total
         available_workers = [w for w in workers if r in w['available_rounds']]
         print(f"可用工人数: {len(available_workers)}")
 
-        # 记录本轮工人数量（即使无可用工人也要记录）
-        worker_category_per_round.append({
-            "round": r,
-            "trusted_count": len(Uc),
-            "unknown_count": len(Uu),
-            "malicious_count": len(Um)
-        })
-
+        # 跳过无可用工人的轮次（不记录）
         if not available_workers:
             print("当前轮无可用工人，跳过本轮")
             continue
@@ -625,9 +616,16 @@ def greedy_recruitment_ours(workers, task_covered_count, required_workers, total
         print(f"当前轮未完成任务数: {remaining_tasks}")
         if remaining_tasks == 0:
             print("所有任务已完成，停止后续轮次")
+            # 记录最终状态
+            worker_category_per_round.append({
+                "round": r,
+                "trusted_count": len(Uc),
+                "unknown_count": len(Uu),
+                "malicious_count": len(Um)
+            })
             break
 
-        # 检查最小成本
+        # 计算最小成本
         min_cost = float('inf')
         for w in available_workers:
             for task in w['covered_tasks']:
@@ -643,7 +641,17 @@ def greedy_recruitment_ours(workers, task_covered_count, required_workers, total
             continue
         if remaining_budget < min_cost:
             print("预算不足，停止后续轮次")
+            # 记录最终状态
+            worker_category_per_round.append({
+                "round": r,
+                "trusted_count": len(Uc),
+                "unknown_count": len(Uu),
+                "malicious_count": len(Um)
+            })
             break
+
+        # 记录本轮开始前的工人数量（但实际招募后才记录，这里移到招募后？为了与覆盖率对齐，在完成招募后记录）
+        # 先进行 PGRD 决策、招募等，然后在记录覆盖率时同时记录工人数量
 
         # PGRD 决策
         bid_tasks, new_member_set, fee_income = pgrd_decision(
@@ -671,6 +679,7 @@ def greedy_recruitment_ours(workers, task_covered_count, required_workers, total
         for w, task_list in completed_tasks:
             for tid in task_list:
                 total_system_income += task_system_income_map[tid]
+                total_worker_reward += task_price_map[tid]
                 if w['worker_id'] in member_stats:
                     member_stats[w['worker_id']]['total_reward'] += task_price_map[tid]
                     member_stats[w['worker_id']]['total_cost'] += task_cost_map[tid]
@@ -719,11 +728,20 @@ def greedy_recruitment_ours(workers, task_covered_count, required_workers, total
         print(f"平均报酬: 会员任务 R_m={R_m:.2f}, 普通任务 R_n={R_n:.2f}")
         print(f"LGSC: 奖励金 {bonus_paid:.2f}, 平均沉没损失 {avg_sunk_loss:.2f}, 平均ROI {avg_roi_lgsc:.2f}")
 
+        # 记录覆盖率
         task_coverage_records.append({
             "round": r,
             "completed_tasks": completed,
             "total_tasks": total_task_num,
             "coverage_rate": round(completed / total_task_num, 4) if total_task_num > 0 else 0.0
+        })
+
+        # 记录本轮结束后的工人分类（与覆盖率记录对齐）
+        worker_category_per_round.append({
+            "round": r,
+            "trusted_count": len(Uc),
+            "unknown_count": len(Uu),
+            "malicious_count": len(Um)
         })
 
         round_details.append({
@@ -740,11 +758,13 @@ def greedy_recruitment_ours(workers, task_covered_count, required_workers, total
             'members_above_threshold': members_above
         })
 
+    # 最终统计
     covered_task_count = sum(1 for tid, cnt in task_covered_count.items() if cnt >= required_workers[tid])
     platform_utility = total_system_income + total_fee - total_system_cost - total_bonus_paid
 
-    # 计算平均 ROI（含奖励金，累加会费）
+    # 计算会员平均 ROI（活跃会员）
     roi_list = []
+    inactive_members = 0
     for w in workers:
         if w['is_member'] and w['member_until'] >= 0 and w['worker_id'] in member_stats:
             stats = member_stats[w['worker_id']]
@@ -752,31 +772,35 @@ def greedy_recruitment_ours(workers, task_covered_count, required_workers, total
             total_cost = stats['total_cost']
             total_fee_paid = stats['total_fee']
             total_bonus = w['bonus_count'] * LGSC_PARAMS['member_bonus']
-            denominator = total_fee_paid + total_cost
-            if denominator > 0:
-                roi = (total_reward + total_bonus - total_fee_paid - total_cost) / denominator
+            if total_reward > 0 or total_cost > 0:
+                denominator = total_fee_paid + total_cost
+                if denominator > 0:
+                    roi = (total_reward + total_bonus - total_fee_paid - total_cost) / denominator
+                    roi_list.append(roi)
             else:
-                roi = 0
-            roi_list.append(roi)
-    avg_roi = np.mean(roi_list) if roi_list else 0.0
+                inactive_members += 1
+    avg_member_roi = np.mean(roi_list) if roi_list else 0.0
+    print(f"活跃会员数: {len(roi_list)}, 非活跃会员数: {inactive_members}, 平均ROI: {avg_member_roi:.4f}")
+
+    total_worker_net = total_worker_reward + total_bonus_paid - total_fee - total_system_cost
+    total_worker_investment = total_fee + total_system_cost
+    overall_roi = total_worker_net / total_worker_investment if total_worker_investment > 0 else 0.0
 
     result = {
         'total_rounds': greedy_rounds,
         'platform_utility': platform_utility,
-        'task_price_map': task_price_map,
         'total_cost': total_system_cost,
+        'total_worker_reward': total_worker_reward,
         'remaining_budget': remaining_budget,
-        'selected_workers': greedy_selected,
-        'init_select': len(workers),
-        'later_select': len(greedy_selected),
         'covered_task_count': covered_task_count,
         'trusted_count': len(Uc),
         'malicious_count': len(Um),
         'unknown_count': len(Uu),
-        'trusted_workers_list': list(Uc),
         'total_fee': total_fee,
         'total_bonus_paid': total_bonus_paid,
-        'avg_roi': avg_roi,
+        'avg_member_roi': avg_member_roi,
+        'overall_roi': overall_roi,
+        'avg_roi': avg_member_roi,
         'round_details': round_details
     }
 

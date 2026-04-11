@@ -30,7 +30,7 @@ NORMAL_COST_RANGE = (0.7, 0.9)
 PROFIT_RANGE = (1.2, 2.0)
 
 # 重复次数
-NUM_SEEDS = 30   # 可改为30
+NUM_SEEDS = 3   # 可改为30
 
 # ========== 工具函数 ==========
 def load_json(filepath):

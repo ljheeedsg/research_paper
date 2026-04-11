@@ -14,14 +14,19 @@ GRID_Y_NUM = 10
 
 COST_MIN = 5
 COST_MAX = 20
-TRUSTED_RATIO = 0.5
+TRUSTED_RATIO = 0.7
 
 POINT_SIZE = 1
 POINT_ALPHA = 0.5
 
-SLOT_SEC = 60           # 1分钟切片
-
+SLOT_SEC = 600                     # 10分钟切片（改为600秒）
 MAX_VEHICLES = 2000
+
+# 时间重新分配参数
+MIN_DURATION_HOURS = 6
+MAX_DURATION_HOURS = 15
+SECONDS_PER_HOUR = 3600
+MAX_DAY_SEC = 86400
 
 random.seed(42)
 # =================================================
@@ -103,87 +108,32 @@ def compute_grid_counts(rows, lon_min, lon_max, lat_min, lat_max):
         grid_counts[gy, gx] += 1
     return grid_counts
 
-def build_raw_segments(rows):
-    """构建相邻点之间的基本段（含起终点经纬度）"""
-    groups = defaultdict(list)
-    for orig_id, ts, lat, lon in rows:
-        groups[orig_id].append((ts, lat, lon))
-
-    raw_segments = []   # (orig_id, start, end, start_lon, start_lat, end_lon, end_lat)
-    for orig_id, points in groups.items():
-        points.sort(key=lambda x: x[0])
-        for i in range(len(points) - 1):
-            t1, lat1, lon1 = points[i]
-            t2, lat2, lon2 = points[i+1]
-            start = t1 if i == 0 else t1 + 1
-            end = t2
-            if start > end:
-                continue
-            raw_segments.append((orig_id, start, end, lon1, lat1, lon2, lat2))
-
-    print(f"生成 {len(raw_segments)} 个基本段")
-    return raw_segments
-
-def interpolate(lon1, lat1, lon2, lat2, t_ratio):
-    return lon1 + (lon2 - lon1) * t_ratio, lat1 + (lat2 - lat1) * t_ratio
-
-def slice_segments_by_minute(segments, lon_min, lon_max, lat_min, lat_max):
+def get_region_id(lon, lat, lon_min, lon_max, lat_min, lat_max):
+    """根据经纬度获取 region_id（复用网格参数）"""
     step_lon = (lon_max - lon_min) / GRID_X_NUM
     step_lat = (lat_max - lat_min) / GRID_Y_NUM
+    lon = np.clip(lon, lon_min, lon_max)
+    lat = np.clip(lat, lat_min, lat_max)
+    gx = int((lon - lon_min) // step_lon)
+    gy = int((lat - lat_min) // step_lat)
+    gx = np.clip(gx, 0, GRID_X_NUM - 1)
+    gy = np.clip(gy, 0, GRID_Y_NUM - 1)
+    return gy * GRID_X_NUM + gx
 
-    def get_region_id(lon, lat):
-        if lon < lon_min: lon = lon_min
-        if lon > lon_max: lon = lon_max
-        if lat < lat_min: lat = lat_min
-        if lat > lat_max: lat = lat_max
-        gx = int((lon - lon_min) // step_lon)
-        gy = int((lat - lat_min) // step_lat)
-        if gx >= GRID_X_NUM: gx = GRID_X_NUM - 1
-        if gy >= GRID_Y_NUM: gy = GRID_Y_NUM - 1
-        return gy * GRID_X_NUM + gx
-
-    minute_segments = []   # (orig_id, start, end, region_id)
-
-    for orig_id, start, end, lon1, lat1, lon2, lat2 in segments:
-        total_duration = end - start + 1
-        start_slot = (start - 1) // SLOT_SEC
-        end_slot = (end - 1) // SLOT_SEC
-
-        if start_slot == end_slot:
-            mid_sec = (start + end) / 2.0
-            t_ratio = (mid_sec - start) / total_duration
-            lon_mid, lat_mid = interpolate(lon1, lat1, lon2, lat2, t_ratio)
-            region = get_region_id(lon_mid, lat_mid)
-            minute_segments.append((orig_id, start, end, region))
-        else:
-            first_end = (start_slot + 1) * SLOT_SEC
-            mid_first = (start + first_end) / 2.0
-            t_first = (mid_first - start) / total_duration
-            lon_first, lat_first = interpolate(lon1, lat1, lon2, lat2, t_first)
-            region_first = get_region_id(lon_first, lat_first)
-            minute_segments.append((orig_id, start, first_end, region_first))
-
-            for slot in range(start_slot + 1, end_slot):
-                slot_start = slot * SLOT_SEC + 1
-                slot_end = (slot + 1) * SLOT_SEC
-                mid_slot = (slot_start + slot_end) / 2.0
-                t_mid = (mid_slot - start) / total_duration
-                lon_mid, lat_mid = interpolate(lon1, lat1, lon2, lat2, t_mid)
-                region_mid = get_region_id(lon_mid, lat_mid)
-                minute_segments.append((orig_id, slot_start, slot_end, region_mid))
-
-            last_start = end_slot * SLOT_SEC + 1
-            mid_last = (last_start + end) / 2.0
-            t_last = (mid_last - start) / total_duration
-            lon_last, lat_last = interpolate(lon1, lat1, lon2, lat2, t_last)
-            region_last = get_region_id(lon_last, lat_last)
-            minute_segments.append((orig_id, last_start, end, region_last))
-
-    print(f"分钟切片后共 {len(minute_segments)} 个段")
-    return minute_segments
+def slice_segment(vehicle_id, region_id, start, end, slot_sec):
+    """将单个段按固定时间片切分，返回子段列表"""
+    sub_segments = []
+    cur = start
+    while cur <= end:
+        next_boundary = ((cur // slot_sec) + 1) * slot_sec
+        seg_end = min(end, next_boundary - 1)
+        if seg_end >= cur:
+            sub_segments.append((vehicle_id, region_id, cur, seg_end))
+        cur = seg_end + 1
+    return sub_segments
 
 def add_vehicle_attributes(segments):
-    """为每个车辆生成随机的 cost 和 is_trusted，并将 vehicle_id 转为字符串"""
+    """为每个车辆生成随机的 cost 和 is_trusted，vehicle_id 转为字符串"""
     unique_vehicles = sorted(set(seg[0] for seg in segments))
     attrs = {}
     for vid in unique_vehicles:
@@ -192,14 +142,13 @@ def add_vehicle_attributes(segments):
         attrs[vid] = (cost, is_trusted)
 
     final_segments = []
-    for orig_id, start, end, region in segments:
-        cost, trusted = attrs[orig_id]
-        # ★ 关键修改：将 vehicle_id 转换为字符串，避免后续脚本类型错误
-        final_segments.append((str(orig_id), region, start, end, cost, trusted))
+    for vid, rid, start, end in segments:
+        cost, trusted = attrs[vid]
+        final_segments.append((str(vid), rid, start, end, cost, trusted))
     return final_segments
 
 def save_csv(segments, filepath):
-    segments_sorted = sorted(segments, key=lambda x: x[0])  # x[0] 现在是字符串，排序正常
+    segments_sorted = sorted(segments, key=lambda x: x[0])
     with open(filepath, 'w', encoding='utf-8', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(['vehicle_id', 'region_id', 'start_time', 'end_time', 'cost', 'is_trusted'])
@@ -248,15 +197,44 @@ def main():
     if not rows:
         return
 
+    # 1. 计算网格边界（基于所有点）
     lon_min, lon_max, lat_min, lat_max = get_bbox(rows)
     all_points = [(lon, lat) for (_, _, lat, lon) in rows]
     grid_counts = compute_grid_counts(rows, lon_min, lon_max, lat_min, lat_max)
 
-    raw_segments = build_raw_segments(rows)
-    minute_segments = slice_segments_by_minute(raw_segments, lon_min, lon_max, lat_min, lat_max)
-    final_segments = add_vehicle_attributes(minute_segments)
+    # 2. 为每辆车生成一个原始段（使用第一个点的位置和起始时间，重新分配持续时间）
+    # 按车辆分组，取每组时间最早的点
+    groups = defaultdict(list)
+    for orig_id, ts, lat, lon in rows:
+        groups[orig_id].append((ts, lat, lon))
+    
+    vehicle_segments = []   # (vehicle_id, region_id, start_time, end_time)
+    for orig_id, points in groups.items():
+        points.sort(key=lambda x: x[0])          # 按时间排序
+        t_start = points[0][0]                  # 第一个点的时间
+        lat_start = points[0][1]
+        lon_start = points[0][2]
+        region = get_region_id(lon_start, lat_start, lon_min, lon_max, lat_min, lat_max)
+        # 随机持续时间（6-15小时）
+        duration = random.randint(MIN_DURATION_HOURS * SECONDS_PER_HOUR,
+                                  MAX_DURATION_HOURS * SECONDS_PER_HOUR)
+        end_time = t_start + duration
+        if end_time > MAX_DAY_SEC:
+            end_time = MAX_DAY_SEC
+        vehicle_segments.append((orig_id, region, t_start, end_time))
+    print(f"为 {len(vehicle_segments)} 辆车生成原始段（每辆车一个段，持续 {MIN_DURATION_HOURS}-{MAX_DURATION_HOURS} 小时）")
 
+    # 3. 10分钟切片
+    sliced_segments = []
+    for vid, rid, s, e in vehicle_segments:
+        sliced_segments.extend(slice_segment(vid, rid, s, e, SLOT_SEC))
+    print(f"{SLOT_SEC}秒切片后共生成 {len(sliced_segments)} 个段")
+
+    # 4. 添加 cost 和 is_trusted 并输出
+    final_segments = add_vehicle_attributes(sliced_segments)
     save_csv(final_segments, OUTPUT_SEG)
+
+    # 5. 绘图（使用原始点的分布）
     plot_grid(lon_min, lon_max, lat_min, lat_max, all_points, grid_counts)
 
     print("全部完成")

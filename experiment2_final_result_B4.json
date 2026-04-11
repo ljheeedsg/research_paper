@@ -1,0 +1,17 @@
+{
+  "platform_utility": 7777.98,
+  "total_rounds": 128,
+  "total_cost": 8269.47,
+  "remaining_budget": 1730.53,
+  "covered_task_count": 387,
+  "trusted_count": 204,
+  "malicious_count": 76,
+  "unknown_count": 5,
+  "init_select": 285,
+  "later_select": 204,
+  "trusted_workers_list": [],
+  "total_fee": 2813.87,
+  "avg_roi": 0.2937,
+  "round_details": [],
+  "avg_unit_cost": 21.34
+}

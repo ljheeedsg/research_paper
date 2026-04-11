@@ -14,7 +14,7 @@ TASK_JSON = 'experiment3_task_segments.json'      # 输出任务 JSON
 PLOT_FILE = 'experiment3_tasks_distribution.png'  # 输出图片
 
 TOTAL_TASKS = 1000                           # 总任务数
-SLOT_SEC = 60                                # 60秒（1分钟）时段长度
+SLOT_SEC = 600                                # 600秒（10分钟）时段长度
 SLOTS_PER_DAY = 86400 // SLOT_SEC            # 1440个时段
 
 random.seed(1)
