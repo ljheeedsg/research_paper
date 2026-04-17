@@ -1,11 +1,11 @@
 {
   "total_rounds": 109.0,
-  "platform_utility": 12386.38,
-  "total_cost": 20694.5,
-  "remaining_budget": 79305.5,
-  "covered_task_count": 987,
+  "platform_utility": 7662.76,
+  "total_cost": 12814.22,
+  "remaining_budget": 87185.78,
+  "covered_task_count": 729,
   "init_select": 2000,
-  "later_select": 2180,
+  "later_select": 763,
   "round_details": [],
-  "avg_unit_cost": 20.97
+  "avg_unit_cost": 17.58
 }

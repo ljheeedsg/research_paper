@@ -13,7 +13,7 @@ TASK_CSV = 'experiment2_tasks.csv'                # 输出任务 CSV
 TASK_JSON = 'experiment2_task_segments.json'      # 输出任务 JSON
 PLOT_FILE = 'experiment2_tasks_distribution.png'  # 输出图片
 
-TOTAL_TASKS = 400                           # 总任务数
+TOTAL_TASKS = 2000                           # 总任务数
 SLOT_SEC = 600                              # 10分钟时段长度
 SLOTS_PER_DAY = 86400 // SLOT_SEC           # 144个时段
 

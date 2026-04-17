@@ -1,0 +1,98 @@
+[
+  {
+    "round": 0,
+    "cumulative_trusted_ratio": 0.45
+  },
+  {
+    "round": 1,
+    "cumulative_trusted_ratio": 0.5923
+  },
+  {
+    "round": 2,
+    "cumulative_trusted_ratio": 0.5859
+  },
+  {
+    "round": 3,
+    "cumulative_trusted_ratio": 0.626
+  },
+  {
+    "round": 4,
+    "cumulative_trusted_ratio": 0.6039
+  },
+  {
+    "round": 5,
+    "cumulative_trusted_ratio": 0.5592
+  },
+  {
+    "round": 6,
+    "cumulative_trusted_ratio": 0.6108
+  },
+  {
+    "round": 7,
+    "cumulative_trusted_ratio": 0.6122
+  },
+  {
+    "round": 8,
+    "cumulative_trusted_ratio": 0.6216
+  },
+  {
+    "round": 9,
+    "cumulative_trusted_ratio": 0.6219
+  },
+  {
+    "round": 10,
+    "cumulative_trusted_ratio": 0.6329
+  },
+  {
+    "round": 11,
+    "cumulative_trusted_ratio": 0.6436
+  },
+  {
+    "round": 12,
+    "cumulative_trusted_ratio": 0.6346
+  },
+  {
+    "round": 13,
+    "cumulative_trusted_ratio": 0.6436
+  },
+  {
+    "round": 14,
+    "cumulative_trusted_ratio": 0.6382
+  },
+  {
+    "round": 15,
+    "cumulative_trusted_ratio": 0.6607
+  },
+  {
+    "round": 16,
+    "cumulative_trusted_ratio": 0.6637
+  },
+  {
+    "round": 17,
+    "cumulative_trusted_ratio": 0.6521
+  },
+  {
+    "round": 18,
+    "cumulative_trusted_ratio": 0.6639
+  },
+  {
+    "round": 19,
+    "cumulative_trusted_ratio": 0.6686
+  },
+  {
+    "round": 20,
+    "cumulative_trusted_ratio": 0.6724
+  },
+  {
+    "round": 21,
+    "cumulative_trusted_ratio": 0.6715
+  },
+  {
+    "round": 22,
+    "cumulative_trusted_ratio": 0.6792
+  },
+  {
+    "round": 23,
+    "cumulative_trusted_ratio": 0.6791
+  }
+]

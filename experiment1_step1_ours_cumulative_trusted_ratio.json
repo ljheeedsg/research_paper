@@ -1,98 +1,98 @@
 [
   {
     "round": 0,
-    "cumulative_trusted_ratio": 0.4222
+    "cumulative_trusted_ratio": 0.4389
   },
   {
     "round": 1,
-    "cumulative_trusted_ratio": 0.7655
+    "cumulative_trusted_ratio": 0.7687
   },
   {
     "round": 2,
-    "cumulative_trusted_ratio": 0.7619
+    "cumulative_trusted_ratio": 0.7658
   },
   {
     "round": 3,
-    "cumulative_trusted_ratio": 0.7415
+    "cumulative_trusted_ratio": 0.7454
   },
   {
     "round": 4,
-    "cumulative_trusted_ratio": 0.7355
+    "cumulative_trusted_ratio": 0.7399
   },
   {
     "round": 5,
-    "cumulative_trusted_ratio": 0.7771
+    "cumulative_trusted_ratio": 0.7883
   },
   {
     "round": 6,
-    "cumulative_trusted_ratio": 0.8114
+    "cumulative_trusted_ratio": 0.8203
   },
   {
     "round": 7,
-    "cumulative_trusted_ratio": 0.7963
+    "cumulative_trusted_ratio": 0.8048
   },
   {
     "round": 8,
-    "cumulative_trusted_ratio": 0.8232
+    "cumulative_trusted_ratio": 0.8305
   },
   {
     "round": 9,
-    "cumulative_trusted_ratio": 0.8471
+    "cumulative_trusted_ratio": 0.8529
   },
   {
     "round": 10,
-    "cumulative_trusted_ratio": 0.8542
+    "cumulative_trusted_ratio": 0.8598
   },
   {
     "round": 11,
-    "cumulative_trusted_ratio": 0.8263
+    "cumulative_trusted_ratio": 0.8377
   },
   {
     "round": 12,
-    "cumulative_trusted_ratio": 0.8271
+    "cumulative_trusted_ratio": 0.841
   },
   {
     "round": 13,
-    "cumulative_trusted_ratio": 0.836
+    "cumulative_trusted_ratio": 0.849
   },
   {
     "round": 14,
-    "cumulative_trusted_ratio": 0.845
+    "cumulative_trusted_ratio": 0.8573
   },
   {
     "round": 15,
-    "cumulative_trusted_ratio": 0.8531
+    "cumulative_trusted_ratio": 0.8646
   },
   {
     "round": 16,
-    "cumulative_trusted_ratio": 0.8382
+    "cumulative_trusted_ratio": 0.8503
   },
   {
     "round": 17,
-    "cumulative_trusted_ratio": 0.848
+    "cumulative_trusted_ratio": 0.8592
   },
   {
     "round": 18,
-    "cumulative_trusted_ratio": 0.854
+    "cumulative_trusted_ratio": 0.8636
   },
   {
     "round": 19,
-    "cumulative_trusted_ratio": 0.8466
+    "cumulative_trusted_ratio": 0.8559
   },
   {
     "round": 20,
-    "cumulative_trusted_ratio": 0.8575
+    "cumulative_trusted_ratio": 0.8663
   },
   {
     "round": 21,
-    "cumulative_trusted_ratio": 0.8599
+    "cumulative_trusted_ratio": 0.8682
   },
   {
     "round": 22,
-    "cumulative_trusted_ratio": 0.8665
+    "cumulative_trusted_ratio": 0.8747
   },
   {
     "round": 23,
-    "cumulative_trusted_ratio": 0.8686
+    "cumulative_trusted_ratio": 0.8767
   }
 ]
