@@ -20,15 +20,15 @@ PLOT_TRUST = "experiment2_cmab_trust_avg_trust.png"
 
 TOTAL_SLOTS = 86400 // 600
 
-PER_ROUND_BUDGET = 50.0
+PER_ROUND_BUDGET = 1000
 DELTA = 0.6
 ALPHA = 1.0
 
 # Trust parameters
-VALIDATION_TOP_M = 7
+VALIDATION_TOP_M = 3
 TRUST_INIT_TRUSTED = 1.0
 TRUST_INIT_UNKNOWN = 0.5
-ETA = 0.6
+ETA = 0.2
 THETA_HIGH = 0.8
 THETA_LOW = 0.2
 
@@ -143,11 +143,14 @@ def get_tasks_for_slot(tasks_by_slot, slot_id):
     return tasks_by_slot.get(slot_id, [])
 
 
-def compute_ucb(avg_quality, n_obs, round_id, alpha=ALPHA):
-    return avg_quality + math.sqrt(alpha * math.log(max(2, round_id)) / (n_obs + 1))
+def compute_ucb(avg_quality, n_obs, total_observations, alpha=ALPHA):
+    """
+    UCB 探索项使用累计学习总次数，而不是轮次 t。
+    """
+    return avg_quality + math.sqrt(alpha * math.log(max(2, total_observations)) / (n_obs + 1))
 
 
-def compute_worker_score(worker, slot_id, round_id):
+def compute_worker_score(worker, slot_id, total_observations):
     """
     score = gain / cost
     gain = sum(weight * q_hat)
@@ -158,7 +161,7 @@ def compute_worker_score(worker, slot_id, round_id):
     if not candidate_task_ids:
         return 0.0, []
 
-    q_hat = compute_ucb(worker["avg_quality"], worker["n_obs"], round_id, ALPHA)
+    q_hat = compute_ucb(worker["avg_quality"], worker["n_obs"], total_observations, ALPHA)
 
     gain = 0.0
     selected_tasks = []
@@ -206,7 +209,7 @@ def initialization_select_workers(available_workers, slot_id, budget):
     return selected_ids, round(total_cost, 4), candidates
 
 
-def greedy_select_workers(available_workers, slot_id, round_id, budget):
+def greedy_select_workers(available_workers, slot_id, total_observations, budget):
     """
     正常轮：
     候选 = trusted ∪ unknown，排除 malicious
@@ -217,7 +220,7 @@ def greedy_select_workers(available_workers, slot_id, round_id, budget):
         if worker["category"] == "malicious":
             continue
 
-        score, selected_tasks = compute_worker_score(worker, slot_id, round_id)
+        score, selected_tasks = compute_worker_score(worker, slot_id, total_observations)
         worker_scores.append({
             "worker_id": worker["worker_id"],
             "score": score,
@@ -422,8 +425,11 @@ def update_trust_by_validation(validation_tasks, workers, slot_id):
 
 def update_worker_quality_statistics(selected_worker_ids, workers, slot_id):
     """
-    按本轮实际执行任务的 quality 更新 CMAB 统计量。
+    按本轮实际执行任务的 quality 更新 CMAB 统计量，
+    并返回本轮新增的学习次数。
     """
+    total_new_observations = 0
+
     for worker_id in selected_worker_ids:
         worker = workers[worker_id]
         task_ids = worker["tasks_by_slot"].get(slot_id, [])
@@ -446,6 +452,9 @@ def update_worker_quality_statistics(selected_worker_ids, workers, slot_id):
 
         worker["n_obs"] = new_n
         worker["avg_quality"] = float(new_avg)
+        total_new_observations += new_obs
+
+    return total_new_observations
 
 
 def summarize_results(round_results):
@@ -515,6 +524,7 @@ def main():
     workers = build_worker_profiles(worker_options)
 
     round_results = []
+    total_observations = 0
 
     for slot_id in range(TOTAL_SLOTS):
         round_id = slot_id + 1
@@ -532,7 +542,7 @@ def main():
             )
         else:
             selected_worker_ids, cost_t, selection_details = greedy_select_workers(
-                available_workers, slot_id, round_id, PER_ROUND_BUDGET
+                available_workers, slot_id, total_observations, PER_ROUND_BUDGET
             )
 
         # 先评估业务任务
@@ -564,7 +574,8 @@ def main():
         Uc, Uu, Um = rebuild_sets(workers)
 
         # 更新 CMAB 质量统计
-        update_worker_quality_statistics(
+        total_observations_before_round = total_observations
+        total_observations += update_worker_quality_statistics(
             selected_worker_ids=selected_worker_ids,
             workers=workers,
             slot_id=slot_id,
@@ -597,6 +608,7 @@ def main():
 
             "avg_trust": round(avg_trust_t, 4),
             "num_validation_tasks": len(validation_tasks),
+            "total_observations_before_round": total_observations_before_round,
 
             "trusted_count": len(Uc),
             "unknown_count": len(Uu),

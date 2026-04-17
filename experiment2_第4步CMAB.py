@@ -21,7 +21,7 @@ SLOT_SEC = 600
 TOTAL_SLOTS = 86400 // SLOT_SEC
 
 # 预算设置：建议先用“每轮预算”
-PER_ROUND_BUDGET = 50
+PER_ROUND_BUDGET = 1000
 
 # 质量阈值：任务完成必须满足平均质量 >= DELTA
 DELTA = 0.6
@@ -127,15 +127,17 @@ def get_worker_observed_quality(worker, task_ids):
     return qualities
 
 
-def compute_ucb(avg_quality, n_obs, round_id, alpha=ALPHA):
+def compute_ucb(avg_quality, n_obs, total_observations, alpha=ALPHA):
     """
     UCB:
-    q_hat = avg_quality + sqrt(alpha * ln(t) / (n_obs + 1))
+    q_hat = avg_quality + sqrt(alpha * ln(N) / (n_obs + 1))
+
+    其中 N 表示截至当前轮之前的累计学习总次数，而不是轮次 t。
     """
-    return avg_quality + math.sqrt(alpha * math.log(max(2, round_id)) / (n_obs + 1))
+    return avg_quality + math.sqrt(alpha * math.log(max(2, total_observations)) / (n_obs + 1))
 
 
-def compute_worker_score(worker, slot_id, round_id):
+def compute_worker_score(worker, slot_id, total_observations):
     """
     score_i(t) = gain_i(t) / c_i
     gain_i(t) = sum_{j in S_i(t)} w_j * q_hat_i(t)
@@ -144,7 +146,7 @@ def compute_worker_score(worker, slot_id, round_id):
     if not candidate_task_ids:
         return 0.0, []
 
-    q_hat = compute_ucb(worker["avg_quality"], worker["n_obs"], round_id, ALPHA)
+    q_hat = compute_ucb(worker["avg_quality"], worker["n_obs"], total_observations, ALPHA)
 
     gain = 0.0
     selected_tasks = []
@@ -161,7 +163,7 @@ def compute_worker_score(worker, slot_id, round_id):
     return score, selected_tasks
 
 
-def greedy_select_workers(available_workers, slot_id, round_id, budget):
+def greedy_select_workers(available_workers, slot_id, total_observations, budget):
     """
     正常 CMAB 轮的贪心选择：
     按 score 从高到低排序，依次选工人直到预算耗尽。
@@ -169,7 +171,7 @@ def greedy_select_workers(available_workers, slot_id, round_id, budget):
     worker_scores = []
 
     for worker in available_workers:
-        score, selected_tasks = compute_worker_score(worker, slot_id, round_id)
+        score, selected_tasks = compute_worker_score(worker, slot_id, total_observations)
         worker_scores.append({
             "worker_id": worker["worker_id"],
             "score": score,
@@ -304,8 +306,11 @@ def evaluate_round(selected_worker_ids, workers, round_tasks, slot_id, delta):
 
 def update_worker_statistics(selected_worker_ids, workers, slot_id):
     """
-    根据本轮实际执行任务的质量，更新每个工人的 n_obs 和 avg_quality
+    根据本轮实际执行任务的质量，更新每个工人的 n_obs 和 avg_quality，
+    并返回本轮新增的学习次数。
     """
+    total_new_observations = 0
+
     for worker_id in selected_worker_ids:
         worker = workers[worker_id]
         task_ids = worker["tasks_by_slot"].get(slot_id, [])
@@ -324,6 +329,9 @@ def update_worker_statistics(selected_worker_ids, workers, slot_id):
 
         worker["n_obs"] = new_n
         worker["avg_quality"] = float(new_avg)
+        total_new_observations += new_obs
+
+    return total_new_observations
 
 
 def summarize_results(round_results):
@@ -393,6 +401,7 @@ def main():
     workers = build_worker_profiles(worker_options)
 
     round_results = []
+    total_observations = 0
 
     for slot_id in range(TOTAL_SLOTS):
         round_id = slot_id + 1
@@ -412,7 +421,7 @@ def main():
             )
         else:
             selected_worker_ids, cost_t, selection_details = greedy_select_workers(
-                available_workers, slot_id, round_id, PER_ROUND_BUDGET
+                available_workers, slot_id, total_observations, PER_ROUND_BUDGET
             )
 
         eval_result = evaluate_round(
@@ -446,12 +455,13 @@ def main():
             "completed_tasks": eval_result["completed_tasks"],
             "failed_tasks": eval_result["failed_tasks"],
             "task_results": eval_result["task_results"],
+            "total_observations_before_round": total_observations,
         }
 
         round_results.append(round_result)
 
         # 更新工人统计量
-        update_worker_statistics(selected_worker_ids, workers, slot_id)
+        total_observations += update_worker_statistics(selected_worker_ids, workers, slot_id)
 
         print(
             f"[Round {round_id:03d}] "

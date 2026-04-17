@@ -136,10 +136,10 @@ CMAB 学习的不是“哪个任务更好”，而是：
 设工人 $i$ 在第 $t$ 轮之前的平均质量估计为：
 
 $$
-\bar{q}_{i}^{(t)}
+\bar{q}_i$t$
 $$
 
-CMAB 的核心就是通过多轮观测，不断更新 (\bar{q}_{i}^{(t)})，从而优先选择高质量工人。
+CMAB 的核心就是通过多轮观测，不断更新 (\bar{q}_i$t$)，从而优先选择高质量工人。
 
 ---
 
@@ -224,13 +224,13 @@ $$
 3. 计算每个工人的初始平均质量：
 
 $$
-\bar{q}_{i}^{(1)} = \frac{1}{n_{i}^{(1)}} \sum_{j \in S_{i}^{(1)}} q_{ij}
+\bar{q}*i$1$ = \frac{1}{n_i$1$} \sum*{j \in S_i$1$} q_{ij}
 $$
 
 这里：
 
-* ($S_{i}^{(1)}$) 表示工人 $i$ 在初始化轮中实际执行的任务集合
-* ($n_{i}^{(1)} = |S_{i}^{(1)}|)
+* (S_i$1$) 表示工人 $i$ 在初始化轮中实际执行的任务集合
+* (n_i$1$ = |S_i$1$|)
 
 注意：
 
@@ -249,7 +249,7 @@ $$
 对于任务 $j$ 在第 $t$ 轮，设被选中且实际执行该任务的工人集合为：
 
 $$
-W_{j}^{(t)}
+W_j$t$
 $$
 
 ---
@@ -259,10 +259,10 @@ $$
 任务 $j$ 在第 $t$ 轮的聚合质量定义为：
 
 $$
-Q_{j}^{(t)} = \frac{1}{|W_{j}^{(t)}|} \sum_{i \in W_{j}^{(t)}} q_{ij}
+Q_j$t$ = \frac{1}{|W_j$t$|} \sum_{i \in W_j$t$} q_{ij}
 $$
 
-若 (W_{j}^{(t)}=\varnothing)，则任务视为未完成。
+若 (W_j$t$=\varnothing)，则任务视为未完成。
 
 ---
 
@@ -271,9 +271,9 @@ $$
 任务 $j$ 在第 $t$ 轮被视为完成，当且仅当：
 
 $$
-|W_{j}^{(t)}| \ge r_j
+|W_j$t$| \ge r_j
 \quad \text{且} \quad
-Q_{j}^{(t)} \ge \delta
+Q_j$t$ \ge \delta
 $$
 
 其中：
@@ -298,10 +298,10 @@ $$
 因此，第 $t$ 轮总收益定义为：
 
 $$
-Reward_{t} = \sum_{j \in Completed_{t}} w_j
+Reward_t = \sum_{j \in Completed_t} w_j
 $$
 
-其中 $Completed_{t}$ 为第 $t$ 轮完成任务集合。
+其中 $Completed_t$ 为第 $t$ 轮完成任务集合。
 
 这样定义的好处是：
 
@@ -313,10 +313,10 @@ $$
 
 # 9. 工人成本定义
 
-对于第 $t$ 轮被招募的工人集合 $A_{t}$，本轮成本定义为：
+对于第 $t$ 轮被招募的工人集合 $A_t$，本轮成本定义为：
 
 $$
-Cost_{t} = \sum_{i \in A_{t}} c_i
+Cost_t = \sum_{i \in A_t} c_i
 $$
 
 注意：
@@ -332,13 +332,13 @@ $$
 对于工人 $i$，在第 $t$ 轮的 UCB 估计定义为：
 
 $$
-\hat{q}_{i}^{(t)} = \bar{q}_{i}^{(t-1)} + \sqrt{\frac{\alpha \ln t}{n_i$t-1$+1}}
+\hat{q}_i$t$ = \bar{q}_i$t-1$ + \sqrt{\frac{\alpha \ln t}{n_i$t-1$+1}}
 $$
 
 其中：
 
-* (\bar{q}_{i}^{(t-1)})：工人历史平均质量
-* ($n_{i}^{(t-1)}$)：历史被观测次数
+* (\bar{q}_i$t-1$)：工人历史平均质量
+* (n_i$t-1$)：历史被观测次数
 * $\alpha$：探索强度参数
 
 解释：
@@ -351,11 +351,11 @@ $$
 
 # 11. 工人评分函数
 
-对第 $t$ 轮可用工人 $i$，设其本轮可执行任务集合为 ($S_{i}^{(t)}$)。
+对第 $t$ 轮可用工人 $i$，设其本轮可执行任务集合为 (S_i$t$)。
 定义其潜在收益为：
 
 $$
-gain_i$t$ = \sum_{j \in S_{i}^{(t)}} w_j \cdot \hat{q}_{i}^{(t)}
+gain_i$t$ = \sum_{j \in S_i$t$} w_j \cdot \hat{q}_i$t$
 $$
 
 然后定义工人评分为：
@@ -384,8 +384,8 @@ $$
 4. 判断任务是否完成
 5. 更新每个工人的：
 
-   * ($n_{i}^{(1)}$)
-   * (\bar{q}_{i}^{(1)})
+   * (n_i$1$)
+   * (\bar{q}_i$1$)
 6. 统计本轮指标
 
 ---
@@ -395,27 +395,27 @@ $$
 ### Step 1：筛选本轮可用工人
 
 $$
-\mathcal{W}_{t} = {i \mid t \in available\_slots_i}
+\mathcal{W}_t = {i \mid t \in available_slots_i}
 $$
 
 ### Step 2：筛选本轮任务
 
 $$
-\mathcal{T}_{t} = {j \mid slot_j = t}
+\mathcal{T}_t = {j \mid slot_j = t}
 $$
 
 ### Step 3：计算 UCB 估计
 
-对每个 $i \in \mathcal{W}_{t}$：
+对每个 $i \in \mathcal{W}_t$：
 
 $$
-\hat{q}_{i}^{(t)} = \bar{q}_{i}^{(t-1)} + \sqrt{\frac{\alpha \ln t}{n_i$t-1$+1}}
+\hat{q}_i$t$ = \bar{q}_i$t-1$ + \sqrt{\frac{\alpha \ln t}{n_i$t-1$+1}}
 $$
 
 ### Step 4：计算工人评分
 
 $$
-score_i$t$ = \frac{\sum_{j \in S_{i}^{(t)}} w_j \cdot \hat{q}_{i}^{(t)}}{c_i}
+score_i$t$ = \frac{\sum_{j \in S_i$t$} w_j \cdot \hat{q}_i$t$}{c_i}
 $$
 
 ### Step 5：贪心选择工人
@@ -428,21 +428,21 @@ $$
 得到本轮招募集合：
 
 $$
-A_{t}
+A_t
 $$
 
 ### Step 6：统计任务执行结果
 
-对每个任务 $j \in \mathcal{T}_{t}$，统计执行工人集合：
+对每个任务 $j \in \mathcal{T}_t$，统计执行工人集合：
 
 $$
-W_{j}^{(t)} = { i \in A_{t} \mid i \text{ can execute } j }
+W_j$t$ = { i \in A_t \mid i \text{ can execute } j }
 $$
 
 并计算：
 
 $$
-Q_{j}^{(t)} = \frac{1}{|W_{j}^{(t)}|} \sum_{i \in W_{j}^{(t)}} q_{ij}
+Q_j$t$ = \frac{1}{|W_j$t$|} \sum_{i \in W_j$t$} q_{ij}
 $$
 
 ### Step 7：判定任务完成
@@ -450,9 +450,9 @@ $$
 若满足：
 
 $$
-|W_{j}^{(t)}| \ge r_j
+|W_j$t$| \ge r_j
 \quad \text{且} \quad
-Q_{j}^{(t)} \ge \delta
+Q_j$t$ \ge \delta
 $$
 
 则任务完成。
@@ -461,19 +461,19 @@ $$
 
 对每个被选中工人 $i$，用本轮观测到的任务质量更新：
 
-* 被观测次数 ($n_{i}^{(t)})
-* 平均质量 (\bar{q}_{i}^{(t)})
+* 被观测次数 (n_i$t$)
+* 平均质量 (\bar{q}_i$t$)
 
 例如：
 
 $$
-\bar{q}_{i}^{(t)}
+\bar{q}_i$t$
 ============
 
-\frac{n_{i}^{(t-1)}\bar{q}_{i}^{(t-1)} + \sum q*{ij}}{n_i$t-1$+m_{i}^{(t)}}
+\frac{n_i$t-1$\bar{q}*i$t-1$ + \sum q*{ij}}{n_i$t-1$+m_i$t$}
 $$
 
-其中 (m_{i}^{(t)}) 为本轮工人 $i$ 实际执行任务数。
+其中 (m_i$t$) 为本轮工人 $i$ 实际执行任务数。
 
 ---
 
@@ -493,13 +493,13 @@ $$
 ## 13.1 每轮任务完成率
 
 $$
-CompletionRate_{t} = \frac{|Completed_{t}|}{|\mathcal{T}_{t}|}
+CompletionRate_t = \frac{|Completed_t|}{|\mathcal{T}_t|}
 $$
 
 其中：
 
-* $Completed_{t}$：本轮完成任务集合
-* $\mathcal{T}_{t}$：本轮全部任务集合
+* $Completed_t$：本轮完成任务集合
+* $\mathcal{T}_t$：本轮全部任务集合
 
 这是本文的**主指标**。
 
@@ -508,7 +508,7 @@ $$
 ## 13.2 每轮平均数据质量
 
 $$
-AvgQuality_{t} = \frac{1}{|Completed_{t}|}\sum_{j \in Completed_{t}} Q_{j}^{(t)}
+AvgQuality_t = \frac{1}{|Completed_t|}\sum_{j \in Completed_t} Q_j$t$
 $$
 
 若本轮无完成任务，则记为 0 或 NaN。
@@ -522,7 +522,7 @@ $$
 ## 13.3 每轮收益
 
 $$
-Reward_{t} = \sum_{j \in Completed_{t}} w_j
+Reward_t = \sum_{j \in Completed_t} w_j
 $$
 
 表示本轮完成任务带来的总价值。
@@ -532,7 +532,7 @@ $$
 ## 13.4 每轮成本
 
 $$
-Cost_{t} = \sum_{i \in A_{t}} c_i
+Cost_t = \sum_{i \in A_t} c_i
 $$
 
 表示本轮招募工人的总成本。
@@ -542,10 +542,10 @@ $$
 ## 13.5 每轮效率
 
 $$
-Efficiency_{t} = \frac{Reward_{t}}{Cost_{t}}
+Efficiency_t = \frac{Reward_t}{Cost_t}
 $$
 
-若 $Cost_{t} = 0$，则记为 0。
+若 $Cost_t = 0$，则记为 0。
 
 该指标用于衡量：
 
@@ -621,22 +621,22 @@ $$
 ### 16.1 每轮任务完成率曲线
 
 横轴：轮次 $t$
-纵轴：$CompletionRate_{t}$
+纵轴：$CompletionRate_t$
 
 ### 16.2 每轮平均质量曲线
 
 横轴：轮次 $t$
-纵轴：$AvgQuality_{t}$
+纵轴：$AvgQuality_t$
 
 ### 16.3 每轮收益曲线
 
 横轴：轮次 $t$
-纵轴：$Reward_{t}$
+纵轴：$Reward_t$
 
 ### 16.4 每轮效率曲线
 
 横轴：轮次 $t$
-纵轴：$Efficiency_{t}$
+纵轴：$Efficiency_t$
 
 初始化轮可以：
 
@@ -691,19 +691,19 @@ for each round t:
 
         按 score 从高到低排序
         在预算约束下贪心选人
-        得到 A_{t}
+        得到 A_t
 
     对每个任务 j in T_t:
-        找出被 A_{t} 执行的工人集合 W_{j}^{(t)}
-        计算任务聚合质量 Q_{j}^{(t)}
+        找出被 A_t 执行的工人集合 W_j$t$
+        计算任务聚合质量 Q_j$t$
         判断任务是否完成
 
     统计本轮指标:
-        CompletionRate_{t}
-        AvgQuality_{t}
-        Reward_{t}
-        Cost_{t}
-        Efficiency_{t}
+        CompletionRate_t
+        AvgQuality_t
+        Reward_t
+        Cost_t
+        Efficiency_t
 
     更新被选中工人的:
         n_i
@@ -767,7 +767,7 @@ n_i(1) = |S_i(1)|
 [
 \bar{q}*i(1) =
 \begin{cases}
-\frac{1}{n_i(1)} \sum_{j \in S_i(1)} q_{ij}, & n_i(1) > 0 \
+\frac{1}{n_i(1)} \sum*{j \in S_i(1)} q_{ij}, & n_i(1) > 0 \
 0, & n_i(1) = 0
 \end{cases}
 ]
