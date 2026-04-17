@@ -3,13 +3,17 @@
   "total_non_empty_rounds": 144,
   "total_non_empty_non_init_rounds": 143,
   "avg_completion_rate_all_non_empty": 0.5903,
-  "avg_avg_quality_all_non_empty": 0.6684,
+  "avg_avg_quality_all_non_empty": 0.6208,
   "avg_reward_all_non_empty": 16.2431,
   "avg_cost_all_non_empty": 965.7451,
   "avg_efficiency_all_non_empty": 0.0167,
   "avg_completion_rate_non_init": 0.5885,
-  "avg_avg_quality_non_init": 0.6687,
+  "avg_avg_quality_non_init": 0.6208,
   "avg_reward_non_init": 16.2448,
   "avg_cost_non_init": 965.5238,
-  "avg_efficiency_non_init": 0.0167
+  "avg_efficiency_non_init": 0.0167,
+  "final_cumulative_completion_rate_all_non_empty": 0.5925,
+  "final_cumulative_avg_quality_all_non_empty": 0.6236,
+  "final_cumulative_completion_rate_non_init": 0.5906,
+  "final_cumulative_avg_quality_non_init": 0.6236
 }

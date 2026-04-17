@@ -425,6 +425,93 @@ $$
 
 ---
 
+# 11.1 评价指标与输出口径
+
+本步骤当前代码沿用 Step4 的业务任务评价方式，但已统一为下面这套统计口径：
+
+---
+
+## 每轮任务完成率
+
+$$
+CompletionRate_t = \frac{|Completed_t|}{|\mathcal{T}_t|}
+$$
+
+其中 $Completed_t$ 为本轮满足“人数阈值 + 质量阈值”的已完成任务集合。
+
+---
+
+## 每轮平均数据质量
+
+这里不再只对完成任务求平均，而是对**所有被执行任务**求平均。
+
+设：
+
+$$
+Executed_t = \{ j \in \mathcal{T}_t \mid |W_j^{(t)}| > 0 \}
+$$
+
+则：
+
+$$
+AvgQuality_t = \frac{1}{|Executed_t|}\sum_{j \in Executed_t} Q_j^{(t)}
+$$
+
+若本轮没有任何被执行任务，则记为 0。
+
+这样更符合“整体数据质量”的含义，也能避免只统计完成任务带来的高估偏差。
+
+---
+
+## 累计任务完成率
+
+$$
+CumCompletionRate_t
+=
+\frac{\sum_{\tau=1}^{t}|Completed_{\tau}|}{\sum_{\tau=1}^{t}|\mathcal{T}_{\tau}|}
+$$
+
+---
+
+## 累计平均数据质量
+
+$$
+CumAvgQuality_t
+=
+\frac{\sum_{\tau=1}^{t}\sum_{j \in Executed_{\tau}} Q_j^{(\tau)}}
+{\sum_{\tau=1}^{t}|Executed_{\tau}|}
+$$
+
+这两个累计指标更适合观察：
+
+* trust 机制逐轮学习后，整体完成情况是否在变好
+* 可信工人逐步增多后，累计数据质量是否稳步抬升
+
+---
+
+## 当前代码输出
+
+代码当前会保存：
+
+* `experiment2_cmab_trust_round_results.json`
+* `experiment2_cmab_trust_summary.json`
+* `experiment2_cmab_trust_completion_rate.png`
+* `experiment2_cmab_trust_avg_quality.png`
+* `experiment2_cmab_trust_cumulative_completion_rate.png`
+* `experiment2_cmab_trust_cumulative_avg_quality.png`
+* `experiment2_cmab_trust_reward.png`
+* `experiment2_cmab_trust_efficiency.png`
+* `experiment2_cmab_trust_avg_trust.png`
+
+其中每轮结果中会额外记录：
+
+* `num_executed`
+* `executed_tasks`
+* `cumulative_completion_rate`
+* `cumulative_avg_quality`
+
+---
+
 # 12. 机制合理性说明（关键）
 
 ---

@@ -5,7 +5,7 @@
 * 为什么不能直接用 `base_quality`
 * CMAB 每轮怎么运行
 * 每轮统计哪些指标
-* 为什么看“每轮”而不是“累计”
+* 为什么主看“每轮”，同时补充“累计”
 
 你可以把它保存为：
 
@@ -103,9 +103,12 @@
 
 * 被选中的工人集合
 * 本轮任务数
+* 本轮被执行任务数
 * 本轮完成任务数
 * 本轮任务完成率
-* 本轮平均数据质量
+* 本轮平均数据质量（按被执行任务统计）
+* 累计任务完成率
+* 累计平均数据质量
 * 本轮收益
 * 本轮成本
 * 本轮效率
@@ -118,6 +121,12 @@
 
 * `experiment2_cmab_round_results.json`
 * `experiment2_cmab_summary.json`
+* `experiment2_cmab_completion_rate.png`
+* `experiment2_cmab_avg_quality.png`
+* `experiment2_cmab_cumulative_completion_rate.png`
+* `experiment2_cmab_cumulative_avg_quality.png`
+* `experiment2_cmab_reward.png`
+* `experiment2_cmab_efficiency.png`
 
 ---
 
@@ -479,7 +488,8 @@ $$
 
 # 13. 每轮统计指标（重点）
 
-老师强调应统计**每一轮**，而不是只看累计结果。
+老师强调应统计**每一轮**，这样才能看见在线学习过程；
+但如果要观察“整体质量是否逐步抬升”，也应同步保留累计指标。
 因为 CMAB 是一个在线学习过程，per-round 指标更能反映：
 
 * 前期探索效果
@@ -508,18 +518,53 @@ $$
 ## 13.2 每轮平均数据质量
 
 $$
-AvgQuality_{t} = \frac{1}{|Completed_{t}|}\sum_{j \in Completed_{t}} Q_{j}^{(t)}
+Executed_{t} = \left\{j \in \mathcal{T}_{t} \mid |W_{j}^{(t)}| > 0\right\}
 $$
 
-若本轮无完成任务，则记为 0 或 NaN。
+$$
+AvgQuality_{t} = \frac{1}{|Executed_{t}|}\sum_{j \in Executed_{t}} Q_{j}^{(t)}
+$$
+
+若本轮无被执行任务，则记为 0。
 
 该指标用于衡量：
 
-> 本轮任务完成后的数据质量水平
+> 本轮所有被执行任务的数据质量水平
 
 ---
 
-## 13.3 每轮收益
+## 13.3 累计任务完成率
+
+$$
+CumCompletionRate_{t}
+=
+\frac{\sum_{\tau=1}^{t} |Completed_{\tau}|}{\sum_{\tau=1}^{t} |\mathcal{T}_{\tau}|}
+$$
+
+该指标用于衡量：
+
+> 从第 1 轮到当前轮为止，整体任务完成情况的累计表现
+
+---
+
+## 13.4 累计平均数据质量
+
+$$
+CumAvgQuality_{t}
+=
+\frac{\sum_{\tau=1}^{t}\sum_{j \in Executed_{\tau}} Q_{j}^{(\tau)}}
+{\sum_{\tau=1}^{t} |Executed_{\tau}|}
+$$
+
+若截至当前仍没有任何被执行任务，则记为 0。
+
+该指标用于衡量：
+
+> 从第 1 轮到当前轮为止，所有被执行任务的累计平均质量
+
+---
+
+## 13.5 每轮收益
 
 $$
 Reward_{t} = \sum_{j \in Completed_{t}} w_j
@@ -529,7 +574,7 @@ $$
 
 ---
 
-## 13.4 每轮成本
+## 13.6 每轮成本
 
 $$
 Cost_{t} = \sum_{i \in A_{t}} c_i
@@ -539,7 +584,7 @@ $$
 
 ---
 
-## 13.5 每轮效率
+## 13.7 每轮效率
 
 $$
 Efficiency_{t} = \frac{Reward_{t}}{Cost_{t}}
@@ -553,9 +598,9 @@ $$
 
 ---
 
-# 14. 为什么主看“每轮”而不是“累计”
+# 14. 为什么主看“每轮”，但仍补充“累计”
 
-本文选择 per-round 指标作为主分析标准，原因如下：
+本文仍以 per-round 指标作为主分析标准，同时补充累计指标，原因如下：
 
 ### 14.1 CMAB 是动态学习过程
 
@@ -571,8 +616,15 @@ $$
 
 * 每轮完成率曲线
 * 每轮平均质量曲线
+* 累计完成率曲线
+* 累计平均质量曲线
 * 每轮收益曲线
 * 每轮效率曲线
+
+### 14.4 累计指标适合观察长期趋势
+
+如果老师后续关注的是“随着可信工人逐步增多，整体质量是否稳步抬升”，
+那么累计完成率和累计平均质量会更直观。
 
 ---
 
@@ -585,13 +637,16 @@ $$
   "round_id": 12,
   "is_initialization": false,
   "num_tasks": 18,
+  "num_executed": 15,
   "num_completed": 11,
   "completion_rate": 0.6111,
-  "avg_quality": 0.7423,
+  "avg_quality": 0.6584,
+  "cumulative_completion_rate": 0.5732,
+  "cumulative_avg_quality": 0.6217,
   "reward": 21,
   "cost": 37.5,
   "efficiency": 0.56,
-  "selected_workers": $2, 8, 13$
+  "selected_workers": [2, 8, 13]
 }
 ```
 
@@ -608,6 +663,8 @@ $$
 * 总轮数
 * 平均每轮完成率
 * 平均每轮质量
+* 最终累计完成率
+* 最终累计平均质量
 * 平均每轮收益
 * 平均每轮成本
 * 平均每轮效率
@@ -628,12 +685,22 @@ $$
 横轴：轮次 $t$
 纵轴：$AvgQuality_{t}$
 
-### 16.3 每轮收益曲线
+### 16.3 累计任务完成率曲线
+
+横轴：轮次 $t$
+纵轴：$CumCompletionRate_{t}$
+
+### 16.4 累计平均质量曲线
+
+横轴：轮次 $t$
+纵轴：$CumAvgQuality_{t}$
+
+### 16.5 每轮收益曲线
 
 横轴：轮次 $t$
 纵轴：$Reward_{t}$
 
-### 16.4 每轮效率曲线
+### 16.6 每轮效率曲线
 
 横轴：轮次 $t$
 纵轴：$Efficiency_{t}$
@@ -714,7 +781,7 @@ for each round t:
 
 # 19. 一句话总结
 
-> 本步骤采用“初始化轮 + CMAB 主循环”的方式，在预算约束下逐轮学习工人质量，并以每轮任务完成率、每轮平均数据质量和每轮收益等指标评估算法效果，从而体现 CMAB 在动态任务招募中的学习能力与决策价值。
+> 本步骤采用“初始化轮 + CMAB 主循环”的方式，在预算约束下逐轮学习工人质量，并同时输出每轮指标与累计指标；其中完成率按全部任务统计，平均质量按被执行任务统计，从而更真实地反映 CMAB 在动态招募中的学习效果与长期趋势。
 
 ---
 

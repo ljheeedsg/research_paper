@@ -2,8 +2,10 @@
   "total_rounds_recorded": 144,
   "total_non_empty_rounds": 144,
   "avg_completion_rate": 0.0933,
-  "avg_avg_quality": 0.5072,
+  "avg_avg_quality": 0.6045,
   "avg_reward": 1.4861,
   "avg_cost": 48.1076,
-  "avg_efficiency": 0.0308
+  "avg_efficiency": 0.0308,
+  "final_cumulative_completion_rate": 0.0875,
+  "final_cumulative_avg_quality": 0.5996
 }
