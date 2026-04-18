@@ -1,381 +1,494 @@
-# 📄 `experiment2_step1_generate_vehicles.md`（最终完整版）
+好，我只写**第一步：产生可用工人数据**这一步的文档，不写后面任务生成、验证任务、CMAB 招募那些内容。
 
 ---
 
-# 1. 概述（Overview）
+# 第一步：产生可用工人数据文档
 
-本步骤的目标是：
+## 1. 目标
 
-> 从原始出租车轨迹数据中构建群智感知实验的**工人基础数据集（Worker Dataset）**
+本步骤的目标是：从原始车辆轨迹点数据中，提取出能够用于后续群智感知实验的**工人轨迹段数据**，并为每个工人初始化基础属性，包括：
 
-该数据集包含：
+* 工人编号 `vehicle_id`
+* 所属区域 `region_id`
+* 可用时间段 `start_time, end_time`
+* 报价 `cost`
+* 真实类别 `init_category`
+* 基础质量 `base_quality`
 
-* 工人的时空轨迹（trajectory segments）
-* 工人的基础属性（成本、初始类别）
-* 工人的真实能力（base_quality）
-
-该数据将作为后续任务生成、质量建模、工人招募、信任验证与激励机制的统一输入。
-
----
-
-# 2. 核心建模思想（必须理解）
-
-本步骤遵循两个关键建模原则：
+本步骤输出的数据不直接用于任务分配，而是作为后续“任务生成”“工人可选任务生成”“信任验证”的基础输入。
 
 ---
 
-## 2.1 质量与信任解耦（核心）
+## 2. 输入数据
 
-### 质量（Quality）
+输入文件为原始轨迹点数据：
 
-$$base\_quality_i$$
+* `dataset/beijing_300_cars_2008-02-03.csv`
 
-表示：
+原始数据中，每一行表示一个车辆在某一时刻的位置点，通常包含：
 
-> 工人的真实感知能力（设备、技术、稳定性）
-
----
-
-### 信任（Trust）
-
-表示：
-
-> 工人是否诚实、数据是否可靠（后续学习得到）
+* 车辆编号
+* 时间戳
+* 纬度
+* 经度
 
 ---
 
-## ❗关键关系
+## 3. 输出数据
 
-$$\text{quality} \neq \text{trust}$$
+本步骤主要输出两个文件：
 
-* 高质量 ≠ 高可信
-* 低质量 ≠ 恶意
+### 3.1 工人轨迹段文件
 
----
+* `experiment2_vehicle.csv`
 
-## 2.2 本步骤只生成"真实世界"，不做"算法判断"
+该文件中每一行表示一个工人在某个区域、某个时间段内可提供感知服务的轨迹段，字段包括：
 
-| 内容            | 是否在本步骤 |
-| ------------- | ------ |
-| base_quality  | ✅      |
-| init_category | ✅      |
-| trust_i       | ❌      |
-| malicious     | ❌      |
+* `vehicle_id`
+* `region_id`
+* `start_time`
+* `end_time`
+* `cost`
+* `init_category`
+* `base_quality`
 
----
+### 3.2 网格划分可视化文件
 
-# 3. 本步骤职责（Scope）
+* `experiment2_grid_partition.png`
 
----
+该图用于展示：
 
-## 3.1 本步骤负责
-
-1. 数据清洗与解析
-2. 高密区域提取
-3. 空间网格划分
-4. 构建轨迹段
-5. 合并同区域段
-6. 按固定时间片切分
-7. 工人重编号
-8. 生成工人属性：
-
-   * cost
-   * init_category
-   * base_quality ⭐
+* 实验区域位置
+* 网格划分情况
+* 轨迹点空间分布密度
 
 ---
 
-## 3.2 本步骤不负责
+## 4. 整体流程
 
-* 不生成任务
-* 不计算任务质量
-* 不更新信任度
-* 不识别恶意工人
-* 不执行招募
+本步骤分为以下几个子过程：
 
----
-
-# 4. 输入数据
-
-## 文件
-
-`dataset/beijing_300_cars_2008-02-03.csv`
+1. 读取原始轨迹点数据
+2. 选取实验区域并平移
+3. 将实验区域划分为网格
+4. 将轨迹点映射到区域编号
+5. 生成原始轨迹段
+6. 合并连续同区域轨迹段
+7. 按固定时长切片
+8. 为工人分配报价、真实类别、基础质量
+9. 保存结果
 
 ---
 
-## 字段（自动识别）
-
-| 逻辑字段 | 可接受名称            |
-| ---- | ---------------- |
-| ID   | taxi_id / id     |
-| 时间   | time / timestamp |
-| 纬度   | lat              |
-| 经度   | lon              |
+## 5. 具体处理逻辑
 
 ---
 
-# 5. 输出数据
+### 5.1 读取原始轨迹点数据
 
-## 文件
+首先读取原始 CSV 文件中的所有轨迹点，并自动识别字段名。
 
-`experiment2_vehicle.csv`
+程序从表头中识别以下列：
 
----
+* 车辆编号列：如 `taxi_id / taxiid / id`
+* 时间列：如 `time_sec / time / timestamp`
+* 纬度列：如 `lat / latitude`
+* 经度列：如 `lon / longitude`
 
-## 字段定义
+对于每一个合法轨迹点，提取：
 
-| 字段            | 含义     |
-| ------------- | ------ |
-| vehicle_id    | 工人ID   |
-| region_id     | 网格编号   |
-| start_time    | 开始时间   |
-| end_time      | 结束时间   |
-| cost          | 成本     |
-| init_category | 初始类别   |
-| base_quality  | 真实能力 ⭐ |
+* 原始车辆编号 `orig_id`
+* 时间戳 `time_sec`
+* 纬度 `lat`
+* 经度 `lon`
 
----
-
-# 6. 参数设置
-
-| 参数            | 默认值 |
-| ------------- | --- |
-| GRID_X_NUM    | 10  |
-| GRID_Y_NUM    | 10  |
-| SLOT_SEC      | 600 |
-| COST_MIN      | 5   |
-| COST_MAX      | 20  |
-| TRUSTED_RATIO | 0.3 |
-| RANDOM_SEED   | 1   |
+如果某一行数据格式异常，则跳过。
 
 ---
 
-# 7. 质量建模（重点）
+### 5.2 选取实验区域并平移
+
+原始轨迹数据覆盖范围较大，本实验不直接使用全部空间点，而是先确定一个较密集的实验矩形区域。
+
+具体方法为：
+
+1. 对所有经纬度点分别计算分位数边界：
+
+   * 经度下界：`LOW_PERCENTILE`
+   * 经度上界：`HIGH_PERCENTILE`
+   * 纬度下界：`LOW_PERCENTILE`
+   * 纬度上界：`HIGH_PERCENTILE`
+
+2. 得到一个原始密集区域矩形。
+
+3. 在此基础上对矩形中心进行平移：
+
+   * 经度平移量：`SHIFT_LON`
+   * 纬度平移量：`SHIFT_LAT`
+
+这样做的作用是：
+
+* 控制实验区域位置
+* 保留合理的空间分布
+* 方便后续网格划分与可视化
+
+最终得到新的实验区域边界：
+
+* `lon_min_new`
+* `lon_max_new`
+* `lat_min_new`
+* `lat_max_new`
 
 ---
 
-## 7.1 base_quality 定义
+### 5.3 网格划分
 
-每个工人有：
+将实验区域划分为规则网格。
 
-$$base\_quality_i \in [0,1]$$
+若横向划分数为 `GRID_X_NUM`，纵向划分数为 `GRID_Y_NUM`，则整个空间被划分为：
 
----
+$$
+GRID_X_NUM \times GRID_Y_NUM
+$$
 
-## 7.2 生成方式（独立于信任）
+个网格。
 
-采用混合分布：
+每个网格的大小为：
 
-```python
-z = random choice
+$$
+step_lon = \frac{lon_max - lon_min}{GRID_X_NUM}
+]
 
-if z == high:
-    base_quality ~ U(0.75, 0.95)
-elif z == medium:
-    base_quality ~ U(0.45, 0.75)
-else:
-    base_quality ~ U(0.1, 0.45)
-```
+$$
+step_lat = \frac{lat_max - lat_min}{GRID_Y_NUM}
+$$
 
----
+随后，对每一个落在实验区域内的轨迹点，根据其经纬度坐标计算其所在网格编号。
 
-## 7.3 含义解释
+网格编号采用行优先方式：
 
-| 类型  | 含义     |
-| --- | ------ |
-| 高质量 | 好设备+稳定 |
-| 中质量 | 一般水平   |
-| 低质量 | 噪声大    |
+$$
+region_id = gy \times GRID_X_NUM + gx
+$$
 
----
+其中：
 
-## ❗注意
+* `gx` 表示横向网格索引
+* `gy` 表示纵向网格索引
 
-* 与 `init_category` 无关
-* 平台不可见
+因此，每一个轨迹点都会被映射到一个 `region_id`。
 
 ---
 
-# 8. 初始工人类别
+### 5.4 生成轨迹区域点序列
+
+对于每一辆车，将其所有落入实验区域的点按时间排序，形成：
+
+$$
+(orig_id, time, region_id)
+]
+
+序列。
+
+这样就把原始经纬度轨迹，转化成了：
+
+* 在什么时间
+* 位于哪个区域
+
+的离散区域轨迹表示。
 
 ---
 
-## 定义
+### 5.5 生成原始轨迹段
 
-| 类别      | 含义       |
-| ------- | -------- |
-| trusted | 已知可信（种子） |
-| unknown | 未知       |
+对于同一辆车，将相邻两个轨迹点之间的时间区间看作一个轨迹段。
 
----
+若第 (k) 个点为：
 
-## 生成方式
+[
+(t_k, region_k)
+]
 
-```python
-if rand < TRUSTED_RATIO:
-    trusted
-else:
-    unknown
-```
+第 (k+1) 个点为：
 
----
+[
+(t_{k+1}, region_{k+1})
+]
 
-## 重要说明
+则生成一个原始轨迹段：
 
-* 这里只是"已知可信"，不是"高质量"
-* malicious 不在本步骤出现
+* 区域：`region_k`
+* 开始时间：`t_k`（首段）或 `t_k + 1`
+* 结束时间：`t_{k+1}`
 
----
+即表示该车辆在这一时间区间内处于 `region_k` 区域。
 
-# 9. 处理流程（核心）
+这样，每辆车会被转换成若干个：
 
----
+[
+(orig_id, region_id, start, end)
+]
 
-## Step 1：读取数据
-
-* 解析字段
-* 转换时间为秒
+形式的原始轨迹段。
 
 ---
 
-## Step 2：高密区域提取
+### 5.6 合并连续同区域轨迹段
 
-* 使用分位数
-* 平移区域
+由于原始轨迹点较密，可能出现同一辆车连续多个相邻轨迹段都处于同一个 `region_id`。
 
----
+为了减少冗余，需要对同一区域的连续轨迹段进行合并。
 
-## Step 3：网格划分
+合并规则为：
 
-$$region = g_y \cdot GRID\_X + g_x$$
+* 若后一段与前一段属于同一车辆、同一区域
+* 则将两段合并为一个更长的时间区间
 
----
-
-## Step 4：构建轨迹段
-
-* 同车排序
-* 相邻点构成段
+合并后得到更简洁的轨迹段表示。
 
 ---
 
-## Step 5：合并同区域段
+### 5.7 按固定时间片切割轨迹段
+
+为了与后续轮次机制一致，本实验将轨迹段进一步切分为固定长度的时间片。
+
+设时间片长度为：
+
+[
+SLOT_SEC
+]
+
+则每一个较长轨迹段会被切割成若干个不跨时间片边界的短段。
+
+也就是说，一个轨迹段如果跨越多个 slot，则会被拆成多个子段，每个子段只属于单一时间片。
+
+这样做的作用是：
+
+* 方便后续按轮次确定工人是否可用
+* 保证每个可用轨迹段只对应一个时间片
+
+切片后的结果仍表示为：
+
+[
+(orig_id, region_id, start_time, end_time)
+]
 
 ---
 
-## Step 6：时间片切分（关键）
+### 5.8 工人编号重映射
 
-$$slot = \left\lfloor \frac{time}{SLOT\_SEC} \right\rfloor$$
+原始车辆编号可能不连续，也可能不是整数。
 
----
+为了便于后续处理，将所有实际出现的车辆重新编号为连续整数：
 
-## Step 7：重编号
+[
+1, 2, 3, \dots, N
+]
 
-```text
-vehicle_id = 1,2,3...
-```
+得到新的 `vehicle_id`。
 
----
-
-## Step 8：生成属性 ⭐
+此后实验中的工人编号都使用该新编号。
 
 ---
 
-### cost
+### 5.9 为工人分配基础属性
 
-```python
-cost ~ U(5,20)
-```
+对每个工人分配以下属性：
 
 ---
 
-### init_category
+#### 5.9.1 报价 `cost`
 
-```python
-trusted / unknown
-```
+每个工人有一个固定报价，从给定区间内随机生成：
 
----
+[
+cost_i \sim U(COST_MIN, COST_MAX)
+]
 
-### base_quality
+该报价表示该工人参与任务的基础成本。
 
-独立生成（见第7节）
-
----
-
-## Step 9：输出
-
-CSV 文件
+在本步骤中，同一工人的所有轨迹段共享同一个 `cost`。
 
 ---
 
-# 10. 输出数据性质
+#### 5.9.2 真实类别 `init_category`
 
-生成数据具有：
+每个工人在仿真中具有一个真实类别，用于后续数据生成。
 
-* 时间离散（slot）
-* 空间离散（grid）
-* 工人能力差异（base_quality）
-* 信任未知（init_category）
+类别分为三类：
 
----
+* `trusted`
+* `unknown`
+* `malicious`
 
-# 11. 与下一步接口
+分配方式为：
 
-Step 2 使用：
+1. 先以概率 `TRUSTED_RATIO` 生成 trusted
+2. 再以概率 `MALICIOUS_RATIO` 生成 malicious
+3. 其余为 unknown
 
-| 字段            | 用途      |
-| ------------- | ------- |
-| region_id     | 任务空间    |
-| time          | 任务时间    |
-| base_quality  | 生成 q_ij |
-| cost          | 招募      |
-| init_category | 初始信任    |
+需要注意：
+
+> 这里的 `init_category` 是仿真中的真实类别，用来控制后续基础质量和上报数据生成；
+> 它不代表平台在初始时完全知道该类别。
 
 ---
 
-# 12. 关键逻辑总结
+#### 5.9.3 基础质量 `base_quality`
+
+不同真实类别对应不同的基础质量区间。
+
+若工人为 trusted，则：
+
+[
+base_quality_i \sim U(TRUSTED_QUALITY_MIN, TRUSTED_QUALITY_MAX)
+]
+
+若工人为 unknown，则：
+
+[
+base_quality_i \sim U(UNKNOWN_QUALITY_MIN, UNKNOWN_QUALITY_MAX)
+]
+
+若工人为 malicious，则：
+
+[
+base_quality_i \sim U(MALICIOUS_QUALITY_MIN, MALICIOUS_QUALITY_MAX)
+]
+
+这表示：
+
+* trusted 工人整体数据质量较高
+* unknown 工人质量分布更宽，既有较好的，也有一般的
+* malicious 工人整体质量较低
+
+需要特别强调：
+
+> `base_quality` 只是工人的固有质量水平，
+> 不是最终任务质量，也不是上报数据本身。
 
 ---
 
-## 现实世界
+## 6. 输出数据结构
 
-$$base\_quality \rightarrow q_{ij}$$
+最终，每一条轨迹段记录包含：
+
+* `vehicle_id`：工人编号
+* `region_id`：轨迹段所在区域
+* `start_time`：轨迹段开始时间
+* `end_time`：轨迹段结束时间
+* `cost`：工人报价
+* `init_category`：工人真实类别
+* `base_quality`：工人基础质量
+
+因此，这一步输出的 CSV 可以理解为：
+
+> “哪些工人在什么时间段出现在什么区域，以及他们的基础属性是什么”。
 
 ---
 
-## 平台学习
+## 7. 本步骤在整体系统中的作用
 
-$$q_{ij} \rightarrow \hat{q}_i$$
+这一步的作用不是生成任务，也不是完成招募，而是为后续步骤提供最基础的数据支撑：
+
+### 为第2步提供
+
+* 空间容量分布
+* 各区域、各时间片的可用工人密度
+
+### 为第3步提供
+
+* 工人的真实类别
+* 工人的基础质量
+* 工人的可覆盖轨迹段
+
+### 为第5步提供
+
+* 工人在不同轮次的可用性基础
+
+因此，这一步的本质是：
+
+> **把原始车辆轨迹点，转换为具有空间、时间、成本、质量属性的可用工人轨迹段数据。**
 
 ---
 
-## 招募优化
+## 8. 参数说明
 
-$$\hat{q}_i \rightarrow selection$$
+本步骤涉及的主要参数如下：
+
+### 区域与网格参数
+
+* `LOW_PERCENTILE`：区域下分位点
+* `HIGH_PERCENTILE`：区域上分位点
+* `SHIFT_LON`：经度平移量
+* `SHIFT_LAT`：纬度平移量
+* `GRID_X_NUM`：横向网格数
+* `GRID_Y_NUM`：纵向网格数
+
+### 时间参数
+
+* `SLOT_SEC`：时间片长度
+
+### 成本参数
+
+* `COST_MIN`：工人最低报价
+* `COST_MAX`：工人最高报价
+
+### 类别比例参数
+
+* `TRUSTED_RATIO`：trusted 工人比例
+* `MALICIOUS_RATIO`：malicious 工人比例
+
+### 质量参数
+
+* `TRUSTED_QUALITY_MIN / MAX`
+* `UNKNOWN_QUALITY_MIN / MAX`
+* `MALICIOUS_QUALITY_MIN / MAX`
+
+### 随机性参数
+
+* `RANDOM_SEED`
 
 ---
 
-# 13. 伪代码
+## 9. 当前这份代码的注意点
 
-```text
-load data
-clean data
+你现在这份第1步代码里，参数设置为：
 
-extract region
-grid partition
+* `TRUSTED_RATIO = 0.5`
+* `MALICIOUS_RATIO = 0.1` 
 
-group by taxi
-build segments
-merge segments
+这个设置意味着：
 
-split by SLOT
+* 50% 工人初始真实类别就是 trusted
+* 10% 工人是真实 malicious
+* 剩余 40% 才是 unknown
 
-reindex vehicles
+从建模角度看，这会让 trusted 占比偏高。
+如果后续你想突出“验证机制识别 trusted、扩展 trusted 集合”的作用，这个比例可能偏大。
 
-for each vehicle:
-    assign cost
-    assign init_category
-    assign base_quality
+更常见的设置会是：
 
-save CSV
-```
+* trusted 较少
+* unknown 为主体
+* malicious 占较小比例
+
+但这个属于参数选择问题，不影响这一步文档本身的逻辑。
+
+---
+
+## 10. 小结
+
+第一步的核心任务可以概括为：
+
+1. 从原始轨迹点中选取实验区域
+2. 将轨迹点映射到网格区域
+3. 生成按时间片划分的工人可用轨迹段
+4. 为每个工人赋予固定报价、真实类别和基础质量
+5. 输出后续实验可直接使用的工人轨迹段数据
+
+因此，这一步完成后，系统已经得到：
+
+> **具备时间、空间、成本和质量属性的工人基础数据集。**
+
+如果你要，我下一条可以继续按这个风格，只写**第二步任务生成文档**。

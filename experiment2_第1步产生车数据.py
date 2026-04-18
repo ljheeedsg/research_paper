@@ -20,21 +20,23 @@ GRID_Y_NUM = 10
 
 COST_MIN = 5
 COST_MAX = 20
-TRUSTED_RATIO = 0.3
-SLOT_SEC = 600
-RANDOM_SEED = 1
 
-HIGH_QUALITY_MIN = 0.75
-HIGH_QUALITY_MAX = 0.95
-MEDIUM_QUALITY_MIN = 0.45
-MEDIUM_QUALITY_MAX = 0.75
-LOW_QUALITY_MIN = 0.10
-LOW_QUALITY_MAX = 0.45
-QUALITY_MIXTURE = (
-    ("high", 0.3),
-    ("medium", 0.5),
-    ("low", 0.2),
-)
+# 三类工人比例
+TRUSTED_RATIO = 0.2
+MALICIOUS_RATIO = 0.4
+
+SLOT_SEC = 600
+RANDOM_SEED = 15
+
+# 三类工人质量区间
+TRUSTED_QUALITY_MIN = 0.8
+TRUSTED_QUALITY_MAX = 0.90
+
+UNKNOWN_QUALITY_MIN = 0.6
+UNKNOWN_QUALITY_MAX = 1.0
+
+MALICIOUS_QUALITY_MIN = 0.10
+MALICIOUS_QUALITY_MAX = 0.45
 
 POINT_SIZE = 1
 POINT_ALPHA = 0.5
@@ -212,21 +214,23 @@ def split_by_slot(merged_segments):
     return result
 
 
-def sample_base_quality():
-    draw = random.random()
-    cumulative = 0.0
-    quality_type = "low"
-    for candidate_type, probability in QUALITY_MIXTURE:
-        cumulative += probability
-        if draw <= cumulative:
-            quality_type = candidate_type
-            break
+def sample_base_quality(init_category):
+    if init_category == "trusted":
+        return round(random.uniform(TRUSTED_QUALITY_MIN, TRUSTED_QUALITY_MAX), 3)
+    elif init_category == "malicious":
+        return round(random.uniform(MALICIOUS_QUALITY_MIN, MALICIOUS_QUALITY_MAX), 3)
+    else:
+        return round(random.uniform(UNKNOWN_QUALITY_MIN, UNKNOWN_QUALITY_MAX), 3)
 
-    if quality_type == "high":
-        return round(random.uniform(HIGH_QUALITY_MIN, HIGH_QUALITY_MAX), 3)
-    if quality_type == "medium":
-        return round(random.uniform(MEDIUM_QUALITY_MIN, MEDIUM_QUALITY_MAX), 3)
-    return round(random.uniform(LOW_QUALITY_MIN, LOW_QUALITY_MAX), 3)
+
+def sample_init_category():
+    r = random.random()
+    if r < TRUSTED_RATIO:
+        return "trusted"
+    elif r < TRUSTED_RATIO + MALICIOUS_RATIO:
+        return "malicious"
+    else:
+        return "unknown"
 
 
 def final_renumber_and_attributes(segments):
@@ -239,8 +243,8 @@ def final_renumber_and_attributes(segments):
     attributes = {}
     for vehicle_id in new_id_map.values():
         cost = round(random.uniform(COST_MIN, COST_MAX), 1)
-        init_category = "trusted" if random.random() < TRUSTED_RATIO else "unknown"
-        base_quality = sample_base_quality()
+        init_category = sample_init_category()
+        base_quality = sample_base_quality(init_category)
         attributes[vehicle_id] = (cost, init_category, base_quality)
 
     final_segments = []
@@ -253,6 +257,45 @@ def final_renumber_and_attributes(segments):
 
     print(f"实际有轨迹段的车辆数: {len(present_orig_ids)}")
     return final_segments
+
+
+def summarize_vehicle_attributes(segments):
+    seen = {}
+    for vehicle_id, _, _, _, _, init_category, base_quality in segments:
+        if vehicle_id not in seen:
+            seen[vehicle_id] = (init_category, float(base_quality))
+
+    trusted_qualities = [
+        quality for category, quality in seen.values() if category == "trusted"
+    ]
+    unknown_qualities = [
+        quality for category, quality in seen.values() if category == "unknown"
+    ]
+    malicious_qualities = [
+        quality for category, quality in seen.values() if category == "malicious"
+    ]
+    all_qualities = [quality for _, quality in seen.values()]
+
+    total_workers = len(seen)
+    trusted_count = len(trusted_qualities)
+    unknown_count = len(unknown_qualities)
+    malicious_count = len(malicious_qualities)
+
+    def safe_mean(values):
+        return round(float(np.mean(values)), 4) if values else 0.0
+
+    return {
+        "total_workers": total_workers,
+        "trusted_count": trusted_count,
+        "unknown_count": unknown_count,
+        "malicious_count": malicious_count,
+        "trusted_ratio": round((trusted_count / total_workers), 4) if total_workers > 0 else 0.0,
+        "malicious_ratio": round((malicious_count / total_workers), 4) if total_workers > 0 else 0.0,
+        "avg_base_quality_all": safe_mean(all_qualities),
+        "avg_base_quality_trusted": safe_mean(trusted_qualities),
+        "avg_base_quality_unknown": safe_mean(unknown_qualities),
+        "avg_base_quality_malicious": safe_mean(malicious_qualities),
+    }
 
 
 def save_csv(segments, filepath):
@@ -347,9 +390,23 @@ def main():
     merged_segments = merge_segments(segments)
     slot_segments = split_by_slot(merged_segments)
     final_segments = final_renumber_and_attributes(slot_segments)
+    summary = summarize_vehicle_attributes(final_segments)
 
     save_csv(final_segments, OUTPUT_SEG)
     plot_grid(lon_min, lon_max, lat_min, lat_max, all_points, grid_counts)
+    print(
+        "初始工人统计: "
+        f"workers={summary['total_workers']} | "
+        f"trusted={summary['trusted_count']} | "
+        f"unknown={summary['unknown_count']} | "
+        f"malicious={summary['malicious_count']} | "
+        f"trusted_ratio={summary['trusted_ratio']:.4f} | "
+        f"malicious_ratio={summary['malicious_ratio']:.4f} | "
+        f"avg_base_quality={summary['avg_base_quality_all']:.4f} | "
+        f"trusted_avg_quality={summary['avg_base_quality_trusted']:.4f} | "
+        f"unknown_avg_quality={summary['avg_base_quality_unknown']:.4f} | "
+        f"malicious_avg_quality={summary['avg_base_quality_malicious']:.4f}"
+    )
     print("全部完成")
 
 

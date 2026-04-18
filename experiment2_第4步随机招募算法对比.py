@@ -11,19 +11,20 @@ WORKER_OPTIONS_FILE = "experiment2_worker_options.json"
 ROUND_RESULTS_FILE = "experiment2_random_round_results.json"
 SUMMARY_FILE = "experiment2_random_summary.json"
 
+PLOT_COVERAGE = "experiment2_random_coverage_rate.png"
 PLOT_COMPLETION = "experiment2_random_completion_rate.png"
-PLOT_QUALITY = "experiment2_random_avg_quality.png"
+PLOT_AVG_QUALITY = "experiment2_random_avg_quality.png"
+PLOT_CUM_COVERAGE = "experiment2_random_cumulative_coverage_rate.png"
 PLOT_CUM_COMPLETION = "experiment2_random_cumulative_completion_rate.png"
 PLOT_CUM_QUALITY = "experiment2_random_cumulative_avg_quality.png"
-PLOT_REWARD = "experiment2_random_reward.png"
-PLOT_EFFICIENCY = "experiment2_random_efficiency.png"
 
-SLOT_SEC = 600
-TOTAL_SLOTS = 86400 // SLOT_SEC
+TOTAL_SLOTS = 86400 // 600
+PER_ROUND_BUDGET = 1000
+K = 7
 
-PER_ROUND_BUDGET = 50
-DELTA = 0.6
-RANDOM_SEED = 1
+# 与 CMAB 保持一致的完成判定质量阈值
+DELTA = 0.5
+RANDOM_SEED = 15
 
 SKIP_EMPTY_ROUNDS = True
 # =======================================================
@@ -41,9 +42,6 @@ def load_worker_options():
 
 
 def load_all_tasks_from_workers(worker_options):
-    """
-    从 worker_options 中收集所有任务，按 slot 分组。
-    """
     task_dict = {}
 
     for _, worker in worker_options.items():
@@ -52,10 +50,10 @@ def load_all_tasks_from_workers(worker_options):
             if task_id not in task_dict:
                 task_dict[task_id] = {
                     "task_id": task_id,
-                    "slot_id": task["slot_id"],
-                    "region_id": task["region_id"],
-                    "required_workers": task["required_workers"],
-                    "weight": task["weight"],
+                    "slot_id": int(task["slot_id"]),
+                    "region_id": int(task["region_id"]),
+                    "required_workers": int(task["required_workers"]),
+                    "weight": float(task["weight"]),
                 }
 
     tasks_by_slot = defaultdict(list)
@@ -79,14 +77,17 @@ def build_worker_profiles(worker_options):
         task_map = {task["task_id"]: task for task in tasks}
         tasks_by_slot = defaultdict(list)
         for task in tasks:
-            tasks_by_slot[task["slot_id"]].append(task["task_id"])
+            tasks_by_slot[int(task["slot_id"])].append(task["task_id"])
 
         for slot_id in tasks_by_slot:
             tasks_by_slot[slot_id].sort()
 
+        bid_price = float(worker.get("bid_price", worker["cost"]))
+
         workers[worker_id] = {
             "worker_id": worker_id,
-            "cost": float(worker["cost"]),
+            "cost": bid_price,
+            "bid_price": bid_price,
             "init_category": worker["init_category"],
             "base_quality": float(worker["base_quality"]),
             "available_slots": set(worker.get("available_slots", [])),
@@ -95,6 +96,37 @@ def build_worker_profiles(worker_options):
         }
 
     return workers
+
+
+def summarize_initial_workers(workers):
+    base_qualities = [float(worker["base_quality"]) for worker in workers.values()]
+    trusted_qualities = [
+        float(worker["base_quality"])
+        for worker in workers.values()
+        if worker["init_category"] == "trusted"
+    ]
+    unknown_qualities = [
+        float(worker["base_quality"])
+        for worker in workers.values()
+        if worker["init_category"] == "unknown"
+    ]
+
+    total_workers = len(workers)
+    trusted_count = len(trusted_qualities)
+    unknown_count = len(unknown_qualities)
+
+    def safe_mean(values):
+        return round(float(np.mean(values)), 4) if values else 0.0
+
+    return {
+        "initial_total_workers": total_workers,
+        "initial_trusted_count": trusted_count,
+        "initial_unknown_count": unknown_count,
+        "initial_trusted_ratio": round((trusted_count / total_workers), 4) if total_workers > 0 else 0.0,
+        "initial_avg_base_quality": safe_mean(base_qualities),
+        "initial_trusted_avg_base_quality": safe_mean(trusted_qualities),
+        "initial_unknown_avg_base_quality": safe_mean(unknown_qualities),
+    }
 
 
 def get_available_workers(workers, slot_id):
@@ -110,130 +142,173 @@ def get_tasks_for_slot(tasks_by_slot, slot_id):
 
 def random_select_workers(available_workers, slot_id, budget):
     """
-    随机招募：
-    - 只在本轮有任务可做的工人里随机选
-    - 直到预算耗尽
+    随机基线：
+    - 候选为当前轮至少可做一个任务的工人
+    - 每轮最多招募 K 个工人
+    - 在预算约束下随机逐个选择
     """
-    candidates = []
+    remaining_candidates = []
     for worker in available_workers:
-        task_ids = worker["tasks_by_slot"].get(slot_id, [])
-        if task_ids:
-            candidates.append({
-                "worker_id": worker["worker_id"],
-                "cost": worker["cost"],
-                "task_ids": task_ids,
-            })
-
-    random.shuffle(candidates)
+        bid_task_ids = worker["tasks_by_slot"].get(slot_id, [])
+        if not bid_task_ids:
+            continue
+        remaining_candidates.append({
+            "worker_id": worker["worker_id"],
+            "bid_price": float(worker["bid_price"]),
+            "bid_task_ids": bid_task_ids,
+        })
 
     selected_ids = []
+    selection_details = []
     total_cost = 0.0
 
-    for item in candidates:
-        if total_cost + item["cost"] > budget:
-            continue
-        selected_ids.append(item["worker_id"])
-        total_cost += item["cost"]
+    while remaining_candidates and len(selected_ids) < K:
+        remaining_budget = budget - total_cost
+        feasible = [
+            item for item in remaining_candidates
+            if float(item["bid_price"]) <= remaining_budget
+        ]
+        if not feasible:
+            break
 
-    return selected_ids, round(total_cost, 4), candidates
+        chosen = random.choice(feasible)
+        selected_ids.append(chosen["worker_id"])
+        total_cost += float(chosen["bid_price"])
+
+        chosen["selection_order"] = len(selected_ids)
+        chosen["remaining_budget_after_selection"] = round(budget - total_cost, 4)
+        selection_details.append(chosen)
+        remaining_candidates = [
+            item for item in remaining_candidates
+            if item["worker_id"] != chosen["worker_id"]
+        ]
+
+    return selected_ids, round(total_cost, 4), selection_details
 
 
 def evaluate_round(selected_worker_ids, workers, round_tasks, slot_id, delta):
     """
-    任务完成条件：
-    1. 参与工人数 >= required_workers
-    2. 平均质量 >= delta
+    与第 4 步 CMAB 使用完全一致的评价口径：
+    1. coverage_rate:
+       至少有 1 个工人执行该任务
+
+    2. completion_rate:
+       工人数达到 required_workers，且平均质量 >= delta
+
+    3. weighted_completion_quality:
+       仍按 max q_ij 计算，便于和 CMAB 的主收益对齐
     """
-    task_execution = defaultdict(list)
     task_quality_values = defaultdict(list)
+    task_execution = defaultdict(list)
 
     for worker_id in selected_worker_ids:
         worker = workers[worker_id]
         for task_id in worker["tasks_by_slot"].get(slot_id, []):
             if task_id in worker["task_map"]:
                 q_ij = float(worker["task_map"][task_id]["quality"])
-                task_execution[task_id].append(worker_id)
                 task_quality_values[task_id].append(q_ij)
+                task_execution[task_id].append(worker_id)
 
+    covered_tasks = []
     completed_tasks = []
-    executed_tasks = []
-    failed_tasks = []
+    uncompleted_tasks = []
     task_results = []
 
-    reward_t = 0.0
+    weighted_completion_quality = 0.0
+    total_weight = 0.0
 
     for task in round_tasks:
         task_id = task["task_id"]
         required_workers = int(task["required_workers"])
         weight = float(task["weight"])
+        total_weight += weight
 
-        worker_ids = task_execution.get(task_id, [])
         qualities = task_quality_values.get(task_id, [])
+        worker_ids = task_execution.get(task_id, [])
 
         num_workers = len(worker_ids)
+        covered = num_workers > 0
+        best_quality = max(qualities) if qualities else 0.0
         avg_quality = float(np.mean(qualities)) if qualities else 0.0
-        executed = (num_workers > 0)
-
         completed = (num_workers >= required_workers) and (avg_quality >= delta)
+        weighted_gain = weight * best_quality
+        weighted_completion_quality += weighted_gain
 
-        task_result = {
+        task_results.append({
             "task_id": task_id,
             "slot_id": slot_id,
             "required_workers": required_workers,
             "weight": weight,
-            "num_workers": num_workers,
-            "avg_quality": round(avg_quality, 4),
-            "executed_by": worker_ids,
-            "executed": executed,
+            "covered": covered,
             "completed": completed,
-        }
-        task_results.append(task_result)
+            "num_workers": num_workers,
+            "executed_by": worker_ids,
+            "best_quality": round(best_quality, 4),
+            "avg_quality": round(avg_quality, 4),
+            "weighted_gain": round(weighted_gain, 4),
+        })
 
-        if executed:
-            executed_tasks.append(task_id)
+        if covered:
+            covered_tasks.append(task_id)
+        else:
+            pass
 
         if completed:
             completed_tasks.append(task_id)
-            reward_t += weight
         else:
-            failed_tasks.append(task_id)
+            uncompleted_tasks.append(task_id)
 
     num_tasks = len(round_tasks)
-    num_executed = len(executed_tasks)
+    num_covered = len(covered_tasks)
     num_completed = len(completed_tasks)
+    coverage_rate = (num_covered / num_tasks) if num_tasks > 0 else 0.0
     completion_rate = (num_completed / num_tasks) if num_tasks > 0 else 0.0
+    normalized_completion_quality = (
+        weighted_completion_quality / total_weight
+        if total_weight > 0 else 0.0
+    )
 
-    executed_qualities = [
-        tr["avg_quality"] for tr in task_results if tr["executed"]
+    covered_qualities = [
+        tr["best_quality"] for tr in task_results if tr["covered"]
     ]
-    avg_quality_t = float(np.mean(executed_qualities)) if executed_qualities else 0.0
+    avg_quality_t = float(np.mean(covered_qualities)) if covered_qualities else 0.0
 
     return {
         "num_tasks": num_tasks,
-        "num_executed": num_executed,
+        "num_covered": num_covered,
         "num_completed": num_completed,
+        "coverage_rate": round(coverage_rate, 4),
         "completion_rate": round(completion_rate, 4),
         "avg_quality": round(avg_quality_t, 4),
-        "reward": round(reward_t, 4),
-        "executed_tasks": executed_tasks,
+        "weighted_completion_quality": round(weighted_completion_quality, 4),
+        "normalized_completion_quality": round(normalized_completion_quality, 4),
+        "total_task_weight": round(total_weight, 4),
+        "covered_tasks": covered_tasks,
         "completed_tasks": completed_tasks,
-        "failed_tasks": failed_tasks,
+        "uncompleted_tasks": uncompleted_tasks,
         "task_results": task_results,
     }
 
 
 def update_cumulative_metrics(round_result, cumulative_state):
-    executed_task_results = [
-        tr for tr in round_result["task_results"] if tr["executed"]
+    covered_task_results = [
+        tr for tr in round_result["task_results"] if tr["covered"]
     ]
 
     cumulative_state["num_tasks"] += round_result["num_tasks"]
+    cumulative_state["num_covered"] += round_result["num_covered"]
     cumulative_state["num_completed"] += round_result["num_completed"]
+    cumulative_state["task_weight_sum"] += round_result["total_task_weight"]
+    cumulative_state["weighted_completion_quality_sum"] += round_result["weighted_completion_quality"]
     cumulative_state["quality_sum"] += sum(
-        float(tr["avg_quality"]) for tr in executed_task_results
+        float(tr["best_quality"]) for tr in covered_task_results
     )
-    cumulative_state["quality_count"] += len(executed_task_results)
+    cumulative_state["quality_count"] += len(covered_task_results)
 
+    cumulative_coverage_rate = (
+        cumulative_state["num_covered"] / cumulative_state["num_tasks"]
+        if cumulative_state["num_tasks"] > 0 else 0.0
+    )
     cumulative_completion_rate = (
         cumulative_state["num_completed"] / cumulative_state["num_tasks"]
         if cumulative_state["num_tasks"] > 0 else 0.0
@@ -242,32 +317,51 @@ def update_cumulative_metrics(round_result, cumulative_state):
         cumulative_state["quality_sum"] / cumulative_state["quality_count"]
         if cumulative_state["quality_count"] > 0 else 0.0
     )
+    cumulative_normalized_completion_quality = (
+        cumulative_state["weighted_completion_quality_sum"] / cumulative_state["task_weight_sum"]
+        if cumulative_state["task_weight_sum"] > 0 else 0.0
+    )
 
     round_result["cumulative_num_tasks"] = cumulative_state["num_tasks"]
+    round_result["cumulative_num_covered"] = cumulative_state["num_covered"]
     round_result["cumulative_num_completed"] = cumulative_state["num_completed"]
+    round_result["cumulative_coverage_rate"] = round(cumulative_coverage_rate, 4)
     round_result["cumulative_completion_rate"] = round(cumulative_completion_rate, 4)
     round_result["cumulative_avg_quality"] = round(cumulative_avg_quality, 4)
+    round_result["cumulative_normalized_completion_quality"] = round(
+        cumulative_normalized_completion_quality, 4
+    )
 
 
 def compute_cumulative_summary(round_results):
     cumulative_state = {
         "num_tasks": 0,
+        "num_covered": 0,
         "num_completed": 0,
+        "task_weight_sum": 0.0,
+        "weighted_completion_quality_sum": 0.0,
         "quality_sum": 0.0,
         "quality_count": 0,
     }
 
     for round_result in round_results:
-        executed_task_results = [
-            tr for tr in round_result["task_results"] if tr["executed"]
+        covered_task_results = [
+            tr for tr in round_result["task_results"] if tr["covered"]
         ]
         cumulative_state["num_tasks"] += round_result["num_tasks"]
+        cumulative_state["num_covered"] += round_result["num_covered"]
         cumulative_state["num_completed"] += round_result["num_completed"]
+        cumulative_state["task_weight_sum"] += round_result["total_task_weight"]
+        cumulative_state["weighted_completion_quality_sum"] += round_result["weighted_completion_quality"]
         cumulative_state["quality_sum"] += sum(
-            float(tr["avg_quality"]) for tr in executed_task_results
+            float(tr["best_quality"]) for tr in covered_task_results
         )
-        cumulative_state["quality_count"] += len(executed_task_results)
+        cumulative_state["quality_count"] += len(covered_task_results)
 
+    cumulative_coverage_rate = (
+        cumulative_state["num_covered"] / cumulative_state["num_tasks"]
+        if cumulative_state["num_tasks"] > 0 else 0.0
+    )
     cumulative_completion_rate = (
         cumulative_state["num_completed"] / cumulative_state["num_tasks"]
         if cumulative_state["num_tasks"] > 0 else 0.0
@@ -276,16 +370,25 @@ def compute_cumulative_summary(round_results):
         cumulative_state["quality_sum"] / cumulative_state["quality_count"]
         if cumulative_state["quality_count"] > 0 else 0.0
     )
+    cumulative_normalized_completion_quality = (
+        cumulative_state["weighted_completion_quality_sum"] / cumulative_state["task_weight_sum"]
+        if cumulative_state["task_weight_sum"] > 0 else 0.0
+    )
 
     return {
         "cumulative_num_tasks": cumulative_state["num_tasks"],
+        "cumulative_num_covered": cumulative_state["num_covered"],
         "cumulative_num_completed": cumulative_state["num_completed"],
+        "cumulative_coverage_rate": round(cumulative_coverage_rate, 4),
         "cumulative_completion_rate": round(cumulative_completion_rate, 4),
         "cumulative_avg_quality": round(cumulative_avg_quality, 4),
+        "cumulative_normalized_completion_quality": round(
+            cumulative_normalized_completion_quality, 4
+        ),
     }
 
 
-def summarize_results(round_results):
+def summarize_results(round_results, initial_stats=None):
     valid_rounds = [r for r in round_results if r["num_tasks"] > 0]
 
     def safe_mean(key, data):
@@ -296,18 +399,29 @@ def summarize_results(round_results):
     cumulative_all = compute_cumulative_summary(valid_rounds)
 
     summary = {
+        "selection_logic": "random_recruitment_under_budget_and_k_cap",
+        "max_selected_workers_per_round": K,
         "total_rounds_recorded": len(round_results),
         "total_non_empty_rounds": len(valid_rounds),
-
-        "avg_completion_rate": safe_mean("completion_rate", valid_rounds),
-        "avg_avg_quality": safe_mean("avg_quality", valid_rounds),
-        "avg_reward": safe_mean("reward", valid_rounds),
-        "avg_cost": safe_mean("cost", valid_rounds),
-        "avg_efficiency": safe_mean("efficiency", valid_rounds),
-
-        "final_cumulative_completion_rate": cumulative_all["cumulative_completion_rate"],
-        "final_cumulative_avg_quality": cumulative_all["cumulative_avg_quality"],
+        "avg_num_selected_workers_all_non_empty": safe_mean("num_selected_workers", valid_rounds),
+        "avg_coverage_rate_all_non_empty": safe_mean("coverage_rate", valid_rounds),
+        "avg_completion_rate_all_non_empty": safe_mean("completion_rate", valid_rounds),
+        "avg_avg_quality_all_non_empty": safe_mean("avg_quality", valid_rounds),
+        "avg_normalized_completion_quality_all_non_empty": safe_mean(
+            "normalized_completion_quality", valid_rounds
+        ),
+        "avg_reward_all_non_empty": safe_mean("reward", valid_rounds),
+        "avg_cost_all_non_empty": safe_mean("cost", valid_rounds),
+        "avg_efficiency_all_non_empty": safe_mean("efficiency", valid_rounds),
+        "final_cumulative_coverage_rate_all_non_empty": cumulative_all["cumulative_coverage_rate"],
+        "final_cumulative_completion_rate_all_non_empty": cumulative_all["cumulative_completion_rate"],
+        "final_cumulative_avg_quality_all_non_empty": cumulative_all["cumulative_avg_quality"],
+        "final_cumulative_normalized_completion_quality_all_non_empty": (
+            cumulative_all["cumulative_normalized_completion_quality"]
+        ),
     }
+    if initial_stats:
+        summary.update(initial_stats)
     return summary
 
 
@@ -340,11 +454,23 @@ def main():
     worker_options = load_worker_options()
     _, tasks_by_slot = load_all_tasks_from_workers(worker_options)
     workers = build_worker_profiles(worker_options)
+    initial_stats = summarize_initial_workers(workers)
+    print(
+        "输入工人统计: "
+        f"workers={initial_stats['initial_total_workers']} | "
+        f"trusted={initial_stats['initial_trusted_count']} | "
+        f"unknown={initial_stats['initial_unknown_count']} | "
+        f"trusted_ratio={initial_stats['initial_trusted_ratio']:.4f} | "
+        f"avg_base_quality={initial_stats['initial_avg_base_quality']:.4f}"
+    )
 
     round_results = []
     cumulative_state = {
         "num_tasks": 0,
+        "num_covered": 0,
         "num_completed": 0,
+        "task_weight_sum": 0.0,
+        "weighted_completion_quality_sum": 0.0,
         "quality_sum": 0.0,
         "quality_count": 0,
     }
@@ -359,7 +485,9 @@ def main():
         available_workers = get_available_workers(workers, slot_id)
 
         selected_worker_ids, cost_t, selection_details = random_select_workers(
-            available_workers, slot_id, PER_ROUND_BUDGET
+            available_workers=available_workers,
+            slot_id=slot_id,
+            budget=PER_ROUND_BUDGET,
         )
 
         eval_result = evaluate_round(
@@ -370,29 +498,32 @@ def main():
             delta=DELTA,
         )
 
-        reward_t = eval_result["reward"]
+        reward_t = eval_result["weighted_completion_quality"]
         efficiency_t = (reward_t / cost_t) if cost_t > 0 else 0.0
 
         round_result = {
             "round_id": round_id,
             "slot_id": slot_id,
-
+            "selection_mode": "random_baseline_under_budget_and_k_cap",
             "num_available_workers": len(available_workers),
             "num_selected_workers": len(selected_worker_ids),
             "selected_workers": selected_worker_ids,
-
+            "selection_details": selection_details,
             "num_tasks": eval_result["num_tasks"],
-            "num_executed": eval_result["num_executed"],
+            "num_covered": eval_result["num_covered"],
             "num_completed": eval_result["num_completed"],
+            "coverage_rate": eval_result["coverage_rate"],
             "completion_rate": eval_result["completion_rate"],
             "avg_quality": eval_result["avg_quality"],
+            "weighted_completion_quality": eval_result["weighted_completion_quality"],
+            "normalized_completion_quality": eval_result["normalized_completion_quality"],
+            "total_task_weight": eval_result["total_task_weight"],
             "reward": round(reward_t, 4),
             "cost": round(cost_t, 4),
             "efficiency": round(efficiency_t, 4),
-
-            "executed_tasks": eval_result["executed_tasks"],
+            "covered_tasks": eval_result["covered_tasks"],
             "completed_tasks": eval_result["completed_tasks"],
-            "failed_tasks": eval_result["failed_tasks"],
+            "uncompleted_tasks": eval_result["uncompleted_tasks"],
             "task_results": eval_result["task_results"],
         }
 
@@ -402,28 +533,27 @@ def main():
         print(
             f"[Round {round_id:03d}] "
             f"tasks={round_result['num_tasks']} | "
-            f"executed={round_result['num_executed']} | "
-            f"completed={round_result['num_completed']} | "
-            f"completion_rate={round_result['completion_rate']:.4f} | "
+            f"selected={round_result['num_selected_workers']} | "
+            f"coverage={round_result['coverage_rate']:.4f} | "
+            f"completion={round_result['completion_rate']:.4f} | "
             f"avg_quality={round_result['avg_quality']:.4f} | "
+            f"cum_coverage={round_result['cumulative_coverage_rate']:.4f} | "
             f"cum_completion={round_result['cumulative_completion_rate']:.4f} | "
             f"cum_quality={round_result['cumulative_avg_quality']:.4f} | "
-            f"reward={round_result['reward']:.2f} | "
-            f"cost={round_result['cost']:.2f} | "
-            f"eff={round_result['efficiency']:.4f}"
+            f"cost={round_result['cost']:.2f}"
         )
 
-    summary = summarize_results(round_results)
+    summary = summarize_results(round_results, initial_stats)
 
     save_json(round_results, ROUND_RESULTS_FILE)
     save_json(summary, SUMMARY_FILE)
 
+    plot_metric(round_results, "coverage_rate", "Coverage Rate", PLOT_COVERAGE)
     plot_metric(round_results, "completion_rate", "Completion Rate", PLOT_COMPLETION)
-    plot_metric(round_results, "avg_quality", "Average Quality", PLOT_QUALITY)
+    plot_metric(round_results, "avg_quality", "Average Realized Quality", PLOT_AVG_QUALITY)
+    plot_metric(round_results, "cumulative_coverage_rate", "Cumulative Coverage Rate", PLOT_CUM_COVERAGE)
     plot_metric(round_results, "cumulative_completion_rate", "Cumulative Completion Rate", PLOT_CUM_COMPLETION)
     plot_metric(round_results, "cumulative_avg_quality", "Cumulative Average Quality", PLOT_CUM_QUALITY)
-    plot_metric(round_results, "reward", "Reward", PLOT_REWARD)
-    plot_metric(round_results, "efficiency", "Efficiency", PLOT_EFFICIENCY)
 
     print("全部完成")
     print("Summary:")

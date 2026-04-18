@@ -12,18 +12,19 @@ TASK_FILE = "experiment2_tasks.csv"
 OUTPUT_JSON = "experiment2_worker_options.json"
 
 SLOT_SEC = 600
-RANDOM_SEED = 1
+RANDOM_SEED = 15
 
 # q_ij 噪声
-SIGMA_QUALITY = 0.05
+SIGMA_QUALITY = 0.03
+DATA_SCALE = 0.20
 
-# 任务真实值范围
+# malicious 偏移范围
+MALICIOUS_BIAS_MIN = 0.35
+MALICIOUS_BIAS_MAX = 0.70
+
+# true_value 范围
 TRUE_VALUE_MIN = 0.0
 TRUE_VALUE_MAX = 1.0
-
-# 稳定性参数
-TRUSTED_STABILITY = 0.3
-UNKNOWN_STABILITY = 1.0
 # =======================================================
 
 
@@ -33,13 +34,13 @@ np.random.seed(RANDOM_SEED)
 
 def load_vehicle_segments():
     """
-    读取车辆轨迹段，按 vehicle_id 聚合。
+    读取第一步输出的 experiment2_vehicle.csv
+    按工人聚合轨迹段。
     """
     workers = defaultdict(lambda: {
         "cost": None,
         "init_category": None,
         "base_quality": None,
-        "stability": None,
         "segments": []
     })
 
@@ -68,16 +69,9 @@ def load_vehicle_segments():
             except (TypeError, ValueError, KeyError, AttributeError):
                 continue
 
-            # 根据初始类别设置稳定性
-            if init_category == "trusted":
-                stability = TRUSTED_STABILITY
-            else:
-                stability = UNKNOWN_STABILITY
-
             workers[vehicle_id]["cost"] = cost
             workers[vehicle_id]["init_category"] = init_category
             workers[vehicle_id]["base_quality"] = base_quality
-            workers[vehicle_id]["stability"] = stability
             workers[vehicle_id]["segments"].append({
                 "region_id": region_id,
                 "start_time": start_time,
@@ -85,7 +79,6 @@ def load_vehicle_segments():
                 "slot_id": start_time // SLOT_SEC
             })
 
-    # 每个工人的段按时间排序
     for worker in workers.values():
         worker["segments"].sort(key=lambda x: (x["start_time"], x["end_time"], x["region_id"]))
 
@@ -95,8 +88,8 @@ def load_vehicle_segments():
 
 def load_tasks():
     """
-    读取任务数据，并按 region_id 分组。
-    同时给每个任务生成一个 true_value。
+    读取第二步输出的 experiment2_tasks.csv
+    并为每个任务生成 true_value。
     """
     tasks = []
     tasks_by_region = defaultdict(list)
@@ -123,7 +116,7 @@ def load_tasks():
                     "start_time": int(row["start_time"]),
                     "end_time": int(row["end_time"]),
                     "required_workers": int(row["required_workers"]),
-                    "weight": int(row["weight"]),
+                    "weight": float(row["weight"]),
                     "true_value": round(random.uniform(TRUE_VALUE_MIN, TRUE_VALUE_MAX), 4),
                 }
             except (TypeError, ValueError, KeyError, AttributeError):
@@ -141,40 +134,49 @@ def load_tasks():
 
 def has_time_overlap(seg_start, seg_end, task_start, task_end):
     """
-    判断轨迹段与任务时间是否重叠。
+    判断工人轨迹段与任务时间窗口是否有交集。
     """
     return not (seg_end < task_start or seg_start > task_end)
 
 
 def generate_quality(base_quality):
     """
-    生成工人 i 执行任务 j 的质量 q_ij:
-        q_ij = base_quality_i + epsilon
+    根据工人基础质量生成某个任务上的实际质量 q_ij。
     """
     q_ij = base_quality + np.random.normal(0, SIGMA_QUALITY)
     q_ij = max(0.0, min(1.0, q_ij))
     return round(float(q_ij), 4)
 
 
-def generate_task_data(true_value, base_quality, stability):
+def generate_task_data(true_value, quality, init_category):
     """
-    生成工人上报数据:
-        x_ij = x_j_true + noise
-        noise ~ N(0, sigma_i)
-        sigma_i = (1 - base_quality_i) * stability_i
+    生成工人对任务的上报数据 x_ij。
 
-    含义：
-    - base_quality 越高，误差越小
-    - trusted 的 stability 更低，因此数据更稳定
+    trusted / unknown:
+        围绕 true_value 波动，quality 越高噪声越小
+    malicious:
+        故意偏离 true_value
     """
-    sigma = max(0.0001, (1.0 - base_quality) * stability)
+    if init_category == "malicious":
+        direction = random.choice([-1, 1])
+        bias = random.uniform(MALICIOUS_BIAS_MIN, MALICIOUS_BIAS_MAX)
+        value = true_value + direction * bias
+        value = np.clip(value, TRUE_VALUE_MIN, TRUE_VALUE_MAX)
+        return round(float(value), 4)
+
+    sigma = max(0.0001, DATA_SCALE * (1.0 - quality))
     value = true_value + np.random.normal(0, sigma)
+    value = np.clip(value, TRUE_VALUE_MIN, TRUE_VALUE_MAX)
     return round(float(value), 4)
 
 
 def build_worker_options(workers, tasks_by_region):
     """
-    为每个工人生成可执行任务集合。
+    为每个工人生成可选任务集合。
+    规则：
+    - 区域相同
+    - 时间有交集
+    - 同一任务对同一工人只保留一次
     """
     output = {}
 
@@ -182,7 +184,6 @@ def build_worker_options(workers, tasks_by_region):
         cost = worker["cost"]
         init_category = worker["init_category"]
         base_quality = worker["base_quality"]
-        stability = worker["stability"]
         segments = worker["segments"]
 
         available_slots = set()
@@ -196,19 +197,16 @@ def build_worker_options(workers, tasks_by_region):
 
             available_slots.add(slot_id)
 
-            # 只看同 region 的任务
             for task in tasks_by_region.get(region_id, []):
                 if not has_time_overlap(seg_start, seg_end, task["start_time"], task["end_time"]):
                     continue
 
                 task_id = task["task_id"]
-
-                # 同一工人可能多个 segment 与同一任务重叠，只保留一次
                 if task_id in tasks_map:
                     continue
 
                 quality = generate_quality(base_quality)
-                task_data = generate_task_data(task["true_value"], base_quality, stability)
+                task_data = generate_task_data(task["true_value"], quality, init_category)
 
                 tasks_map[task_id] = {
                     "task_id": task_id,
@@ -226,10 +224,11 @@ def build_worker_options(workers, tasks_by_region):
         output[f"worker_{vehicle_id:03d}"] = {
             "worker_id": vehicle_id,
             "cost": cost,
+            "bid_price": cost,
             "init_category": init_category,
             "base_quality": base_quality,
-            "stability": stability,
             "available_slots": sorted(available_slots),
+            "task_option_count": len(tasks_map),
             "tasks": sorted(
                 tasks_map.values(),
                 key=lambda x: (x["slot_id"], x["region_id"], x["task_id"])
@@ -237,6 +236,51 @@ def build_worker_options(workers, tasks_by_region):
         }
 
     return output
+
+
+def summarize_worker_options(worker_options):
+    qualities_all = []
+    qualities_trusted = []
+    qualities_unknown = []
+    qualities_malicious = []
+    total_task_options = 0
+
+    for worker in worker_options.values():
+        base_quality = float(worker["base_quality"])
+        init_category = worker["init_category"]
+
+        qualities_all.append(base_quality)
+        total_task_options += len(worker.get("tasks", []))
+
+        if init_category == "trusted":
+            qualities_trusted.append(base_quality)
+        elif init_category == "malicious":
+            qualities_malicious.append(base_quality)
+        else:
+            qualities_unknown.append(base_quality)
+
+    total_workers = len(worker_options)
+    trusted_count = len(qualities_trusted)
+    unknown_count = len(qualities_unknown)
+    malicious_count = len(qualities_malicious)
+    trusted_ratio = (trusted_count / total_workers) if total_workers > 0 else 0.0
+
+    def safe_mean(values):
+        return round(float(np.mean(values)), 4) if values else 0.0
+
+    summary = {
+        "total_workers": total_workers,
+        "trusted_count": trusted_count,
+        "unknown_count": unknown_count,
+        "malicious_count": malicious_count,
+        "trusted_ratio": round(trusted_ratio, 4),
+        "avg_base_quality_all": safe_mean(qualities_all),
+        "avg_base_quality_trusted": safe_mean(qualities_trusted),
+        "avg_base_quality_unknown": safe_mean(qualities_unknown),
+        "avg_base_quality_malicious": safe_mean(qualities_malicious),
+        "total_task_options": total_task_options,
+    }
+    return summary
 
 
 def save_worker_options(worker_options):
@@ -249,7 +293,22 @@ def main():
     workers = load_vehicle_segments()
     _, tasks_by_region = load_tasks()
     worker_options = build_worker_options(workers, tasks_by_region)
+    summary = summarize_worker_options(worker_options)
     save_worker_options(worker_options)
+
+    print(
+        "工人可选项统计: "
+        f"workers={summary['total_workers']} | "
+        f"trusted={summary['trusted_count']} | "
+        f"unknown={summary['unknown_count']} | "
+        f"malicious={summary['malicious_count']} | "
+        f"trusted_ratio={summary['trusted_ratio']:.4f} | "
+        f"avg_base_quality={summary['avg_base_quality_all']:.4f} | "
+        f"trusted_avg_quality={summary['avg_base_quality_trusted']:.4f} | "
+        f"unknown_avg_quality={summary['avg_base_quality_unknown']:.4f} | "
+        f"malicious_avg_quality={summary['avg_base_quality_malicious']:.4f} | "
+        f"total_task_options={summary['total_task_options']}"
+    )
     print("全部完成")
 
 

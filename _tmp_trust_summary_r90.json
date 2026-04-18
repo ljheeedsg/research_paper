@@ -1,0 +1,21 @@
+{
+  "total_rounds_recorded": 144,
+  "total_non_empty_rounds": 144,
+  "total_non_empty_non_init_rounds": 143,
+  "avg_completion_rate_all_non_empty": 0.9175,
+  "avg_avg_quality_all_non_empty": 0.7907,
+  "avg_reward_all_non_empty": 25.1389,
+  "avg_cost_all_non_empty": 966.3111,
+  "avg_efficiency_all_non_empty": 0.0259,
+  "avg_avg_trust_all_non_empty": 0.9803,
+  "avg_completion_rate_non_init": 0.9169,
+  "avg_avg_quality_non_init": 0.7908,
+  "avg_reward_non_init": 25.1678,
+  "avg_cost_non_init": 966.1063,
+  "avg_efficiency_non_init": 0.0259,
+  "avg_avg_trust_non_init": 0.9806,
+  "final_cumulative_completion_rate_all_non_empty": 0.9065,
+  "final_cumulative_avg_quality_all_non_empty": 0.7921,
+  "final_cumulative_completion_rate_non_init": 0.9058,
+  "final_cumulative_avg_quality_non_init": 0.7922
+}

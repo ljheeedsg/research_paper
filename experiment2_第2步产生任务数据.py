@@ -18,8 +18,10 @@ TOTAL_TASKS = 2000
 SLOT_SEC = 600
 SLOTS_PER_DAY = 86400 // SLOT_SEC
 
-MAX_REQUIRED_WORKERS = 3
-RANDOM_SEED = 1
+MAX_REQUIRED_WORKERS = 1
+TASK_WEIGHT_MIN = 1.0
+TASK_WEIGHT_MAX = 3.0
+RANDOM_SEED = 15
 
 GRID_X_NUM = 10
 GRID_Y_NUM = 10
@@ -100,7 +102,7 @@ def generate_tasks(candidate_slots):
     1. 只在 capacity > 0 的 (region, slot) 生成任务
     2. 某个位置的任务数不超过该位置容量
     3. required_workers ∈ [1, min(MAX_REQUIRED_WORKERS, capacity)]
-    4. weight = required_workers
+    4. weight 为任务价值权重，与 required_workers 解耦
     """
     if not candidate_slots:
         return [], defaultdict(list)
@@ -129,7 +131,9 @@ def generate_tasks(candidate_slots):
             continue
 
         required_workers = random.randint(1, max_req)
-        weight = required_workers
+        base_weight = random.uniform(TASK_WEIGHT_MIN, TASK_WEIGHT_MAX)
+        weight_bonus = 0.2 * (required_workers - 1)
+        weight = round(min(TASK_WEIGHT_MAX, base_weight + weight_bonus), 2)
 
         start_time = slot_id * SLOT_SEC
         end_time = (slot_id + 1) * SLOT_SEC - 1
