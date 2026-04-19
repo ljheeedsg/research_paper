@@ -1,602 +1,830 @@
-很好，现在给你一版**完整、详细、和你当前系统完全对齐的 Step5 文档（最终版）**。
-这版是：
+我先说判断：
 
-* ✅ 保留你老师“验证任务”思路
-* ✅ 和你 Step3（stability + true_value）完全一致
-* ✅ 和 Step4（CMAB）无冲突
-* ✅ 结构完整，可以直接写论文/报告
+## 这版 Step5 代码整体是对的，主线已经成型了
 
-你可以保存为：
+你现在这版代码已经把这几层接上了：
 
-# 📄 `experiment2_step5_dynamic_trust_with_validation.md`
+* Step4 的 CMAB 招募
+* 验证任务生成
+* trust 更新
+* 恶意工人排除
+* 长期退出模型
+* 平台效用统计
 
----
+整体结构是顺的。
 
-# 1. 概述（Overview）
-
-在 Step4 中，系统已通过 CMAB 实现基于工人质量的动态招募优化，但该方法仍存在关键问题：
-
-```text
-无法区分“能力低”与“数据不可信”
-```
-
-即：
-
-* 有些工人质量不高（能力问题）
-* 有些工人数据不稳定甚至异常（可信问题）
-
-👉 CMAB 只能学习“质量”，无法识别“是否可信”
+但我建议你注意 **两个“逻辑口径”问题**，不一定非要改代码，但文档里必须写清楚，不然以后你会再混。
 
 ---
 
-# 🎯 本步骤目标
+# 我先帮你看代码：哪里对，哪里要注意
 
-引入：
+## 这几部分是对的
 
-> ✅ **基于验证任务的动态信任机制（Validation-based Trust Mechanism）**
+### 1. 工人初始化逻辑是对的
 
-实现：
+你现在让平台初始只知道 trusted，其余 unknown 和 malicious 都先当 unknown，这很合理。
 
-```text
-✔ 利用可信工人作为参考
-✔ 对未知工人进行一致性验证
-✔ 动态更新工人信任度
-✔ 识别并剔除不可信工人
-```
+### 2. 第5步仍沿用 Step4 的 CMAB 招募
 
----
+你没有改掉第4步主体，而是在其上叠加 trust，这个方向是对的。
 
-# 2. 工人集合定义
+### 3. malicious 被排除出后续招募
 
----
+这正是第5步的核心作用之一。
 
-## 2.1 三类工人
+### 4. 先按 grid 选验证任务，再固定到具体 task
 
-定义：
+这个比直接乱选任务更稳定，也更符合你最开始“空间一致性验证”的思路。
 
-$$
-U_c,\quad U_u,\quad U_m
-$$
+### 5. trust 更新后再重建 Uc/Uu/Um
+
+这一步是对的，说明你的分类是动态变化的，不是死的。
 
 ---
 
-| 集合    | 含义                  |
-| ----- | ------------------- |
-| $U_c$ | 可信工人（trusted）       |
-| $U_u$ | 未知工人（unknown）       |
-| $U_m$ | 不可信/恶意工人（malicious） |
+## 这两个点你要特别注意
+
+### 问题1：你现在的验证任务，是按 `available_workers` 做的，不是按 `selected_workers` 做的
+
+你在这两处都用了 `available_workers`：
+
+* `generate_validation_tasks_by_grid(...)`
+* `update_trust_by_validation(...)`
+
+也就是说：
+
+> 只要这个工人在该 slot 可用，即使这一轮没有被 CMAB 选中，它也可能被拿来参与验证任务统计。
+
+这会带来一个口径问题：
+
+#### 你现在代码的真实含义是
+
+“验证任务”不是只给本轮被招募工人，而是对本轮可用工人做验证。
+
+#### 如果这是你想要的
+
+可以不改，但文档必须写成：
+
+> 验证阶段面向本轮可用工人，而非仅限于本轮被招募工人。
+
+#### 如果你原本想要的是
+
+> 只有被 CMAB 选中的工人才执行验证任务
+
+那这里就要改成 `selected_worker_ids` 口径。
 
 ---
 
-## 2.2 初始化
+### 问题2：退出判定仍然对所有 active workers 生效
 
-来自 Step3：
+你现在 `update_worker_leave_state()` 是对所有 `is_active=True` 的工人做退出判定，不区分本轮是否被选中。
 
-```text
-init_category == trusted → Uc
-init_category == unknown → Uu
-Um = ∅
-```
+#### 这代表什么？
 
----
+表示：
 
-## 2.3 信任度定义
+> 工人即使本轮没被平台选中，也可能因为长期收益差或平台吸引力不够而离开。
 
-每个工人：
+#### 这个逻辑并不是错
 
-$$
-trust_i \in [0,1]
-$$
+但它对应的是“平台级流失”，不是“执行任务后的疲劳流失”。
 
-初始化：
-
-```text
-trusted → 1.0
-unknown → 0.5
-```
+所以文档里也要写清楚。
 
 ---
 
-# 3. 核心思想
+# 总体判断
+
+## 这版代码可以继续往下用
+
+不需要推翻。
+
+## 但你必须在文档里把下面两件事讲清楚
+
+1. 验证任务到底面向谁
+2. 退出机制到底是“平台级退出”还是“任务执行后退出”
+
+只要这两点写清楚，这版代码是能成立的。
 
 ---
 
-## 🎯 本机制不是判断“谁最准”
+# 下面我直接给你一版完整文档
 
-而是判断：
-
-```text
-谁的数据是否与稳定参考一致
-```
+我按你**现在这版代码真实逻辑**来写，不强行改成别的版本。
 
 ---
 
-## 🔥 关键：
+# 第5步：基于验证任务的动态信任更新机制（完整文档）
 
-* trusted 工人 → 数据更稳定（来自 Step3）
-* unknown 工人 → 数据波动较大
+## 1. 本步骤目标
 
----
+在 Step4 中，平台已经能够通过 CMAB 在预算约束下动态招募工人，但该方法仍存在一个关键问题：
 
-👉 因此可以：
+> 平台只能根据历史质量表现学习“谁看起来表现好”，却无法判断“这个工人的数据是否可信”。
 
-```text
-用 trusted 作为“参考锚点”
-```
+因此，第5步引入验证任务与动态信任更新机制，目标是：
 
----
-
-# 4. 每轮整体流程
-
----
-
-对于每一轮 $t = 1,2,...,R$：
+* 利用 trusted 工人作为参考锚点；
+* 对 unknown 工人进行一致性验证；
+* 动态更新工人 trust；
+* 识别并剔除 malicious 工人；
+* 防止后续 CMAB 持续招募不可信工人。
 
 ---
 
-## Step 1：确定当前轮可用数据
+## 2. 输入与输出
+
+### 2.1 输入
+
+本步骤输入文件为：
+
+* `experiment2_worker_options.json`
+
+文件中每个工人包含：
+
+* `worker_id`
+* `bid_price`
+* `base_quality`
+* `init_category`
+* `available_slots`
+* `tasks`
+
+  * `task_id`
+  * `slot_id`
+  * `region_id`
+  * `required_workers`
+  * `weight`
+  * `quality`
+  * `task_data`
+  * `true_value`
+
+其中：
+
+* `quality`：工人执行任务的实际完成质量
+* `task_data`：工人实际上报的数据值
+* `true_value`：任务的真实参考值（由 Step3 生成）
 
 ---
 
-### 可用工人
+### 2.2 输出
 
-```text
-worker.available_slots 包含 t
-```
+本步骤输出：
 
----
-
-### 可用任务
-
-```text
-task.slot_id == t
-```
-
----
-
-## Step 2：CMAB 招募（不变）
-
----
-
-候选：
-
-```text
-Uc ∪ Uu
-```
-
-排除：
-
-```text
-Um
-```
-
----
-
-选择：
-
-```text
-selected_workers（K个）
-```
-
----
-
-## Step 3：生成验证任务（核心新增）
-
----
-
-# 5. 验证任务生成机制
-
----
-
-## 5.1 目标
-
-选择任务，使：
-
-```text
-✔ 有 trusted 工人执行
-✔ 有 unknown 工人执行
-```
-
-👉 才能做比较
-
----
-
-## 5.2 定义
-
-对于任务 $j$：
-
-* $W_c(j)$：能执行该任务的 trusted 工人（且在 selected_workers 中）
-* $W_u(j)$：能执行该任务的 unknown 工人（且在 selected_workers 中）
-
----
-
-## 5.3 筛选条件
-
-$$
-|W_c(j)| > 0 \quad \text{且} \quad |W_u(j)| > 0
-$$
-
----
-
-## 5.4 排序策略
-
-按：
-
-$$
-|W_u(j)| \downarrow
-$$
-
-👉 优先验证更多 unknown 工人
-
----
-
-## 5.5 选择验证任务
-
-$$validation\_tasks = \text{top } M \text{ tasks}$$
-
----
-
-# 6. 任务执行
-
----
-
-## 6.1 发布任务
-
-每轮任务集合：
-
-```text
-业务任务 + 验证任务
-```
-
----
-
-## 6.2 执行者
-
-```text
-仅 selected_workers 执行
-```
-
----
-
-## ❗说明
-
-避免：
-
-```text
-所有经过的人执行 ❌
-```
-
-因为：
-
-* 会破坏成本模型
-* 与 CMAB 冲突
-
----
-
-# 7. 信任更新机制（核心）
-
----
-
-## 7.1 基准值（Reference）
-
-对于每个验证任务 $v$：
-
-$$
-base_v = \text{median} \{ data_i \mid i \in W_c(v) \}
-$$
-
----
-
-## ⚠️ 重要说明
-
-```text
-base_v ≠ true_value
-```
-
-而是：
-
-```text
-trusted 工人一致性估计
-```
-
----
-
-## 7.2 误差计算
-
-对于 unknown 工人 $i$：
-
-$$
-error_{iv} =
-\begin{cases}
-|data_i - base_v|, & base_v = 0 \\
-\frac{|data_i - base_v|}{base_v}, & \text{otherwise}
-\end{cases}
-$$
-
----
-
-## 7.3 信任更新公式
-
-$$
-trust_i \leftarrow trust_i + \eta (1 - 2 \cdot error_{iv})
-$$
-
----
-
-## 7.4 边界处理
-
-$$
-trust_i = \max(0, \min(1, trust_i))
-$$
-
----
-
-## 🎯 含义
-
-| 情况    | trust变化 |
-| ----- | ------- |
-| 数据接近  | 上升      |
-| 数据偏差大 | 下降      |
-
----
-
-# 8. 工人分类更新
-
----
-
-## 阈值
-
-$$
-\theta_{high},\quad \theta_{low}
-$$
-
----
-
-## 更新规则
-
----
-
-### unknown → trusted
-
-$$
-trust_i \geq \theta_{high}
-$$
-
----
-
-### unknown → malicious
-
-$$
-trust_i \leq \theta_{low}
-$$
-
----
-
-### 其他
-
-保持在 $U_u$
-
----
-
-# 9. 与 CMAB 的融合
-
----
-
-下一轮：
-
-```text
-候选 = Uc ∪ Uu
-排除 Um
-```
-
----
-
-👉 malicious 工人：
-
-```text
-不会再被选中
-```
-
----
-
-# 10. 参数设置
-
----
-
-| 参数         | 含义     | 推荐值 |
-| ---------- | ------ | --- |
-| $M$        | 验证任务数  | 3~5 |
-| $\eta$     | 信任更新步长 | 0.2 |
-| $\theta_{high}$ | 可信阈值   | 0.8 |
-| $\theta_{low}$  | 恶意阈值   | 0.2 |
-
----
-
-# 11. 预期效果
-
----
-
-| 指标              | 变化 |
-| --------------- | -- |
-| completion_rate | ↑  |
-| avg_quality     | ↑↑ |
-| reward          | ↑  |
-| 稳定性             | ↑  |
-
----
-
-# 11.1 评价指标与输出口径
-
-本步骤当前代码沿用 Step4 的业务任务评价方式，但已统一为下面这套统计口径：
-
----
-
-## 每轮任务完成率
-
-$$
-CompletionRate_t = \frac{|Completed_t|}{|\mathcal{T}_t|}
-$$
-
-其中 $Completed_t$ 为本轮满足“人数阈值 + 质量阈值”的已完成任务集合。
-
----
-
-## 每轮平均数据质量
-
-这里不再只对完成任务求平均，而是对**所有被执行任务**求平均。
-
-设：
-
-$$
-Executed_t = \{ j \in \mathcal{T}_t \mid |W_j^{(t)}| > 0 \}
-$$
-
-则：
-
-$$
-AvgQuality_t = \frac{1}{|Executed_t|}\sum_{j \in Executed_t} Q_j^{(t)}
-$$
-
-若本轮没有任何被执行任务，则记为 0。
-
-这样更符合“整体数据质量”的含义，也能避免只统计完成任务带来的高估偏差。
-
----
-
-## 累计任务完成率
-
-$$
-CumCompletionRate_t
-=
-\frac{\sum_{\tau=1}^{t}|Completed_{\tau}|}{\sum_{\tau=1}^{t}|\mathcal{T}_{\tau}|}
-$$
-
----
-
-## 累计平均数据质量
-
-$$
-CumAvgQuality_t
-=
-\frac{\sum_{\tau=1}^{t}\sum_{j \in Executed_{\tau}} Q_j^{(\tau)}}
-{\sum_{\tau=1}^{t}|Executed_{\tau}|}
-$$
-
-这两个累计指标更适合观察：
-
-* trust 机制逐轮学习后，整体完成情况是否在变好
-* 可信工人逐步增多后，累计数据质量是否稳步抬升
-
----
-
-## 当前代码输出
-
-代码当前会保存：
+#### 结果文件
 
 * `experiment2_cmab_trust_round_results.json`
 * `experiment2_cmab_trust_summary.json`
+
+#### 图像文件
+
+* `experiment2_cmab_trust_coverage_rate.png`
 * `experiment2_cmab_trust_completion_rate.png`
 * `experiment2_cmab_trust_avg_quality.png`
+* `experiment2_cmab_trust_cumulative_coverage_rate.png`
 * `experiment2_cmab_trust_cumulative_completion_rate.png`
 * `experiment2_cmab_trust_cumulative_avg_quality.png`
-* `experiment2_cmab_trust_reward.png`
-* `experiment2_cmab_trust_efficiency.png`
+* `experiment2_cmab_trust_trusted_count.png`
+* `experiment2_cmab_trust_unknown_count.png`
+* `experiment2_cmab_trust_malicious_count.png`
+* `experiment2_cmab_trust_validation_count.png`
 * `experiment2_cmab_trust_avg_trust.png`
-
-其中每轮结果中会额外记录：
-
-* `num_executed`
-* `executed_tasks`
-* `cumulative_completion_rate`
-* `cumulative_avg_quality`
+* `experiment2_cmab_trust_platform_utility.png`
+* `experiment2_cmab_trust_cumulative_platform_utility.png`
+* `experiment2_cmab_trust_active_workers.png`
+* `experiment2_cmab_trust_left_workers.png`
+* `experiment2_cmab_trust_avg_leave_probability.png`
 
 ---
 
-# 12. 机制合理性说明（关键）
+## 3. 工人集合定义
+
+平台动态维护三类工人集合：
+
+* (U_c)：trusted 工人
+* (U_u)：unknown 工人
+* (U_m)：malicious 工人
+
+初始化时：
+
+* 若 `init_category == trusted`，则平台初始将其记为 trusted
+* 其余工人（包括真实 unknown 和真实 malicious）初始都视为 unknown
+
+也就是说，平台最开始并不知道谁是恶意工人。
 
 ---
 
-## 12.1 trusted 为什么能作为参考？
+## 4. trust 定义与初始化
 
-来自 Step3：
+每个工人维护一个动态信任度：
 
-```text
-trusted → 更低噪声（更稳定）
-```
+[
+trust_i \in [0,1]
+]
+
+初始值为：
+
+* trusted：`1.0`
+* unknown：`0.5`
+
+并根据阈值更新工人类别：
+
+* 若 (trust_i \ge \theta_{high})，则归为 trusted
+* 若 (trust_i \le \theta_{low})，则归为 malicious
+* 否则保持 unknown
+
+代码中参数为：
+
+* `THETA_HIGH = 0.8`
+* `THETA_LOW = 0.2` 
 
 ---
+
+## 5. 与 Step4 的关系
+
+第5步并没有推翻 Step4，而是在 Step4 的 CMAB 招募基础上叠加 trust 机制。
+
+### Step4 负责
+
+* 在预算约束下招募高边际收益工人
+
+### Step5 负责
+
+* 检查这些工人（以及当前可用工人）是否可信
+* 更新 trust
+* 将恶意工人排除出后续 CMAB 候选池
 
 因此：
 
-$$
-Var(data_{trusted}) < Var(data_{unknown})
-$$
+> Step4 解决“谁值得招”，Step5 解决“谁值得信”。
 
 ---
 
-## 12.2 本方法本质
+## 6. 每轮整体流程
+
+每轮 (t) 的流程如下：
+
+### Step A：读取本轮任务与可用工人
+
+* 当前 slot 的任务集合 `round_tasks`
+* 当前 slot 中 `available_slots` 包含该 slot 且 `is_active=True` 的工人
+
+### Step B：CMAB 招募
+
+使用 Step4 的论文风格 CMAB 继续招募，但排除已经被识别为 malicious 的工人。
+
+### Step C：评价业务任务结果
+
+统计：
+
+* coverage_rate
+* completion_rate
+* avg_quality
+* weighted_completion_quality
+* platform_utility
+
+### Step D：生成验证任务
+
+在本轮可用工人中，先按 grid 统计 trusted 与 unknown 的空间重叠，再从 top-M grid 中选出验证任务。
+
+### Step E：执行验证并更新 trust
+
+对验证任务中同时覆盖 trusted 与 unknown 的工人，比较 unknown 的 `task_data` 与 trusted 参考值之间的误差，并更新 trust。
+
+### Step F：更新工人类别
+
+根据 trust 阈值，将工人重新归类为 trusted、unknown 或 malicious。
+
+### Step G：更新长期运行状态
+
+更新：
+
+* 累计收益
+* 累计成本
+* 退出概率
+* active_workers
+* left_workers
 
 ---
 
-不是：
+## 7. CMAB 招募逻辑
 
-```text
-估计真实值 ❌
-```
+本步骤仍使用 Step4 的招募评分：
 
-而是：
+[
+\Delta_i(t)=\sum_{j\in S_i(t)} w_j \cdot \max(0,\hat q_i(t)-Q_j^{cur}(t))
+]
 
-```text
-一致性验证 ✔
-```
+[
+score_i(t)=\frac{\Delta_i(t)}{c_i}
+]
 
----
+其中：
 
-## 12.3 方法类型
+* (\hat q_i(t))：工人的 UCB 预测质量
+* (Q_j^{cur}(t))：当前任务 j 已达到的预测质量
+* (w_j)：任务权重
+* (c_i)：工人报价
 
-```text
-✔ relative consistency checking
-✔ semi-supervised trust estimation
-```
+与 Step4 唯一不同的是：
 
----
-
-# 13. 总体流程总结
+> 当前类别为 malicious 的工人不再参与招募。
 
 ---
 
-```text
-CMAB → 选人（能力）
-Validation → 验证（可信）
-Trust → 过滤（不可信）
-```
+## 8. 验证任务生成机制
+
+### 8.1 核心思想
+
+只有同时存在：
+
+* trusted 工人
+* unknown 工人
+
+的 grid，才有验证价值。
+
+### 8.2 grid 统计
+
+对于本轮每个 grid，统计：
+
+* `trusted_count`
+* `unknown_count`
+
+若该 grid 满足：
+
+* trusted_count > 0
+* unknown_count > 0
+
+则作为候选验证 grid。
+
+### 8.3 排序与选择
+
+候选 grid 按以下顺序排序：
+
+1. unknown_count 降序
+2. trusted_count 降序
+3. grid_id 升序
+
+然后取前 `VALIDATION_TOP_M` 个 grid。代码里：
+
+* `VALIDATION_TOP_M = 5` 
+
+### 8.4 具体验证任务
+
+在每个被选中的 grid 中，固定取 task_id 最小的任务作为验证任务。
 
 ---
 
-# 🎯 最终一句话总结
+## 9. trust 更新机制
 
-> 本步骤通过引入基于验证任务的一致性评估机制，利用可信工人的稳定性作为参考，对未知工人进行动态信任度更新，从而识别并剔除不可信工人，进一步提升系统数据质量与任务完成性能。
+### 9.1 trusted 参考值
+
+对于某个验证任务 (v)，先取该任务上所有 trusted 工人的 `task_data`，并计算其中位数作为参考值：
+
+[
+base_v = median(data_i, i\in trusted)
+]
+
+### 9.2 unknown 工人误差
+
+对于执行该验证任务的 unknown 工人 (i)，其误差为：
+
+若 (base_v\approx 0)：
+
+[
+error_{iv}=|data_i-base_v|
+]
+
+否则：
+
+[
+error_{iv}=\frac{|data_i-base_v|}{|base_v|}
+]
+
+### 9.3 分段更新
+
+代码中采用分段规则：
+
+* 若 `error <= ERROR_GOOD`，trust 增加 `ETA`
+* 若 `ERROR_GOOD < error <= ERROR_BAD`，trust 不变
+* 若 `error > ERROR_BAD`，trust 减少 `ETA`
+
+参数为：
+
+* `ETA = 0.10`
+* `ERROR_GOOD = 0.15`
+* `ERROR_BAD = 0.35` 
+
+### 9.4 trust 截断
+
+更新后将 trust 截断到 ([0,1])。
 
 ---
 
-# 🚀 你现在的状态
+## 10. 平台效用与长期退出机制
 
-你现在已经：
+本步骤仍保留长期运行模型。
 
-```text
-✔ CMAB（能跑）
-✔ 数据模型（合理）
-✔ Trust机制（完整）
-```
+### 10.1 平台单轮收益
+
+平台收益定义为：
+
+[
+platform_task_value_t = \sum_j \rho \cdot w_j \cdot best_quality_j
+]
+
+[
+platform_payment_t = \sum_i bid_i
+]
+
+[
+platform_utility_t = platform_task_value_t - platform_payment_t
+]
+
+代码中：
+
+* `RHO = 10.0` 
 
 ---
 
-👉 下一步：
+### 10.2 工人累计收益与成本
 
-# 👉 可以开始写 Step5代码 + 跑 B2 vs B3
+对被选中工人：
+
+* 本轮报酬 = `bid_price`
+* 本轮真实成本 = `WORKER_COST_RATIO * bid_price`
+
+其中：
+
+* `WORKER_COST_RATIO = 0.6` 
 
 ---
 
-如果你愿意，我下一步可以帮你：
+### 10.3 退出概率
 
-👉 **把这个 Step5 文档 → 直接转成可运行代码（在你现有Step4上改）**
+每轮对所有当前活跃工人计算：
+
+[
+P_i^{leave} = \sigma(\beta_0 + \beta_1 \cdot cumulative_cost_i - \beta_2 \cdot avg_reward_i)
+]
+
+其中：
+
+* `BETA0 = -2.5`
+* `BETA1 = 0.02`
+* `BETA2 = 0.3` 
+
+然后对每个 active worker 做 Bernoulli 退出判定。
+
+---
+
+## 11. 输出统计量说明
+
+下面把你代码里记录和画图的量全部写清楚。
+
+---
+
+# 11.1 `coverage_rate`
+
+### 含义
+
+本轮至少被 1 个工人执行的任务比例。
+
+### 计算方式
+
+对本轮每个任务，若 `num_workers > 0`，则记为 covered。
+
+[
+coverage_rate_t = \frac{num_covered_t}{num_tasks_t}
+]
+
+### 图
+
+* `experiment2_cmab_trust_coverage_rate.png`
+
+### 记录逻辑
+
+它记录的是本轮“有没有人做”，不要求完成，也不要求 trust 达标。
+
+---
+
+# 11.2 `completion_rate`
+
+### 含义
+
+本轮满足完成条件的任务比例。
+
+### 完成条件
+
+* 执行人数达到 `required_workers`
+* 平均质量 `avg_quality >= DELTA`
+
+[
+completion_rate_t = \frac{num_completed_t}{num_tasks_t}
+]
+
+### 图
+
+* `experiment2_cmab_trust_completion_rate.png`
+
+### 记录逻辑
+
+它记录的是“最终算不算完成”，比 coverage 更严格。
+
+---
+
+# 11.3 `avg_quality`
+
+### 含义
+
+本轮所有被覆盖任务的平均最终质量。
+
+### 计算方式
+
+先对每个被覆盖任务取：
+
+[
+best_quality_j = \max(q_{ij})
+]
+
+再在所有 covered tasks 上求平均。
+
+### 图
+
+* `experiment2_cmab_trust_avg_quality.png`
+
+### 记录逻辑
+
+它衡量的是本轮任务结果整体质量水平。
+
+---
+
+# 11.4 `cumulative_coverage_rate`
+
+### 含义
+
+从第1轮到当前轮累计的覆盖率。
+
+### 计算方式
+
+[
+cumulative_coverage_rate_t=
+\frac{\sum_{\tau=1}^{t} num_covered_{\tau}}
+{\sum_{\tau=1}^{t} num_tasks_{\tau}}
+]
+
+### 图
+
+* `experiment2_cmab_trust_cumulative_coverage_rate.png`
+
+### 记录逻辑
+
+反映长期平均覆盖能力。
+
+---
+
+# 11.5 `cumulative_completion_rate`
+
+### 含义
+
+从第1轮到当前轮累计的完成率。
+
+### 图
+
+* `experiment2_cmab_trust_cumulative_completion_rate.png`
+
+### 记录逻辑
+
+反映长期平均完成能力。
+
+---
+
+# 11.6 `cumulative_avg_quality`
+
+### 含义
+
+从第1轮到当前轮，所有被覆盖任务的累计平均最终质量。
+
+### 图
+
+* `experiment2_cmab_trust_cumulative_avg_quality.png`
+
+### 记录逻辑
+
+反映系统长期平均质量水平，而不是单轮波动。
+
+---
+
+# 11.7 `trusted_count`
+
+### 含义
+
+本轮结束后，类别为 trusted 的工人数。
+
+### 图
+
+* `experiment2_cmab_trust_trusted_count.png`
+
+### 记录逻辑
+
+反映 trust 机制是否逐渐识别并积累可信工人。
+
+---
+
+# 11.8 `unknown_count`
+
+### 含义
+
+本轮结束后，类别为 unknown 的工人数。
+
+### 图
+
+* `experiment2_cmab_trust_unknown_count.png`
+
+### 记录逻辑
+
+反映尚未被明确识别的中间工人数量。
+
+---
+
+# 11.9 `malicious_count`
+
+### 含义
+
+本轮结束后，类别为 malicious 的工人数。
+
+### 图
+
+* `experiment2_cmab_trust_malicious_count.png`
+
+### 记录逻辑
+
+反映被系统识别并拉黑的恶意工人数量。
+
+---
+
+# 11.10 `num_validation_tasks`
+
+### 含义
+
+本轮生成并执行的验证任务数量。
+
+### 图
+
+* `experiment2_cmab_trust_validation_count.png`
+
+### 记录逻辑
+
+表示本轮 trust 验证强度。
+
+---
+
+# 11.11 `avg_trust`
+
+### 含义
+
+所有工人当前 trust 的平均值。
+
+### 图
+
+* `experiment2_cmab_trust_avg_trust.png`
+
+### 记录逻辑
+
+反映整体工人群体在系统视角下的平均可信水平。
+
+---
+
+# 11.12 `platform_utility`
+
+### 含义
+
+平台本轮净收益。
+
+### 计算方式
+
+[
+platform_utility_t = platform_task_value_t - platform_payment_t
+]
+
+### 图
+
+* `experiment2_cmab_trust_platform_utility.png`
+
+### 记录逻辑
+
+记录平台当前轮是否盈利，以及盈利幅度。
+
+---
+
+# 11.13 `cumulative_platform_utility`
+
+### 含义
+
+从第1轮到当前轮累计的平台净收益。
+
+### 图
+
+* `experiment2_cmab_trust_cumulative_platform_utility.png`
+
+### 记录逻辑
+
+用于判断平台长期运行是否可持续。
+
+---
+
+# 11.14 `num_active_workers`
+
+### 含义
+
+当前轮结束后，仍未退出平台的 active workers 数量。
+
+### 图
+
+* `experiment2_cmab_trust_active_workers.png`
+
+### 记录逻辑
+
+反映平台劳动力池剩余规模。
+
+---
+
+# 11.15 `cumulative_left_workers`
+
+### 含义
+
+到当前轮为止，累计退出的工人数。
+
+### 图
+
+* `experiment2_cmab_trust_left_workers.png`
+
+### 记录逻辑
+
+反映平台长期流失规模。
+
+---
+
+# 11.16 `avg_leave_probability`
+
+### 含义
+
+本轮所有 active workers 的平均退出概率。
+
+### 图
+
+* `experiment2_cmab_trust_avg_leave_probability.png`
+
+### 记录逻辑
+
+表示当前轮整体流失风险大小。
+
+---
+
+## 12. 结果文件字段说明
+
+### 12.1 `round_results.json`
+
+每轮都会记录：
+
+* 招募结果
+* 任务统计
+* 验证任务
+* trust 更新
+* 工人类别分布
+* 平台效用
+* 退出信息
+* 累计指标
+
+### 12.2 `summary.json`
+
+整体汇总：
+
+* 所有单轮指标平均值
+* 最终累计指标
+* 最终活跃工人数与退出工人数
+
+---
+
+## 13. 本步骤的真实作用
+
+这一阶段最核心的作用不是直接改招募公式，而是：
+
+> 通过验证任务修正工人集合，使 CMAB 后续学习不再持续被恶意工人污染。
+
+因此本步骤的意义在于：
+
+* 提高后续招募质量
+* 提高系统整体完成质量
+* 提升数据可信性
+* 减少恶意工人长期干扰
+
+---
+
+## 14. 一句话总结
+
+> Step5 在 Step4 的 CMAB 招募基础上，通过验证任务与 trust 更新识别并排除恶意工人，从而提高后续任务执行质量、系统完成效果和平台长期可持续性。
+
+---
+
+如果你愿意，我下一步可以继续帮你把这份文档整理成**更像论文格式的最终版**，包括“参数表”和“符号表”。

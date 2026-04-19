@@ -12,7 +12,7 @@ TASK_FILE = "experiment2_tasks.csv"
 OUTPUT_JSON = "experiment2_worker_options.json"
 
 SLOT_SEC = 600
-RANDOM_SEED = 15
+RANDOM_SEED = 100
 
 # q_ij 噪声
 SIGMA_QUALITY = 0.03

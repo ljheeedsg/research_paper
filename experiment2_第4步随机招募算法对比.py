@@ -33,6 +33,8 @@ TOTAL_SLOTS = 86400 // 600
 PER_ROUND_BUDGET = 1000
 K = 7
 RANDOM_SEED = 13
+NUM_EXPERIMENT_RUNS = 10
+SEED_STEP = 1
 
 # 与 CMAB 长期运行版保持一致
 DELTA = 0.45
@@ -54,6 +56,48 @@ SKIP_EMPTY_ROUNDS = True
 
 random.seed(RANDOM_SEED)
 np.random.seed(RANDOM_SEED)
+
+
+def set_random_seed(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+
+
+def is_numeric_value(value):
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def average_numeric_values(values):
+    if all(isinstance(value, int) and not isinstance(value, bool) for value in values):
+        return int(round(float(np.mean(values))))
+    return round(float(np.mean(values)), 4)
+
+
+def average_dict_records(records):
+    averaged = {}
+    for key, first_value in records[0].items():
+        values = [record.get(key) for record in records]
+        if all(is_numeric_value(value) for value in values):
+            averaged[key] = average_numeric_values(values)
+        else:
+            averaged[key] = first_value
+    return averaged
+
+
+def aggregate_round_results(all_round_results):
+    if not all_round_results:
+        return []
+
+    expected_len = len(all_round_results[0])
+    for run_results in all_round_results:
+        if len(run_results) != expected_len:
+            raise ValueError("不同随机种子的轮次结果长度不一致，无法直接取平均。")
+
+    aggregated = []
+    for idx in range(expected_len):
+        records = [run_results[idx] for run_results in all_round_results]
+        aggregated.append(average_dict_records(records))
+    return aggregated
 
 
 def sigmoid(x: float) -> float:
@@ -351,12 +395,17 @@ def update_worker_reward_cost(selected_worker_ids, workers):
             worker["recent_reward"] = 0.0
 
 
-def update_worker_leave_state(workers, round_id):
+def update_worker_leave_state(workers, round_id, selected_worker_ids):
     left_worker_ids = []
     leave_probabilities = []
+    selected_set = set(selected_worker_ids)
 
-    for worker in workers.values():
+    for worker_id, worker in workers.items():
         if not worker["is_active"]:
+            continue
+
+        if worker_id not in selected_set:
+            worker["leave_probability"] = 0.0
             continue
 
         avg_reward = worker["cumulative_reward"] / max(1, worker["selected_rounds"])
@@ -591,7 +640,8 @@ def plot_metric(round_results, key, ylabel, filename):
     print(f"已保存 {filename}")
 
 
-def main():
+def run_single_experiment(seed):
+    set_random_seed(seed)
     worker_options = load_worker_options()
     _, tasks_by_slot = load_all_tasks_from_workers(worker_options)
     workers = build_worker_profiles(worker_options)
@@ -650,7 +700,11 @@ def main():
 
         update_worker_reward_cost(selected_worker_ids, workers)
         platform_result = compute_platform_utility(eval_result, selected_worker_ids, workers)
-        leave_result = update_worker_leave_state(workers, round_id)
+        leave_result = update_worker_leave_state(
+            workers=workers,
+            round_id=round_id,
+            selected_worker_ids=selected_worker_ids,
+        )
 
         current_active_workers = sum(1 for worker in workers.values() if worker["is_active"])
         cumulative_left_workers = sum(1 for worker in workers.values() if not worker["is_active"])
@@ -710,29 +764,60 @@ def main():
 
     summary = summarize_results(round_results, workers, initial_stats)
 
-    save_json(round_results, ROUND_RESULTS_FILE)
-    save_json(summary, SUMMARY_FILE)
+    return round_results, summary
 
-    plot_metric(round_results, "coverage_rate", "Coverage Rate", PLOT_COVERAGE)
-    plot_metric(round_results, "completion_rate", "Completion Rate", PLOT_COMPLETION)
-    plot_metric(round_results, "avg_quality", "Average Realized Quality", PLOT_AVG_QUALITY)
 
-    plot_metric(round_results, "cumulative_coverage_rate", "Cumulative Coverage Rate", PLOT_CUM_COVERAGE)
-    plot_metric(round_results, "cumulative_completion_rate", "Cumulative Completion Rate", PLOT_CUM_COMPLETION)
-    plot_metric(round_results, "cumulative_avg_quality", "Cumulative Average Quality", PLOT_CUM_QUALITY)
+def main():
+    seeds = [RANDOM_SEED + i * SEED_STEP for i in range(NUM_EXPERIMENT_RUNS)]
+    print(f"开始重复实验，共 {NUM_EXPERIMENT_RUNS} 次，随机种子: {seeds}")
 
-    plot_metric(round_results, "platform_utility", "Platform Utility", PLOT_PLATFORM_UTILITY)
-    plot_metric(round_results, "cumulative_platform_utility", "Cumulative Platform Utility", PLOT_CUM_PLATFORM_UTILITY)
-    plot_metric(round_results, "num_active_workers", "Active Workers", PLOT_ACTIVE_WORKERS)
-    plot_metric(round_results, "cumulative_left_workers", "Cumulative Left Workers", PLOT_LEFT_WORKERS)
-    plot_metric(round_results, "avg_leave_probability", "Average Leave Probability", PLOT_LEAVE_PROB)
+    all_round_results = []
+    all_summaries = []
+    all_runs_payload = []
+
+    for run_idx, seed in enumerate(seeds, start=1):
+        print(f"\n===== Run {run_idx}/{NUM_EXPERIMENT_RUNS} | seed={seed} =====")
+        round_results, summary = run_single_experiment(seed)
+        all_round_results.append(round_results)
+        all_summaries.append(summary)
+        all_runs_payload.append(
+            {
+                "run_index": run_idx,
+                "seed": seed,
+                "summary": summary,
+                "round_results": round_results,
+            }
+        )
+
+    avg_round_results = aggregate_round_results(all_round_results)
+    avg_summary = average_dict_records(all_summaries)
+    avg_summary["num_experiment_runs"] = NUM_EXPERIMENT_RUNS
+    avg_summary["experiment_seeds"] = seeds
+
+    all_runs_file = ROUND_RESULTS_FILE.replace(".json", "_all_runs.json")
+    save_json(all_runs_payload, all_runs_file)
+    save_json(avg_round_results, ROUND_RESULTS_FILE)
+    save_json(avg_summary, SUMMARY_FILE)
+
+    plot_metric(avg_round_results, "coverage_rate", "Coverage Rate", PLOT_COVERAGE)
+    plot_metric(avg_round_results, "completion_rate", "Completion Rate", PLOT_COMPLETION)
+    plot_metric(avg_round_results, "avg_quality", "Average Realized Quality", PLOT_AVG_QUALITY)
+
+    plot_metric(avg_round_results, "cumulative_coverage_rate", "Cumulative Coverage Rate", PLOT_CUM_COVERAGE)
+    plot_metric(avg_round_results, "cumulative_completion_rate", "Cumulative Completion Rate", PLOT_CUM_COMPLETION)
+    plot_metric(avg_round_results, "cumulative_avg_quality", "Cumulative Average Quality", PLOT_CUM_QUALITY)
+
+    plot_metric(avg_round_results, "platform_utility", "Platform Utility", PLOT_PLATFORM_UTILITY)
+    plot_metric(avg_round_results, "cumulative_platform_utility", "Cumulative Platform Utility", PLOT_CUM_PLATFORM_UTILITY)
+    plot_metric(avg_round_results, "num_active_workers", "Active Workers", PLOT_ACTIVE_WORKERS)
+    plot_metric(avg_round_results, "cumulative_left_workers", "Cumulative Left Workers", PLOT_LEFT_WORKERS)
+    plot_metric(avg_round_results, "avg_leave_probability", "Average Leave Probability", PLOT_LEAVE_PROB)
 
     print("全部完成")
-    print("Summary:")
-    for k, v in summary.items():
+    print("Average Summary:")
+    for k, v in avg_summary.items():
         print(f"  {k}: {v}")
 
 
 if __name__ == "__main__":
     main()
-

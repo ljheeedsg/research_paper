@@ -37,6 +37,8 @@ TOTAL_SLOTS = 86400 // 600
 PER_ROUND_BUDGET = 1000
 K = 7
 RANDOM_SEED = 3
+NUM_EXPERIMENT_RUNS = 10
+SEED_STEP = 1
 
 # 完成判定质量阈值（只用于评价）
 DELTA = 0.45
@@ -53,12 +55,12 @@ WORKER_COST_RATIO = 0.6
 # ===== Leave Model =====
 # 退出概率：
 # sigmoid(BETA0 + BETA1 * cumulative_cost - BETA2 * avg_reward_per_selected_round)
-BETA0 = -1
-BETA1 = 0.1
-BETA2 = 0.1
+BETA0 = -2.5
+BETA1 = 0.02
+BETA2 = 0.3
 
 # 验证任务参数
-VALIDATION_TOP_M = 5
+VALIDATION_TOP_M = 7
 
 # 平台初始认知：只知道 trusted，其余都先当 unknown
 TRUST_INIT_TRUSTED = 1.0
@@ -74,8 +76,8 @@ ERROR_GOOD = 0.15
 ERROR_BAD = 0.35
 
 # ===== PGRD Membership =====
-MEMBERSHIP_FEE = 2.0
-MEMBER_TASK_RATIO = 0.5
+MEMBERSHIP_FEE = 2
+MEMBER_TASK_RATIO = 0.3
 MEMBER_REWARD_MULTIPLIER = 1.25
 NORMAL_REWARD_MULTIPLIER = 1.0
 PGRD_LAMBDA = 1.5
@@ -88,6 +90,48 @@ SKIP_EMPTY_ROUNDS = True
 
 random.seed(RANDOM_SEED)
 np.random.seed(RANDOM_SEED)
+
+
+def set_random_seed(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+
+
+def is_numeric_value(value):
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def average_numeric_values(values):
+    if all(isinstance(value, int) and not isinstance(value, bool) for value in values):
+        return int(round(float(np.mean(values))))
+    return round(float(np.mean(values)), 4)
+
+
+def average_dict_records(records):
+    averaged = {}
+    for key, first_value in records[0].items():
+        values = [record.get(key) for record in records]
+        if all(is_numeric_value(value) for value in values):
+            averaged[key] = average_numeric_values(values)
+        else:
+            averaged[key] = first_value
+    return averaged
+
+
+def aggregate_round_results(all_round_results):
+    if not all_round_results:
+        return []
+
+    expected_len = len(all_round_results[0])
+    for run_results in all_round_results:
+        if len(run_results) != expected_len:
+            raise ValueError("不同随机种子的轮次结果长度不一致，无法直接取平均。")
+
+    aggregated = []
+    for idx in range(expected_len):
+        records = [run_results[idx] for run_results in all_round_results]
+        aggregated.append(average_dict_records(records))
+    return aggregated
 
 
 def sigmoid(x: float) -> float:
@@ -1112,7 +1156,8 @@ def plot_metric(round_results, key, ylabel, filename):
     print(f"已保存 {filename}")
 
 
-def main():
+def run_single_experiment(seed):
+    set_random_seed(seed)
     worker_options = load_worker_options()
     _, tasks_by_slot, task_grid_map = load_all_tasks_from_workers(worker_options)
     workers = build_worker_profiles(worker_options)
@@ -1320,33 +1365,64 @@ def main():
         )
 
     summary = summarize_results(round_results, workers, initial_stats)
+    return round_results, summary
 
-    save_json(round_results, ROUND_RESULTS_FILE)
-    save_json(summary, SUMMARY_FILE)
 
-    plot_metric(round_results, "coverage_rate", "Coverage Rate", PLOT_COVERAGE)
-    plot_metric(round_results, "completion_rate", "Completion Rate", PLOT_COMPLETION)
-    plot_metric(round_results, "avg_quality", "Average Realized Quality", PLOT_AVG_QUALITY)
-    plot_metric(round_results, "cumulative_coverage_rate", "Cumulative Coverage Rate", PLOT_CUM_COVERAGE)
-    plot_metric(round_results, "cumulative_completion_rate", "Cumulative Completion Rate", PLOT_CUM_COMPLETION)
-    plot_metric(round_results, "cumulative_avg_quality", "Cumulative Average Quality", PLOT_CUM_QUALITY)
-    plot_metric(round_results, "trusted_count", "Trusted Count", PLOT_TRUSTED)
-    plot_metric(round_results, "unknown_count", "Unknown Count", PLOT_UNKNOWN)
-    plot_metric(round_results, "malicious_count", "Malicious Count", PLOT_MALICIOUS)
-    plot_metric(round_results, "num_validation_tasks", "Validation Task Count", PLOT_VALIDATION)
-    plot_metric(round_results, "avg_trust", "Average Trust", PLOT_TRUST)
-    plot_metric(round_results, "platform_utility", "Platform Utility", PLOT_PLATFORM_UTILITY)
-    plot_metric(round_results, "cumulative_platform_utility", "Cumulative Platform Utility", PLOT_CUM_PLATFORM_UTILITY)
-    plot_metric(round_results, "num_active_workers", "Active Workers", PLOT_ACTIVE_WORKERS)
-    plot_metric(round_results, "cumulative_left_workers", "Cumulative Left Workers", PLOT_LEFT_WORKERS)
-    plot_metric(round_results, "avg_leave_probability", "Average Leave Probability", PLOT_LEAVE_PROB)
-    plot_metric(round_results, "member_count", "Member Count", PLOT_MEMBER_COUNT)
-    plot_metric(round_results, "trusted_member_count", "Trusted Member Count", PLOT_TRUSTED_MEMBER_COUNT)
-    plot_metric(round_results, "membership_fee_income", "Membership Fee Income", PLOT_MEMBERSHIP_FEE_INCOME)
+def main():
+    seeds = [RANDOM_SEED + i * SEED_STEP for i in range(NUM_EXPERIMENT_RUNS)]
+    print(f"开始重复实验，共 {NUM_EXPERIMENT_RUNS} 次，随机种子: {seeds}")
+
+    all_round_results = []
+    all_summaries = []
+    all_runs_payload = []
+
+    for run_idx, seed in enumerate(seeds, start=1):
+        print(f"\n===== Run {run_idx}/{NUM_EXPERIMENT_RUNS} | seed={seed} =====")
+        round_results, summary = run_single_experiment(seed)
+        all_round_results.append(round_results)
+        all_summaries.append(summary)
+        all_runs_payload.append(
+            {
+                "run_index": run_idx,
+                "seed": seed,
+                "summary": summary,
+                "round_results": round_results,
+            }
+        )
+
+    avg_round_results = aggregate_round_results(all_round_results)
+    avg_summary = average_dict_records(all_summaries)
+    avg_summary["num_experiment_runs"] = NUM_EXPERIMENT_RUNS
+    avg_summary["experiment_seeds"] = seeds
+
+    all_runs_file = ROUND_RESULTS_FILE.replace(".json", "_all_runs.json")
+    save_json(all_runs_payload, all_runs_file)
+    save_json(avg_round_results, ROUND_RESULTS_FILE)
+    save_json(avg_summary, SUMMARY_FILE)
+
+    plot_metric(avg_round_results, "coverage_rate", "Coverage Rate", PLOT_COVERAGE)
+    plot_metric(avg_round_results, "completion_rate", "Completion Rate", PLOT_COMPLETION)
+    plot_metric(avg_round_results, "avg_quality", "Average Realized Quality", PLOT_AVG_QUALITY)
+    plot_metric(avg_round_results, "cumulative_coverage_rate", "Cumulative Coverage Rate", PLOT_CUM_COVERAGE)
+    plot_metric(avg_round_results, "cumulative_completion_rate", "Cumulative Completion Rate", PLOT_CUM_COMPLETION)
+    plot_metric(avg_round_results, "cumulative_avg_quality", "Cumulative Average Quality", PLOT_CUM_QUALITY)
+    plot_metric(avg_round_results, "trusted_count", "Trusted Count", PLOT_TRUSTED)
+    plot_metric(avg_round_results, "unknown_count", "Unknown Count", PLOT_UNKNOWN)
+    plot_metric(avg_round_results, "malicious_count", "Malicious Count", PLOT_MALICIOUS)
+    plot_metric(avg_round_results, "num_validation_tasks", "Validation Task Count", PLOT_VALIDATION)
+    plot_metric(avg_round_results, "avg_trust", "Average Trust", PLOT_TRUST)
+    plot_metric(avg_round_results, "platform_utility", "Platform Utility", PLOT_PLATFORM_UTILITY)
+    plot_metric(avg_round_results, "cumulative_platform_utility", "Cumulative Platform Utility", PLOT_CUM_PLATFORM_UTILITY)
+    plot_metric(avg_round_results, "num_active_workers", "Active Workers", PLOT_ACTIVE_WORKERS)
+    plot_metric(avg_round_results, "cumulative_left_workers", "Cumulative Left Workers", PLOT_LEFT_WORKERS)
+    plot_metric(avg_round_results, "avg_leave_probability", "Average Leave Probability", PLOT_LEAVE_PROB)
+    plot_metric(avg_round_results, "member_count", "Member Count", PLOT_MEMBER_COUNT)
+    plot_metric(avg_round_results, "trusted_member_count", "Trusted Member Count", PLOT_TRUSTED_MEMBER_COUNT)
+    plot_metric(avg_round_results, "membership_fee_income", "Membership Fee Income", PLOT_MEMBERSHIP_FEE_INCOME)
 
     print("全部完成")
-    print("Summary:")
-    for k, v in summary.items():
+    print("Average Summary:")
+    for k, v in avg_summary.items():
         print(f"  {k}: {v}")
 
 
