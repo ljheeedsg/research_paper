@@ -23,49 +23,64 @@ PLOT_TRUSTED = "experiment2_cmab_trust_pgrd_trusted_count.png"
 PLOT_UNKNOWN = "experiment2_cmab_trust_pgrd_unknown_count.png"
 PLOT_MALICIOUS = "experiment2_cmab_trust_pgrd_malicious_count.png"
 PLOT_VALIDATION = "experiment2_cmab_trust_pgrd_validation_count.png"
-PLOT_MEMBER = "experiment2_cmab_trust_pgrd_member_count.png"
+PLOT_TRUST = "experiment2_cmab_trust_pgrd_avg_trust.png"
+PLOT_PLATFORM_UTILITY = "experiment2_cmab_trust_pgrd_platform_utility.png"
+PLOT_CUM_PLATFORM_UTILITY = "experiment2_cmab_trust_pgrd_cumulative_platform_utility.png"
+PLOT_ACTIVE_WORKERS = "experiment2_cmab_trust_pgrd_active_workers.png"
+PLOT_LEFT_WORKERS = "experiment2_cmab_trust_pgrd_left_workers.png"
+PLOT_LEAVE_PROB = "experiment2_cmab_trust_pgrd_avg_leave_probability.png"
+PLOT_MEMBER_COUNT = "experiment2_cmab_trust_pgrd_member_count.png"
+PLOT_TRUSTED_MEMBER_COUNT = "experiment2_cmab_trust_pgrd_trusted_member_count.png"
+PLOT_MEMBERSHIP_FEE_INCOME = "experiment2_cmab_trust_pgrd_membership_fee_income.png"
 
 TOTAL_SLOTS = 86400 // 600
 PER_ROUND_BUDGET = 1000
 K = 7
 RANDOM_SEED = 3
 
-# 完成判定质量阈值
+# 完成判定质量阈值（只用于评价）
 DELTA = 0.45
 DEFAULT_INIT_UCB = 1.0
 
-# ========== Step 5: validation ==========
+# ===== Platform Utility =====
+# 将“任务权重 × 完成质量”货币化
+RHO = 10.0
+
+# ===== Worker Cost =====
+# 工人真实执行成本 = WORKER_COST_RATIO × 工人报酬
+WORKER_COST_RATIO = 0.6
+
+# ===== Leave Model =====
+# 退出概率：
+# sigmoid(BETA0 + BETA1 * cumulative_cost - BETA2 * avg_reward_per_selected_round)
+BETA0 = -1
+BETA1 = 0.1
+BETA2 = 0.1
+
+# 验证任务参数
 VALIDATION_TOP_M = 5
 
+# 平台初始认知：只知道 trusted，其余都先当 unknown
 TRUST_INIT_TRUSTED = 1.0
 TRUST_INIT_UNKNOWN = 0.5
 
+# trust 更新参数
 ETA = 0.10
 THETA_HIGH = 0.8
 THETA_LOW = 0.20
 
+# 分段误差阈值
 ERROR_GOOD = 0.15
 ERROR_BAD = 0.35
 
-# ========== Step 6: PGRD ==========
-# 会员任务占比：从每轮任务中选一部分作为会员任务
-MEMBER_TASK_RATIO = 0.5
-
-# 会员任务和普通任务的收益系数
-MEMBER_REWARD_MULTIPLIER = 1.25
-NORMAL_REWARD_MULTIPLIER = 1.00
-
-# 会员费
+# ===== PGRD Membership =====
 MEMBERSHIP_FEE = 2.0
-
-# 参照依赖损失系数
-LAMBDA_REF = 2.0
-
-# 概率敏感系数（logit）
-XI = 4.0
-
-# 概率阈值
-PSI_THRESHOLD = 0.55
+MEMBER_TASK_RATIO = 0.5
+MEMBER_REWARD_MULTIPLIER = 1.25
+NORMAL_REWARD_MULTIPLIER = 1.0
+PGRD_LAMBDA = 1.5
+PGRD_XI = 4.0
+MEMBERSHIP_THRESHOLD = 0.55
 
 SKIP_EMPTY_ROUNDS = True
 # =======================================================
@@ -73,6 +88,11 @@ SKIP_EMPTY_ROUNDS = True
 
 random.seed(RANDOM_SEED)
 np.random.seed(RANDOM_SEED)
+
+
+def sigmoid(x: float) -> float:
+    x = max(-20.0, min(20.0, x))
+    return 1.0 / (1.0 + math.exp(-x))
 
 
 def load_worker_options():
@@ -83,6 +103,10 @@ def load_worker_options():
 
 
 def load_all_tasks_from_workers(worker_options):
+    """
+    从 worker_options 中汇总所有任务，按 slot 分组；
+    同时建立 task_id -> region_id 映射（这里将 region 当作 grid）。
+    """
     task_dict = {}
     task_grid_map = {}
 
@@ -112,7 +136,8 @@ def load_all_tasks_from_workers(worker_options):
 
 def build_worker_profiles(worker_options):
     """
-    平台初始只知道 trusted；
+    第5步：
+    平台初始只知道 trusted。
     真实 unknown / malicious 初始都视为 unknown。
     """
     workers = {}
@@ -153,15 +178,25 @@ def build_worker_profiles(worker_options):
             "trust": trust,
             "category": category,
 
-            # membership state
-            "is_member": False,
-            "last_membership_prob": 0.0,
-            "last_member_utility": 0.0,
-            "last_normal_utility": 0.0,
-
             # CMAB stats
             "n_obs": 0,
             "avg_quality": 0.0,
+
+            # ===== long-run worker state =====
+            "is_active": True,
+            "cumulative_reward": 0.0,
+            "cumulative_cost": 0.0,
+            "recent_reward": 0.0,
+            "leave_probability": 0.0,
+            "selected_rounds": 0,
+            "active_rounds": 0,
+            "left_round_id": None,
+
+            # ===== PGRD state =====
+            "is_member": False,
+            "membership_probability": 0.0,
+            "cumulative_membership_fee": 0.0,
+            "member_rounds": 0,
         }
 
     return workers
@@ -218,7 +253,7 @@ def rebuild_sets(workers):
 def get_available_workers(workers, slot_id):
     return [
         worker for worker in workers.values()
-        if slot_id in worker["available_slots"]
+        if slot_id in worker["available_slots"] and worker["is_active"]
     ]
 
 
@@ -226,8 +261,10 @@ def get_tasks_for_slot(tasks_by_slot, slot_id):
     return tasks_by_slot.get(slot_id, [])
 
 
-# ==================== CMAB ====================
 def compute_ucb(worker, total_observations):
+    """
+    论文风格工人级 UCB 估计。
+    """
     if worker["n_obs"] <= 0:
         return DEFAULT_INIT_UCB
 
@@ -236,133 +273,31 @@ def compute_ucb(worker, total_observations):
     return min(1.0, float(worker["avg_quality"]) + explore)
 
 
-def split_member_and_normal_tasks(round_tasks, member_task_ratio):
-    """
-    按权重从高到低，取前一部分作为会员任务。
-    """
-    if not round_tasks:
-        return set(), set()
-
-    sorted_tasks = sorted(round_tasks, key=lambda x: (-float(x["weight"]), x["task_id"]))
-    member_count = max(1, int(round(len(sorted_tasks) * member_task_ratio)))
-    member_count = min(member_count, len(sorted_tasks))
-
-    member_task_ids = {task["task_id"] for task in sorted_tasks[:member_count]}
-    normal_task_ids = {task["task_id"] for task in sorted_tasks[member_count:]}
-    return member_task_ids, normal_task_ids
-
-
-# ==================== PGRD membership ====================
-def sigmoid(x):
-    x = max(-20.0, min(20.0, x))
-    return 1.0 / (1.0 + math.exp(-x))
-
-
-def update_membership_by_pgrd(available_workers, slot_id, member_task_ids, normal_task_ids):
-    """
-    只有 trusted 才允许成为会员。
-    会员选择依据：会员任务预期收益 vs 普通任务预期收益。
-    """
-    membership_records = []
-
-    for worker in available_workers:
-        worker["last_membership_prob"] = 0.0
-        worker["last_member_utility"] = 0.0
-        worker["last_normal_utility"] = 0.0
-
-        # 非 trusted 一律不能是会员
-        if worker["category"] != "trusted":
-            worker["is_member"] = False
-            continue
-
-        bid_task_ids = set(worker["tasks_by_slot"].get(slot_id, []))
-        member_bid_tasks = list(bid_task_ids & member_task_ids)
-        normal_bid_tasks = list(bid_task_ids & normal_task_ids)
-
-        member_weights = [float(worker["task_map"][tid]["weight"]) for tid in member_bid_tasks]
-        normal_weights = [float(worker["task_map"][tid]["weight"]) for tid in normal_bid_tasks]
-
-        total_bid_tasks = max(1, len(member_bid_tasks) + len(normal_bid_tasks))
-        unit_cost = float(worker["bid_price"]) / total_bid_tasks
-
-        # 参照依赖：会员任务的收益更高，普通任务作为对照
-        member_reward_sum = MEMBER_REWARD_MULTIPLIER * sum(member_weights)
-        normal_reward_sum = NORMAL_REWARD_MULTIPLIER * sum(normal_weights)
-
-        # 参照损失：放弃会员任务相对普通任务的差异感知
-        ref_loss = -LAMBDA_REF * abs(member_reward_sum - normal_reward_sum)
-
-        member_cost_sum = unit_cost * max(1, len(member_bid_tasks))
-        normal_cost_sum = unit_cost * max(1, len(normal_bid_tasks))
-
-        R_member = member_reward_sum + ref_loss - member_cost_sum - MEMBERSHIP_FEE
-        R_normal = normal_reward_sum - normal_cost_sum
-
-        psi = sigmoid(XI * (R_member - R_normal))
-        is_member = (len(member_bid_tasks) > 0) and (psi >= PSI_THRESHOLD)
-
-        worker["is_member"] = is_member
-        worker["last_membership_prob"] = psi
-        worker["last_member_utility"] = R_member
-        worker["last_normal_utility"] = R_normal
-
-        membership_records.append({
-            "worker_id": worker["worker_id"],
-            "member_candidate": True,
-            "member_bid_task_count": len(member_bid_tasks),
-            "normal_bid_task_count": len(normal_bid_tasks),
-            "member_reward_sum": round(member_reward_sum, 4),
-            "normal_reward_sum": round(normal_reward_sum, 4),
-            "member_utility": round(R_member, 4),
-            "normal_utility": round(R_normal, 4),
-            "membership_probability": round(psi, 4),
-            "is_member": is_member,
-        })
-
-    return membership_records
-
-
 def compute_worker_marginal_gain(
     worker,
     slot_id,
     round_task_ids,
     current_best_quality,
     total_observations,
-    member_task_ids,
-    normal_task_ids,
+    bid_tasks_map=None,
 ):
     """
     论文风格边际增益：
         Delta_i(t) = sum_j w_j * max(0, q_hat_i(t) - Q_j^cur(t))
-
-    约束：
-    - member task 只能由 is_member=True 的 trusted 工人做
-    - normal task 由所有非 malicious 工人做
     """
-    raw_bid_task_ids = [
-        task_id
-        for task_id in worker["tasks_by_slot"].get(slot_id, [])
-        if task_id in round_task_ids
-    ]
-    if not raw_bid_task_ids:
-        return None
-
-    allowed_bid_task_ids = []
-    for task_id in raw_bid_task_ids:
-        if task_id in member_task_ids:
-            if worker["is_member"] and worker["category"] == "trusted":
-                allowed_bid_task_ids.append(task_id)
-        elif task_id in normal_task_ids:
-            allowed_bid_task_ids.append(task_id)
-
-    if not allowed_bid_task_ids:
+    candidate_bid_tasks = (
+        bid_tasks_map.get(worker["worker_id"], [])
+        if bid_tasks_map is not None else worker["tasks_by_slot"].get(slot_id, [])
+    )
+    bid_task_ids = [task_id for task_id in candidate_bid_tasks if task_id in round_task_ids]
+    if not bid_task_ids:
         return None
 
     q_hat = compute_ucb(worker, total_observations)
     marginal_gain = 0.0
     marginal_details = []
 
-    for task_id in allowed_bid_task_ids:
+    for task_id in bid_task_ids:
         task = worker["task_map"][task_id]
         weight = float(task["weight"])
         prev_best = float(current_best_quality.get(task_id, 0.0))
@@ -379,7 +314,6 @@ def compute_worker_marginal_gain(
                 "estimated_quality": round(q_hat, 4),
                 "delta_quality": round(delta_quality, 4),
                 "weighted_gain": round(weighted_gain, 4),
-                "task_type": "member" if task_id in member_task_ids else "normal",
             })
 
     cost = float(worker["bid_price"])
@@ -389,30 +323,20 @@ def compute_worker_marginal_gain(
         "worker_id": worker["worker_id"],
         "bid_price": round(cost, 4),
         "q_hat": round(q_hat, 4),
-        "bid_task_ids": allowed_bid_task_ids,
+        "bid_task_ids": bid_task_ids,
         "marginal_task_count": len(marginal_details),
         "marginal_gain": round(marginal_gain, 4),
         "score": round(score, 6),
         "marginal_details": marginal_details,
         "trust": round(float(worker["trust"]), 4),
         "category": worker["category"],
-        "is_member": bool(worker["is_member"]),
-        "membership_probability": round(float(worker["last_membership_prob"]), 4),
     }
 
 
-def greedy_select_workers(
-    available_workers,
-    slot_id,
-    round_tasks,
-    total_observations,
-    budget,
-    member_task_ids,
-    normal_task_ids,
-):
+def greedy_select_workers(available_workers, slot_id, round_tasks, total_observations, budget, bid_tasks_map=None):
     """
-    基于论文风格 CMAB 招募，但排除 malicious；
-    并对会员任务施加会员访问约束。
+    第5步的招募仍沿用论文风格 CMAB，
+    但排除已经被识别为 malicious 的工人。
     """
     round_task_ids = {task["task_id"] for task in round_tasks}
     remaining_workers = {
@@ -441,8 +365,7 @@ def greedy_select_workers(
                 round_task_ids=round_task_ids,
                 current_best_quality=current_best_quality,
                 total_observations=total_observations,
-                member_task_ids=member_task_ids,
-                normal_task_ids=normal_task_ids,
+                bid_tasks_map=bid_tasks_map,
             )
             if candidate is None or candidate["marginal_gain"] <= 0:
                 continue
@@ -479,33 +402,27 @@ def greedy_select_workers(
     return selected_ids, round(total_cost, 4), selection_details, current_best_quality
 
 
-def evaluate_round(selected_worker_ids, workers, round_tasks, slot_id, delta, member_task_ids, normal_task_ids):
+def evaluate_round(selected_worker_ids, workers, round_tasks, slot_id, delta, bid_tasks_map=None):
     """
     实际执行评价：
-    - member task 只能由 member trusted 执行
-    - normal task 由非 malicious 执行
+    1. coverage_rate: 至少有1个工人执行
+    2. completion_rate: 人数达到 required_workers 且平均质量 >= delta
+    3. weighted_completion_quality: weight * best_quality
     """
     task_quality_values = defaultdict(list)
     task_execution = defaultdict(list)
 
     for worker_id in selected_worker_ids:
         worker = workers[worker_id]
-
-        for task_id in worker["tasks_by_slot"].get(slot_id, []):
-            if task_id not in worker["task_map"]:
-                continue
-
-            # 会员任务约束
-            if task_id in member_task_ids:
-                if not (worker["is_member"] and worker["category"] == "trusted"):
-                    continue
-            elif task_id in normal_task_ids:
-                if worker["category"] == "malicious":
-                    continue
-
-            q_ij = float(worker["task_map"][task_id]["quality"])
-            task_quality_values[task_id].append(q_ij)
-            task_execution[task_id].append(worker_id)
+        executed_task_ids = (
+            bid_tasks_map.get(worker_id, [])
+            if bid_tasks_map is not None else worker["tasks_by_slot"].get(slot_id, [])
+        )
+        for task_id in executed_task_ids:
+            if task_id in worker["task_map"]:
+                q_ij = float(worker["task_map"][task_id]["quality"])
+                task_quality_values[task_id].append(q_ij)
+                task_execution[task_id].append(worker_id)
 
     covered_tasks = []
     completed_tasks = []
@@ -534,6 +451,8 @@ def evaluate_round(selected_worker_ids, workers, round_tasks, slot_id, delta, me
         weighted_gain = weight * best_quality
         weighted_completion_quality += weighted_gain
 
+        platform_value = RHO * weight * best_quality
+
         task_result = {
             "task_id": task_id,
             "slot_id": slot_id,
@@ -546,7 +465,7 @@ def evaluate_round(selected_worker_ids, workers, round_tasks, slot_id, delta, me
             "best_quality": round(best_quality, 4),
             "avg_quality": round(avg_quality, 4),
             "weighted_gain": round(weighted_gain, 4),
-            "task_type": "member" if task_id in member_task_ids else "normal",
+            "platform_value": round(platform_value, 4),
         }
         task_results.append(task_result)
 
@@ -588,8 +507,143 @@ def evaluate_round(selected_worker_ids, workers, round_tasks, slot_id, delta, me
     }
 
 
-# ==================== validation ====================
+def compute_platform_utility(eval_result, selected_worker_ids, workers, membership_fee_income=0.0):
+    """
+    平台单轮收益：
+        task_value_t = sum_j (RHO * weight_j * best_quality_j)
+        payment_t = sum_i bid_i
+        utility_t = task_value_t - payment_t
+    """
+    platform_task_value = sum(
+        float(task_result["platform_value"])
+        for task_result in eval_result["task_results"]
+    )
+    platform_payment = sum(
+        float(workers[worker_id]["bid_price"])
+        for worker_id in selected_worker_ids
+    )
+    platform_utility = platform_task_value + membership_fee_income - platform_payment
+
+    return {
+        "platform_task_value": round(platform_task_value, 4),
+        "platform_payment": round(platform_payment, 4),
+        "membership_fee_income": round(membership_fee_income, 4),
+        "platform_utility": round(platform_utility, 4),
+    }
+
+
+def split_member_and_normal_tasks(round_tasks):
+    if not round_tasks:
+        return set(), set()
+
+    task_infos = []
+    for task in round_tasks:
+        task_id = task["task_id"]
+        weight = float(task["weight"])
+        member_score = MEMBER_REWARD_MULTIPLIER * weight
+        task_infos.append((task_id, member_score))
+
+    task_infos.sort(key=lambda x: (-x[1], x[0]))
+    member_count = max(1, int(round(len(task_infos) * MEMBER_TASK_RATIO)))
+    member_count = min(member_count, len(task_infos))
+
+    member_task_ids = {tid for tid, _ in task_infos[:member_count]}
+    normal_task_ids = {tid for tid, _ in task_infos[member_count:]}
+    return member_task_ids, normal_task_ids
+
+
+def update_membership_by_pgrd(available_workers, slot_id, member_task_ids, normal_task_ids):
+    membership_records = []
+    member_worker_ids = []
+    membership_fee_income_t = 0.0
+    bid_tasks_map = {}
+
+    for worker in available_workers:
+        worker["membership_probability"] = 0.0
+
+        bid_task_ids = set(worker["tasks_by_slot"].get(slot_id, []))
+        member_bid_tasks = sorted(list(bid_task_ids & member_task_ids))
+        normal_bid_tasks = sorted(list(bid_task_ids & normal_task_ids))
+
+        if worker["category"] == "malicious":
+            worker["is_member"] = False
+            bid_tasks_map[worker["worker_id"]] = []
+            continue
+
+        if worker["category"] != "trusted":
+            worker["is_member"] = False
+            bid_tasks_map[worker["worker_id"]] = normal_bid_tasks
+            continue
+
+        if not member_bid_tasks and not normal_bid_tasks:
+            worker["is_member"] = False
+            bid_tasks_map[worker["worker_id"]] = []
+            continue
+
+        member_net_values = []
+        for tid in member_bid_tasks:
+            weight = float(worker["task_map"][tid]["weight"])
+            p_m = MEMBER_REWARD_MULTIPLIER * weight
+            c_m = WORKER_COST_RATIO * float(worker["bid_price"])
+            member_net_values.append(p_m - c_m)
+
+        normal_net_values = []
+        for tid in normal_bid_tasks:
+            weight = float(worker["task_map"][tid]["weight"])
+            p_n = NORMAL_REWARD_MULTIPLIER * weight
+            c_n = WORKER_COST_RATIO * float(worker["bid_price"])
+            normal_net_values.append(p_n - c_n)
+
+        avg_member_net = float(np.mean(member_net_values)) if member_net_values else 0.0
+        avg_normal_net = float(np.mean(normal_net_values)) if normal_net_values else 0.0
+
+        R_A = len(member_bid_tasks) * avg_member_net - MEMBERSHIP_FEE
+        R_B = len(normal_bid_tasks) * avg_normal_net
+        ref_loss = max(0.0, R_A - R_B)
+        diff = R_A - R_B + PGRD_LAMBDA * ref_loss
+        psi = sigmoid(PGRD_XI * diff)
+
+        is_member = psi >= MEMBERSHIP_THRESHOLD
+        worker["membership_probability"] = float(psi)
+        worker["is_member"] = bool(is_member)
+
+        if is_member:
+            member_worker_ids.append(worker["worker_id"])
+            membership_fee_income_t += MEMBERSHIP_FEE
+            worker["cumulative_membership_fee"] += MEMBERSHIP_FEE
+            worker["member_rounds"] += 1
+            bid_tasks_map[worker["worker_id"]] = sorted(member_bid_tasks + normal_bid_tasks)
+        else:
+            bid_tasks_map[worker["worker_id"]] = normal_bid_tasks
+
+        membership_records.append({
+            "worker_id": worker["worker_id"],
+            "member_task_count": len(member_bid_tasks),
+            "normal_task_count": len(normal_bid_tasks),
+            "R_A": round(R_A, 4),
+            "R_B": round(R_B, 4),
+            "reference_loss": round(ref_loss, 4),
+            "membership_probability": round(psi, 4),
+            "is_member": bool(is_member),
+            "bid_task_ids": bid_tasks_map[worker["worker_id"]],
+        })
+
+    return {
+        "membership_records": membership_records,
+        "member_worker_ids": member_worker_ids,
+        "member_count": len(member_worker_ids),
+        "membership_fee_income": round(membership_fee_income_t, 4),
+        "bid_tasks_map": bid_tasks_map,
+    }
+
+
 def generate_validation_tasks_by_grid(available_workers, workers, task_grid_map, round_tasks, slot_id, top_m):
+    """
+    正确的验证任务生成逻辑：
+    1. 先按 grid(region) 聚合 trusted / unknown 的空间重叠
+    2. 选 top-M grid
+    3. 再从这些 grid 中挑选本轮有效任务作为验证任务
+    """
     available_ids = {w["worker_id"] for w in available_workers}
     round_task_ids = {task["task_id"] for task in round_tasks}
 
@@ -620,6 +674,7 @@ def generate_validation_tasks_by_grid(available_workers, workers, task_grid_map,
         uc_cnt = grid_uc.get(gid, 0)
         uu_cnt = grid_uu.get(gid, 0)
 
+        # 必须同时有 trusted 和 unknown
         if uc_cnt > 0 and uu_cnt > 0:
             candidate_grids.append({
                 "grid_id": gid,
@@ -636,6 +691,7 @@ def generate_validation_tasks_by_grid(available_workers, workers, task_grid_map,
 
     validation_tasks = []
     for item in selected_grids:
+        # 固定选择该 grid 中 task_id 最小的任务，保证稳定
         chosen_task = item["task_ids"][0]
         validation_tasks.append({
             "task_id": chosen_task,
@@ -648,6 +704,9 @@ def generate_validation_tasks_by_grid(available_workers, workers, task_grid_map,
 
 
 def update_trust_by_validation(validation_tasks, available_workers, workers, slot_id):
+    """
+    用 trusted 作为参考，对 unknown 进行验证并更新 trust。
+    """
     trust_update_records = []
     available_ids = {w["worker_id"] for w in available_workers}
 
@@ -726,12 +785,18 @@ def update_trust_by_validation(validation_tasks, available_workers, workers, slo
     return trust_update_records
 
 
-def update_worker_statistics(selected_worker_ids, workers, slot_id):
+def update_worker_statistics(selected_worker_ids, workers, slot_id, bid_tasks_map=None):
+    """
+    用本轮被选工人的真实任务质量更新历史统计，供下一轮 UCB 使用。
+    """
     total_new_observations = 0
 
     for worker_id in selected_worker_ids:
         worker = workers[worker_id]
-        task_ids = worker["tasks_by_slot"].get(slot_id, [])
+        task_ids = (
+            bid_tasks_map.get(worker_id, [])
+            if bid_tasks_map is not None else worker["tasks_by_slot"].get(slot_id, [])
+        )
         qualities = []
 
         for task_id in task_ids:
@@ -756,6 +821,76 @@ def update_worker_statistics(selected_worker_ids, workers, slot_id):
     return total_new_observations
 
 
+def update_worker_reward_cost(selected_worker_ids, workers):
+    """
+    更新被选工人的：
+    - cumulative_reward
+    - cumulative_cost
+    - recent_reward
+    - selected_rounds
+    """
+    selected_set = set(selected_worker_ids)
+
+    for worker_id, worker in workers.items():
+        if worker_id in selected_set:
+            reward_t = float(worker["bid_price"])
+            cost_t = WORKER_COST_RATIO * reward_t
+
+            worker["recent_reward"] = reward_t
+            worker["cumulative_reward"] += reward_t
+            worker["cumulative_cost"] += cost_t
+            worker["selected_rounds"] += 1
+        else:
+            worker["recent_reward"] = 0.0
+
+
+def update_worker_leave_state(workers, round_id, selected_worker_ids):
+    """
+    只对本轮被选中的工人执行退出判定。
+    这样更符合：参与任务 -> 产生收益/成本 -> 再决定是否离开。
+    """
+    left_worker_ids = []
+    leave_probabilities = []
+    selected_set = set(selected_worker_ids)
+
+    for worker_id, worker in workers.items():
+        if not worker["is_active"]:
+            continue
+
+        if worker_id not in selected_set:
+            worker["leave_probability"] = 0.0
+            continue
+
+        avg_reward = worker["cumulative_reward"] / max(1, worker["selected_rounds"])
+        leave_probability = sigmoid(
+            BETA0
+            + BETA1 * float(worker["cumulative_cost"])
+            - BETA2 * float(avg_reward)
+        )
+
+        worker["leave_probability"] = float(leave_probability)
+        leave_probabilities.append(float(leave_probability))
+
+        if random.random() < leave_probability:
+            worker["is_active"] = False
+            worker["left_round_id"] = round_id
+            worker["is_member"] = False
+            left_worker_ids.append(worker["worker_id"])
+
+    avg_leave_probability = float(np.mean(leave_probabilities)) if leave_probabilities else 0.0
+
+    return {
+        "left_worker_ids": left_worker_ids,
+        "num_left_workers_this_round": len(left_worker_ids),
+        "avg_leave_probability": round(avg_leave_probability, 4),
+    }
+
+
+def update_active_rounds(available_workers):
+    for worker in available_workers:
+        worker["active_rounds"] += 1
+
+
 def update_cumulative_metrics(round_result, cumulative_state):
     covered_task_results = [
         tr for tr in round_result["task_results"] if tr["covered"]
@@ -770,6 +905,10 @@ def update_cumulative_metrics(round_result, cumulative_state):
         float(tr["best_quality"]) for tr in covered_task_results
     )
     cumulative_state["quality_count"] += len(covered_task_results)
+    cumulative_state["platform_task_value_sum"] += round_result["platform_task_value"]
+    cumulative_state["platform_payment_sum"] += round_result["platform_payment"]
+    cumulative_state["membership_fee_income_sum"] += round_result["membership_fee_income"]
+    cumulative_state["platform_utility_sum"] += round_result["platform_utility"]
 
     cumulative_coverage_rate = (
         cumulative_state["num_covered"] / cumulative_state["num_tasks"]
@@ -797,6 +936,10 @@ def update_cumulative_metrics(round_result, cumulative_state):
         cumulative_normalized_completion_quality, 4
     )
     round_result["cumulative_avg_quality"] = round(cumulative_avg_quality, 4)
+    round_result["cumulative_platform_task_value"] = round(cumulative_state["platform_task_value_sum"], 4)
+    round_result["cumulative_platform_payment"] = round(cumulative_state["platform_payment_sum"], 4)
+    round_result["cumulative_membership_fee_income"] = round(cumulative_state["membership_fee_income_sum"], 4)
+    round_result["cumulative_platform_utility"] = round(cumulative_state["platform_utility_sum"], 4)
 
 
 def compute_cumulative_summary(round_results):
@@ -808,6 +951,10 @@ def compute_cumulative_summary(round_results):
         "weighted_completion_quality_sum": 0.0,
         "quality_sum": 0.0,
         "quality_count": 0,
+        "platform_task_value_sum": 0.0,
+        "platform_payment_sum": 0.0,
+        "membership_fee_income_sum": 0.0,
+        "platform_utility_sum": 0.0,
     }
 
     for round_result in round_results:
@@ -823,6 +970,10 @@ def compute_cumulative_summary(round_results):
             float(tr["best_quality"]) for tr in covered_task_results
         )
         cumulative_state["quality_count"] += len(covered_task_results)
+        cumulative_state["platform_task_value_sum"] += round_result["platform_task_value"]
+        cumulative_state["platform_payment_sum"] += round_result["platform_payment"]
+        cumulative_state["membership_fee_income_sum"] += round_result["membership_fee_income"]
+        cumulative_state["platform_utility_sum"] += round_result["platform_utility"]
 
     cumulative_coverage_rate = (
         cumulative_state["num_covered"] / cumulative_state["num_tasks"]
@@ -849,10 +1000,37 @@ def compute_cumulative_summary(round_results):
         "cumulative_completion_rate": round(cumulative_completion_rate, 4),
         "cumulative_normalized_completion_quality": round(cumulative_normalized_completion_quality, 4),
         "cumulative_avg_quality": round(cumulative_avg_quality, 4),
+        "cumulative_platform_task_value": round(cumulative_state["platform_task_value_sum"], 4),
+        "cumulative_platform_payment": round(cumulative_state["platform_payment_sum"], 4),
+        "cumulative_membership_fee_income": round(cumulative_state["membership_fee_income_sum"], 4),
+        "cumulative_platform_utility": round(cumulative_state["platform_utility_sum"], 4),
     }
 
 
-def summarize_results(round_results, initial_stats=None):
+def summarize_worker_longrun_stats(workers):
+    active_workers = [w for w in workers.values() if w["is_active"]]
+    left_workers = [w for w in workers.values() if not w["is_active"]]
+    member_workers = [w for w in workers.values() if w["is_member"]]
+    trusted_member_workers = [w for w in workers.values() if w["is_member"] and w["category"] == "trusted"]
+
+    def safe_mean(values):
+        return round(float(np.mean(values)), 4) if values else 0.0
+
+    return {
+        "final_num_active_workers": len(active_workers),
+        "final_num_left_workers": len(left_workers),
+        "final_num_member_workers": len(member_workers),
+        "final_num_trusted_member_workers": len(trusted_member_workers),
+        "final_avg_cumulative_reward": safe_mean([w["cumulative_reward"] for w in workers.values()]),
+        "final_avg_cumulative_cost": safe_mean([w["cumulative_cost"] for w in workers.values()]),
+        "final_avg_membership_fee_paid": safe_mean([w["cumulative_membership_fee"] for w in workers.values()]),
+        "final_avg_selected_rounds": safe_mean([w["selected_rounds"] for w in workers.values()]),
+        "final_avg_active_rounds": safe_mean([w["active_rounds"] for w in workers.values()]),
+        "final_avg_leave_probability_active_workers": safe_mean([w["leave_probability"] for w in active_workers]),
+    }
+
+
+def summarize_results(round_results, workers, initial_stats=None):
     valid_rounds = [r for r in round_results if r["num_tasks"] > 0]
 
     def safe_mean(key, data):
@@ -861,6 +1039,7 @@ def summarize_results(round_results, initial_stats=None):
         return round(float(np.mean([r[key] for r in data])), 4)
 
     cumulative_all = compute_cumulative_summary(valid_rounds)
+    worker_stats = summarize_worker_longrun_stats(workers)
 
     summary = {
         "selection_logic": "paper_style_cmab_plus_validation_plus_pgrd",
@@ -877,18 +1056,32 @@ def summarize_results(round_results, initial_stats=None):
         "avg_reward_all_non_empty": safe_mean("reward", valid_rounds),
         "avg_cost_all_non_empty": safe_mean("cost", valid_rounds),
         "avg_efficiency_all_non_empty": safe_mean("efficiency", valid_rounds),
+        "avg_platform_task_value_all_non_empty": safe_mean("platform_task_value", valid_rounds),
+        "avg_platform_payment_all_non_empty": safe_mean("platform_payment", valid_rounds),
+        "avg_membership_fee_income_all_non_empty": safe_mean("membership_fee_income", valid_rounds),
+        "avg_platform_utility_all_non_empty": safe_mean("platform_utility", valid_rounds),
         "avg_validation_count_all_non_empty": safe_mean("num_validation_tasks", valid_rounds),
         "avg_trusted_count_all_non_empty": safe_mean("trusted_count", valid_rounds),
         "avg_unknown_count_all_non_empty": safe_mean("unknown_count", valid_rounds),
         "avg_malicious_count_all_non_empty": safe_mean("malicious_count", valid_rounds),
+        "avg_trust_all_non_empty": safe_mean("avg_trust", valid_rounds),
         "avg_member_count_all_non_empty": safe_mean("member_count", valid_rounds),
+        "avg_trusted_member_count_all_non_empty": safe_mean("trusted_member_count", valid_rounds),
+        "avg_num_active_workers_all_non_empty": safe_mean("num_active_workers", valid_rounds),
+        "avg_num_left_workers_this_round_all_non_empty": safe_mean("num_left_workers_this_round", valid_rounds),
+        "avg_leave_probability_all_non_empty": safe_mean("avg_leave_probability", valid_rounds),
         "final_cumulative_coverage_rate_all_non_empty": cumulative_all["cumulative_coverage_rate"],
         "final_cumulative_completion_rate_all_non_empty": cumulative_all["cumulative_completion_rate"],
         "final_cumulative_avg_quality_all_non_empty": cumulative_all["cumulative_avg_quality"],
         "final_cumulative_normalized_completion_quality_all_non_empty": (
             cumulative_all["cumulative_normalized_completion_quality"]
         ),
+        "final_cumulative_platform_task_value": cumulative_all["cumulative_platform_task_value"],
+        "final_cumulative_platform_payment": cumulative_all["cumulative_platform_payment"],
+        "final_cumulative_membership_fee_income": cumulative_all["cumulative_membership_fee_income"],
+        "final_cumulative_platform_utility": cumulative_all["cumulative_platform_utility"],
     }
+    summary.update(worker_stats)
     if initial_stats:
         summary.update(initial_stats)
     return summary
@@ -944,6 +1137,10 @@ def main():
         "weighted_completion_quality_sum": 0.0,
         "quality_sum": 0.0,
         "quality_count": 0,
+        "platform_task_value_sum": 0.0,
+        "platform_payment_sum": 0.0,
+        "membership_fee_income_sum": 0.0,
+        "platform_utility_sum": 0.0,
     }
 
     for slot_id in range(TOTAL_SLOTS):
@@ -954,44 +1151,43 @@ def main():
             continue
 
         available_workers = get_available_workers(workers, slot_id)
+        update_active_rounds(available_workers)
 
-        # Step A: 划分会员任务 / 普通任务
-        member_task_ids, normal_task_ids = split_member_and_normal_tasks(
-            round_tasks=round_tasks,
-            member_task_ratio=MEMBER_TASK_RATIO,
-        )
+        # Step A: 先划分会员/普通任务，并执行 PGRD 会员决策
+        for worker in workers.values():
+            worker["is_member"] = False
+            worker["membership_probability"] = 0.0
 
-        # Step B: trusted 工人根据 PGRD 决定是否成为会员
-        membership_records = update_membership_by_pgrd(
+        member_task_ids, normal_task_ids = split_member_and_normal_tasks(round_tasks)
+        membership_result = update_membership_by_pgrd(
             available_workers=available_workers,
             slot_id=slot_id,
             member_task_ids=member_task_ids,
             normal_task_ids=normal_task_ids,
         )
+        bid_tasks_map = membership_result["bid_tasks_map"]
 
-        # Step C: 论文风格 CMAB + 会员任务访问约束
+        # Step B: 在 PGRD 生成的 bid_tasks_map 上执行 CMAB 招募
         selected_worker_ids, cost_t, selection_details, est_quality_state = greedy_select_workers(
             available_workers=available_workers,
             slot_id=slot_id,
             round_tasks=round_tasks,
             total_observations=total_observations,
             budget=PER_ROUND_BUDGET,
-            member_task_ids=member_task_ids,
-            normal_task_ids=normal_task_ids,
+            bid_tasks_map=bid_tasks_map,
         )
 
-        # Step D: 本轮业务任务评价
+        # Step C: 本轮业务任务评价
         eval_result = evaluate_round(
             selected_worker_ids=selected_worker_ids,
             workers=workers,
             round_tasks=round_tasks,
             slot_id=slot_id,
             delta=DELTA,
-            member_task_ids=member_task_ids,
-            normal_task_ids=normal_task_ids,
+            bid_tasks_map=bid_tasks_map,
         )
 
-        # Step E: 验证任务
+        # Step D: 生成验证任务（先 grid 后 task）
         validation_tasks, validation_candidates = generate_validation_tasks_by_grid(
             available_workers=available_workers,
             workers=workers,
@@ -1001,7 +1197,7 @@ def main():
             top_m=VALIDATION_TOP_M,
         )
 
-        # Step F: 验证并更新 trust
+        # Step E: 执行验证并更新 trust
         trust_update_records = update_trust_by_validation(
             validation_tasks=validation_tasks,
             available_workers=available_workers,
@@ -1009,27 +1205,45 @@ def main():
             slot_id=slot_id,
         )
 
-        # Step G: 集合统计
-        Uc, Uu, Um = rebuild_sets(workers)
-
-        # Step H: 更新 CMAB 学习统计
-        total_observations_before_round = total_observations
-        total_observations += update_worker_statistics(selected_worker_ids, workers, slot_id)
+        # 验证后若不再 trusted，则撤销会员资格
+        for worker in workers.values():
+            if worker["category"] != "trusted":
+                worker["is_member"] = False
 
         reward_t = eval_result["weighted_completion_quality"]
         efficiency_t = (reward_t / cost_t) if cost_t > 0 else 0.0
-
-        member_count = sum(1 for w in workers.values() if w["is_member"])
-        avg_member_prob = (
-            float(np.mean([w["last_membership_prob"] for w in workers.values() if w["category"] == "trusted"]))
-            if any(w["category"] == "trusted" for w in workers.values()) else 0.0
+        update_worker_reward_cost(selected_worker_ids, workers)
+        platform_result = compute_platform_utility(
+            eval_result,
+            selected_worker_ids,
+            workers,
+            membership_fee_income=membership_result["membership_fee_income"],
         )
+        leave_result = update_worker_leave_state(
+            workers=workers,
+            round_id=round_id,
+            selected_worker_ids=selected_worker_ids,
+        )
+
+        Uc, Uu, Um = rebuild_sets(workers)
+
+        total_observations_before_round = total_observations
+        total_observations += update_worker_statistics(
+            selected_worker_ids,
+            workers,
+            slot_id,
+            bid_tasks_map=bid_tasks_map,
+        )
+        avg_trust_t = float(np.mean([w["trust"] for w in workers.values()])) if workers else 0.0
+        current_active_workers = sum(1 for worker in workers.values() if worker["is_active"])
+        cumulative_left_workers = sum(1 for worker in workers.values() if not worker["is_active"])
+        member_workers = [w for w in workers.values() if w["is_member"]]
+        trusted_member_workers = [w for w in workers.values() if w["is_member"] and w["category"] == "trusted"]
 
         round_result = {
             "round_id": round_id,
             "slot_id": slot_id,
             "selection_mode": "paper_style_cmab_plus_validation_plus_pgrd",
-
             "num_available_workers": len(available_workers),
             "num_selected_workers": len(selected_worker_ids),
             "selected_workers": selected_worker_ids,
@@ -1037,7 +1251,6 @@ def main():
             "estimated_best_quality_state": {
                 task_id: round(value, 4) for task_id, value in est_quality_state.items()
             },
-
             "num_tasks": eval_result["num_tasks"],
             "num_covered": eval_result["num_covered"],
             "num_completed": eval_result["num_completed"],
@@ -1050,15 +1263,16 @@ def main():
             "reward": round(reward_t, 4),
             "cost": round(cost_t, 4),
             "efficiency": round(efficiency_t, 4),
-
-            "member_task_count": len(member_task_ids),
-            "normal_task_count": len(normal_task_ids),
-            "member_task_ids": sorted(member_task_ids),
-            "normal_task_ids": sorted(normal_task_ids),
-
-            "membership_records": membership_records,
-            "member_count": member_count,
-            "avg_member_probability": round(avg_member_prob, 4),
+            "member_task_ids": sorted(list(member_task_ids)),
+            "normal_task_ids": sorted(list(normal_task_ids)),
+            "membership_records": membership_result["membership_records"],
+            "member_worker_ids": membership_result["member_worker_ids"],
+            "member_count": len(member_workers),
+            "trusted_member_count": len(trusted_member_workers),
+            "platform_task_value": platform_result["platform_task_value"],
+            "platform_payment": platform_result["platform_payment"],
+            "membership_fee_income": platform_result["membership_fee_income"],
+            "platform_utility": platform_result["platform_utility"],
 
             "num_validation_tasks": len(validation_tasks),
             "validation_tasks": validation_tasks,
@@ -1068,12 +1282,19 @@ def main():
             "trusted_count": len(Uc),
             "unknown_count": len(Uu),
             "malicious_count": len(Um),
+            "avg_trust": round(avg_trust_t, 4),
+            "num_active_workers": current_active_workers,
+            "num_left_workers_this_round": leave_result["num_left_workers_this_round"],
+            "left_worker_ids_this_round": leave_result["left_worker_ids"],
+            "cumulative_left_workers": cumulative_left_workers,
+            "avg_leave_probability": leave_result["avg_leave_probability"],
 
             "covered_tasks": eval_result["covered_tasks"],
             "completed_tasks": eval_result["completed_tasks"],
             "uncompleted_tasks": eval_result["uncompleted_tasks"],
             "task_results": eval_result["task_results"],
             "total_observations_before_round": total_observations_before_round,
+            "total_observations_after_round": total_observations,
         }
 
         update_cumulative_metrics(round_result, cumulative_state)
@@ -1082,21 +1303,23 @@ def main():
         print(
             f"[Round {round_id:03d}] "
             f"tasks={round_result['num_tasks']} | "
-            f"member_tasks={round_result['member_task_count']} | "
-            f"members={round_result['member_count']} | "
             f"selected={round_result['num_selected_workers']} | "
             f"validation={round_result['num_validation_tasks']} | "
             f"coverage={round_result['coverage_rate']:.4f} | "
             f"completion={round_result['completion_rate']:.4f} | "
             f"avg_quality={round_result['avg_quality']:.4f} | "
+            f"member={round_result['member_count']} | "
+            f"fee_income={round_result['membership_fee_income']:.2f} | "
+            f"platform_utility={round_result['platform_utility']:.2f} | "
             f"trusted={round_result['trusted_count']} | "
             f"unknown={round_result['unknown_count']} | "
             f"malicious={round_result['malicious_count']} | "
-            f"cum_quality={round_result['cumulative_avg_quality']:.4f} | "
-            f"cost={round_result['cost']:.2f}"
+            f"active_workers={round_result['num_active_workers']} | "
+            f"left_this_round={round_result['num_left_workers_this_round']} | "
+            f"cum_utility={round_result['cumulative_platform_utility']:.2f}"
         )
 
-    summary = summarize_results(round_results, initial_stats)
+    summary = summarize_results(round_results, workers, initial_stats)
 
     save_json(round_results, ROUND_RESULTS_FILE)
     save_json(summary, SUMMARY_FILE)
@@ -1111,7 +1334,15 @@ def main():
     plot_metric(round_results, "unknown_count", "Unknown Count", PLOT_UNKNOWN)
     plot_metric(round_results, "malicious_count", "Malicious Count", PLOT_MALICIOUS)
     plot_metric(round_results, "num_validation_tasks", "Validation Task Count", PLOT_VALIDATION)
-    plot_metric(round_results, "member_count", "Member Count", PLOT_MEMBER)
+    plot_metric(round_results, "avg_trust", "Average Trust", PLOT_TRUST)
+    plot_metric(round_results, "platform_utility", "Platform Utility", PLOT_PLATFORM_UTILITY)
+    plot_metric(round_results, "cumulative_platform_utility", "Cumulative Platform Utility", PLOT_CUM_PLATFORM_UTILITY)
+    plot_metric(round_results, "num_active_workers", "Active Workers", PLOT_ACTIVE_WORKERS)
+    plot_metric(round_results, "cumulative_left_workers", "Cumulative Left Workers", PLOT_LEFT_WORKERS)
+    plot_metric(round_results, "avg_leave_probability", "Average Leave Probability", PLOT_LEAVE_PROB)
+    plot_metric(round_results, "member_count", "Member Count", PLOT_MEMBER_COUNT)
+    plot_metric(round_results, "trusted_member_count", "Trusted Member Count", PLOT_TRUSTED_MEMBER_COUNT)
+    plot_metric(round_results, "membership_fee_income", "Membership Fee Income", PLOT_MEMBERSHIP_FEE_INCOME)
 
     print("全部完成")
     print("Summary:")

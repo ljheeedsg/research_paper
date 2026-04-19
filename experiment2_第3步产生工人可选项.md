@@ -119,9 +119,7 @@
 
 这里：
 
-[
-slot_id = \left\lfloor \frac{start_time}{SLOT_SEC} \right\rfloor
-]
+$$slot_id = \left\lfloor \frac{start_time}{SLOT_SEC} \right\rfloor$$
 
 因此，每个工人不仅有基础属性，也有一个按时间组织的轨迹段集合。
 
@@ -131,9 +129,7 @@ slot_id = \left\lfloor \frac{start_time}{SLOT_SEC} \right\rfloor
 
 从 `experiment2_tasks.csv` 中读取所有任务，并为每个任务补充一个真实值：
 
-[
-true_value_j \sim U(TRUE_VALUE_MIN, TRUE_VALUE_MAX)
-]
+$$true_value_j \sim U(TRUE_VALUE_MIN, TRUE_VALUE_MAX)$$
 
 这个 `true_value` 表示任务 (j) 的真实环境值，是后续工人上报数据生成和信任验证的基准。
 
@@ -162,9 +158,7 @@ true_value_j \sim U(TRUE_VALUE_MIN, TRUE_VALUE_MAX)
 
 工人轨迹段与任务必须位于同一区域：
 
-[
-region_i = region_j
-]
+$$region_i = region_j$$
 
 ---
 
@@ -174,23 +168,17 @@ region_i = region_j
 
 若工人轨迹段时间为：
 
-[
-[seg_start, seg_end]
-]
+$$[seg_start, seg_end]$$
 
 任务时间窗口为：
 
-[
-[task_start, task_end]
-]
+$$[task_start, task_end]$$
 
 则当且仅当两者满足：
 
-[
-seg_end \ge task_start
+$$seg_end \ge task_start
 \quad \text{且} \quad
-seg_start \le task_end
-]
+seg_start \le task_end$$
 
 认为工人可以覆盖该任务。
 
@@ -204,9 +192,7 @@ seg_start \le task_end
 
 若一个轨迹段属于：
 
-[
-slot_id
-]
+$$slot_id$$
 
 则将其加入该工人的 `available_slots` 集合。
 
@@ -225,15 +211,11 @@ slot_id
 
 当工人 (i) 能覆盖任务 (j) 时，需要为该工人-任务对生成一个实际质量：
 
-[
-q_{ij}
-]
+$$q_{ij}$$
 
 生成方式为：
 
-[
-q_{ij} = q_i^{base} + \epsilon_{ij}
-]
+$$q_{ij} = q_i^{base} + \epsilon_{ij}$$
 
 其中：
 
@@ -243,7 +225,7 @@ q_{ij} = q_i^{base} + \epsilon_{ij}
 在实现中：
 
 * 噪声服从正态分布
-* 再将结果截断到 ([0,1])
+* 再将结果截断到 ($$[0,1]$$)
 
 因此：
 
@@ -267,9 +249,7 @@ q_{ij} = q_i^{base} + \epsilon_{ij}
 
 对于每一个工人-任务对，还需要生成该工人的任务上报值：
 
-[
-x_{ij}
-]
+$$x_{ij}$$
 
 也就是后续验证机制实际比较的数据。
 
@@ -281,9 +261,7 @@ x_{ij}
 
 对于 `trusted` 和 `unknown` 工人，上报数据围绕任务真实值波动：
 
-[
-x_{ij} = x_j^{true} + noise
-]
+$$x_{ij} = x_j^{true} + noise$$
 
 其中噪声大小由该工人在该任务上的实际质量决定：
 
@@ -315,11 +293,9 @@ x_{ij} = x_j^{true} + noise
 
 3. 用：
 
-[
-x_{ij} = x_j^{true} \pm bias
-]
+$$x_{ij} = x_j^{true} \pm bias$$
 
-得到恶意工人的上报值，并截断到 ([0,1])
+得到恶意工人的上报值，并截断到 ($$[0,1]$$)
 
 这样建模的意义是：
 

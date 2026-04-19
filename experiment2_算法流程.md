@@ -120,16 +120,12 @@
 ### 4.1 任务覆盖率
 
 表示任务是否在时空上被工人覆盖：
-[
-CoverageRate = \frac{|{j \in T: task_coverage_count[j] > 0}|}{|T|}
-]
+$$CoverageRate = \frac{|{j \in T: task_coverage_count[j] > 0}|}{|T|}$$
 
 ### 4.2 任务完成率
 
 表示任务是否真正达到平台要求：
-[
-CompletionRate = \frac{|{j \in T: task_effective_count[j] \ge r_j \text{ 且 } Q_j \ge \delta_j}|}{|T|}
-]
+$$CompletionRate = \frac{|{j \in T: task_effective_count[j] \ge r_j \text{ 且 } Q_j \ge \delta_j}|}{|T|}$$
 
 其中：
 
@@ -254,9 +250,7 @@ CompletionRate = \frac{|{j \in T: task_effective_count[j] \ge r_j \text{ 且 } Q
 ### 第五步：生成任务网格映射
 
 直接令：
-[
-grid_id = region_id
-]
+$$grid_id = region_id$$
 
 ### 第六步：配置长期激励参数
 
@@ -324,12 +318,8 @@ grid_id = region_id
 
 从任务分类中初始化：
 
-[
-R_m = \text{所有会员任务价格平均值}
-]
-[
-R_n = \text{所有普通任务价格平均值}
-]
+$$R_m = \text{所有会员任务价格平均值}$$
+$$R_n = \text{所有普通任务价格平均值}$$
 
 ### 7.2.6 会员与沉没状态
 
@@ -364,9 +354,7 @@ R_n = \text{所有普通任务价格平均值}
 #### 可用工人集合 (W_t)
 
 满足：
-[
-t \in available_rounds_i
-]
+$$t \in available_rounds_i$$
 
 #### 可用任务集合 (T_t)
 
@@ -413,9 +401,7 @@ t \in available_rounds_i
 ### 8.3.3 会员资格阈值
 
 只有当：
-[
-trust_i \ge \theta_m
-]
+$$trust_i \ge \theta_m$$
 工人 (i) 才有资格申请会员。
 
 ### 8.3.4 已是会员
@@ -433,39 +419,25 @@ trust_i \ge \theta_m
 
 #### 会员效用
 
-[
-U_{member} = N_m \cdot (b_m + loss - cost_m) - fee
-]
+$$U_{member} = N_m \cdot (b_m + loss - cost_m) - fee$$
 
 #### 非会员效用
 
-[
-U_{normal} = N_n \cdot (b_n - cost_n)
-]
+$$U_{normal} = N_n \cdot (b_n - cost_n)$$
 
 其中：
 
-[
-b_m = \alpha \cdot hist_reward_m(i) + \beta \cdot R_m
-]
-[
-b_n = \alpha \cdot hist_reward_n(i) + \beta \cdot R_n
-]
+$$b_m = \alpha \cdot hist_reward_m(i) + \beta \cdot R_m$$
+$$b_n = \alpha \cdot hist_reward_n(i) + \beta \cdot R_n$$
 
 参照损失：
-[
-loss = \lambda \cdot (\beta(R_m - R_n))^\sigma
-]
+$$loss = \lambda \cdot (\beta(R_m - R_n))^\sigma$$
 
 成为会员概率：
-[
-\psi_i = \frac{e^{\zeta U_{member}}}{e^{\zeta U_{member}} + e^{\zeta U_{normal}}}
-]
+$$\psi_i = \frac{e^{\zeta U_{member}}}{e^{\zeta U_{member}} + e^{\zeta U_{normal}}}$$
 
 若：
-[
-\psi_i \ge \psi_{th}
-]
+$$\psi_i \ge \psi_{th}$$
 则该工人成为会员。
 
 ### 8.3.6 输出
@@ -496,17 +468,13 @@ loss = \lambda \cdot (\beta(R_m - R_n))^\sigma
 #### 第二步：筛选候选验证网格
 
 仅保留：
-[
-|U_c(g)| > 0
-]
+$$|U_c(g)| > 0$$
 的网格。
 
 #### 第三步：计算网格验证价值
 
 定义：
-[
-V_g = \frac{|U_c(g)| \cdot |U_u(g)|}{1 + cost_g}
-]
+$$V_g = \frac{|U_c(g)| \cdot |U_u(g)|}{1 + cost_g}$$
 
 #### 第四步：选择前 (M) 个网格
 
@@ -529,9 +497,7 @@ V_g = \frac{|U_c(g)| \cdot |U_u(g)|}{1 + cost_g}
 ### 8.5.1 候选工人
 
 当前轮招募候选人为：
-[
-(U_c \cup U_u) \cap W_t
-]
+$$(U_c \cup U_u) \cap W_t$$
 
 恶意工人不进入候选集。
 
@@ -539,29 +505,21 @@ V_g = \frac{|U_c(g)| \cdot |U_u(g)|}{1 + cost_g}
 
 对每个候选工人 (i)，计算：
 
-[
-\hat q_i(t)=
-\bar q_i(t-1)+\sqrt{\frac{(K+1)\ln(total_learned_counts+1)}{n_i+1}}
-]
+$$\hat q_i(t)=
+\bar q_i(t-1)+\sqrt{\frac{(K+1)\ln(total_learned_counts+1)}{n_i+1}}$$
 
 ### 8.5.3 工人边际收益
 
 对工人 (i)，定义其当前轮边际收益为：
 
-[
-gain_i = \sum_{j \in bid_tasks_i \cap uncov_t} w_j \cdot \hat q_i(t) \cdot f(trust_i)
-]
+$$gain_i = \sum_{j \in bid_tasks_i \cap uncov_t} w_j \cdot \hat q_i(t) \cdot f(trust_i)$$
 
 其中可取：
-[
-f(trust_i)=1+\gamma \cdot trust_i
-]
+$$f(trust_i)=1+\gamma \cdot trust_i$$
 
 ### 8.5.4 性价比
 
-[
-score_i = \frac{gain_i}{cost_i}
-]
+$$score_i = \frac{gain_i}{cost_i}$$
 
 ### 8.5.5 贪心选择
 
@@ -588,9 +546,7 @@ score_i = \frac{gain_i}{cost_i}
 
 若工人被招募且执行了任务，则：
 
-[
-task_coverage_count[j] += 1
-]
+$$task_coverage_count[j] += 1$$
 
 ### 8.6.2 有效工人判定
 
@@ -607,23 +563,17 @@ task_coverage_count[j] += 1
 
 对任务 (j)，采用信任加权聚合质量：
 
-[
-Q_j = \frac{\sum_{i \in W_j} trust_i \cdot q_{ij}}{\sum_{i \in W_j} trust_i}
-]
+$$Q_j = \frac{\sum_{i \in W_j} trust_i \cdot q_{ij}}{\sum_{i \in W_j} trust_i}$$
 
 ### 8.6.4 完成判定
 
 若：
-[
-|W_j^{eff}| \ge r_j
+$$|W_j^{eff}| \ge r_j
 \quad \text{且} \quad
-Q_j \ge \delta_j
-]
+Q_j \ge \delta_j$$
 则认为任务 (j) 完成，并更新：
 
-[
-task_effective_count[j] = |W_j^{eff}|
-]
+$$task_effective_count[j] = |W_j^{eff}|$$
 
 ---
 
@@ -637,45 +587,35 @@ task_effective_count[j] = |W_j^{eff}|
 
 对每个验证任务 (v)，收集所有可信工人的数据，取中位数：
 
-[
-base_v = median{x_i^v : i \in U_c}
-]
+$$base_v = median{x_i^v : i \in U_c}$$
 
 ### 8.7.3 误差计算
 
 对完成验证任务的未知工人 (i)：
 
-[
-error_i^v = \frac{|x_i^v - base_v|}{\max(|base_v|,\epsilon)}
-]
+$$error_i^v = \frac{|x_i^v - base_v|}{\max(|base_v|,\epsilon)}$$
 
 ### 8.7.4 信任更新
 
 采用分段更新：
 
-[
-trust_i^{t+1}=
+$$trust_i^{t+1}=
 \begin{cases}
 \min(1, trust_i^t+\eta_1), & error_i^v \le \delta_1 \
 trust_i^t, & \delta_1 < error_i^v < \delta_2 \
 \max(0, trust_i^t-\eta_2), & error_i^v \ge \delta_2
-\end{cases}
-]
+\end{cases}$$
 
 ### 8.7.5 类别迁移
 
 若：
-[
-trust_i \ge \theta_{high}
-]
+$$trust_i \ge \theta_{high}$$
 则：
 
 * 从 (U_u) 移入 (U_c)
 
 若：
-[
-trust_i \le \theta_{low}
-]
+$$trust_i \le \theta_{low}$$
 则：
 
 * 从 (U_u) 移入 (U_m)
@@ -688,26 +628,18 @@ trust_i \le \theta_{low}
 
 ### 会员任务平均报酬
 
-[
-hist_reward_m(i)=
-\frac{\sum task_price_j}{#member_tasks}
-]
+$$hist_reward_m(i)=
+\frac{\sum task_price_j}{#member_tasks}$$
 
 ### 普通任务平均报酬
 
-[
-hist_reward_n(i)=
-\frac{\sum task_price_j}{#normal_tasks}
-]
+$$hist_reward_n(i)=
+\frac{\sum task_price_j}{#normal_tasks}$$
 
 然后更新平台平均报酬：
 
-[
-R_m = \text{本轮所有完成会员任务的平均报酬}
-]
-[
-R_n = \text{本轮所有完成普通任务的平均报酬}
-]
+$$R_m = \text{本轮所有完成会员任务的平均报酬}$$
+$$R_n = \text{本轮所有完成普通任务的平均报酬}$$
 
 ---
 
@@ -728,14 +660,10 @@ M_i \leftarrow M_i + \rho_i \sum_{j \in completed(i)} c_{ij}
 ### 8.9.3 奖励发放
 
 若：
-[
-M_i \ge Y
-]
+$$M_i \ge Y$$
 则本轮报酬为：
 
-[
-payment_i = \sum r_{ij} + \Theta
-]
+$$payment_i = \sum r_{ij} + \Theta$$
 
 并执行：
 
@@ -746,28 +674,20 @@ payment_i = \sum r_{ij} + \Theta
 ### 8.9.4 未达阈值情况
 
 若：
-[
-M_i < Y
-]
+$$M_i < Y$$
 则仅支付基础报酬：
 
-[
-payment_i = \sum r_{ij}
-]
+$$payment_i = \sum r_{ij}$$
 
 同时记录沉没损失：
 
-[
-H_i = \frac{\Theta}{Y} M_i
-]
+$$H_i = \frac{\Theta}{Y} M_i$$
 
 ### 8.9.5 非会员
 
 非会员仅获得：
 
-[
-payment_i = \sum r_{ij}
-]
+$$payment_i = \sum r_{ij}$$
 
 ---
 
@@ -917,3 +837,490 @@ Algorithm Main()
 你现在最好的做法，就是先用这份文档固定结构，再开始拆代码模块。
 
 下一步我建议直接做这个：我帮你把这份算法文档继续往下细化成**“代码模块文档”**，也就是每个 Python 文件、每个函数、每个输入输出都写出来，这样你就可以直接开写。
+
+
+对，你现在最稳的路线就是：
+
+## 正确顺序（非常重要）
+
+**先补充系统模型 → 再引入激励机制 → 最后做联合实验**
+
+因为你当前的问题不是激励参数没调好，而是：
+
+* 平台收益没有定义
+* 工人为什么离开没有定义
+* 长期运行目标没有定义
+* PGRD 放进来后缺少承载位置
+
+所以你现在直接继续调激励，会越来越乱。
+
+---
+
+# 我给你完整文档（你当前论文下一阶段该怎么补模型）
+
+---
+
+# 第X章 系统模型补充与长期运行机制建模
+
+---
+
+# 1. 本章目标
+
+在前文中，本文已完成以下工作：
+
+1. 基于 CMAB 的预算约束工人招募模型；
+2. 基于验证任务的动态信任更新机制；
+3. 恶意工人与可信工人的识别机制。
+
+然而，现有模型仍存在两个关键缺失：
+
+### （1）缺乏平台效用描述
+
+前文仅关注任务完成率与数据质量，但平台在长期运行中同样关注：
+
+* 总收益
+* 支付成本
+* 验证开销
+* 长期预算可持续性
+
+### （2）缺乏可信工人长期留存描述
+
+即使识别出可信工人，若其因收益低、任务累积成本高而退出平台，则系统后续性能仍下降。
+
+因此，本章进一步补充：
+
+> 平台效用模型 + 可信工人留存模型
+
+为后续会员激励机制提供理论基础。
+
+---
+
+# 2. 系统运行框架更新
+
+平台按轮次运行：
+
+[
+t=1,2,...,T
+]
+
+每轮包括：
+
+1. 发布任务
+2. 招募工人
+3. 执行任务
+4. 验证可信度
+5. 更新平台收益
+6. 更新工人留存状态
+
+---
+
+# 3. 平台效用模型（重点）
+
+---
+
+# 3.1 平台收益来源
+
+平台在第 (t) 轮收益包括：
+
+### （1）真实任务完成收益
+
+若任务 (j) 被有效完成，则平台获得收益：
+
+[
+v_j
+]
+
+通常令：
+
+[
+v_j=\alpha w_j
+]
+
+其中：
+
+* (w_j)：任务权重
+* (\alpha)：价值系数
+
+---
+
+### （2）会员费收益（后续激励章节使用）
+
+可信工人成为会员后缴纳会员费：
+
+[
+f_i
+]
+
+本章先预留，不必启用。
+
+---
+
+# 3.2 平台成本来源
+
+平台成本包括：
+
+### （1）任务支付报酬
+
+支付给被招募工人：
+
+[
+\sum_{i\in A_t} p_i(t)
+]
+
+---
+
+### （2）验证任务成本
+
+验证任务数量为 (M_t)，单位成本：
+
+[
+c_v
+]
+
+则：
+
+[
+M_t c_v
+]
+
+---
+
+### （3）管理成本（可选）
+
+忽略或设常数：
+
+[
+c_0
+]
+
+---
+
+# 3.3 单轮平台效用
+
+因此平台第 (t) 轮效用：
+
+[
+U_p(t)=
+\sum_{j\in T_t^{succ}} v_j
+-\sum_{i\in A_t} p_i(t)
+-M_t c_v-c_0
+]
+
+其中：
+
+* (T_t^{succ})：本轮有效完成任务集合
+* (A_t)：被招募工人集合
+
+---
+
+# 3.4 累计平台效用
+
+长期平台总效用：
+
+[
+U_p^{total}=\sum_{t=1}^{T}U_p(t)
+]
+
+---
+
+# 3.5 平均单位任务收益
+
+[
+\bar U=
+\frac{U_p^{total}}{\sum_t |T_t^{succ}|}
+]
+
+用于衡量平台经济性。
+
+---
+
+# 4. 可信工人留存模型（核心）
+
+---
+
+# 4.1 为什么要建留存模型
+
+可信工人虽然质量高，但长期参与会产生：
+
+* 时间成本
+* 电量成本
+* 路径偏移成本
+* 收益疲劳
+
+因此可信工人可能退出平台。
+
+---
+
+# 4.2 工人状态定义
+
+对可信工人 (i)，定义：
+
+[
+state_i(t)\in{active,leave}
+]
+
+其中：
+
+* active：继续参与
+* leave：退出平台
+
+---
+
+# 4.3 退出概率模型
+
+可信工人在第 (t) 轮退出概率：
+
+[
+P_i^{leave}(t)=
+\sigma(
+\beta_0+\beta_1 C_i(t)-\beta_2 R_i(t)-\beta_3 S_i(t)
+)
+]
+
+其中：
+
+* (\sigma(x)=1/(1+e^{-x}))
+* (C_i(t))：累计参与成本
+* (R_i(t))：近期平均收益
+* (S_i(t))：沉没值（后续激励用）
+* (\beta_k>0)
+
+---
+
+# 4.4 含义解释
+
+成本高：
+
+[
+C_i(t)\uparrow \Rightarrow P_i^{leave}\uparrow
+]
+
+收益高：
+
+[
+R_i(t)\uparrow \Rightarrow P_i^{leave}\downarrow
+]
+
+沉没值高：
+
+[
+S_i(t)\uparrow \Rightarrow P_i^{leave}\downarrow
+]
+
+即：
+
+> 投入越多的人越不愿离开。
+
+---
+
+# 4.5 留存概率
+
+[
+P_i^{stay}(t)=1-P_i^{leave}(t)
+]
+
+---
+
+# 4.6 可信工人留存率
+
+设当前可信工人集合为 (U_c(t))，下一轮仍留下人数为：
+
+[
+N_c^{stay}(t)
+]
+
+则：
+
+[
+Retention(t)=
+\frac{N_c^{stay}(t)}{|U_c(t)|}
+]
+
+---
+
+# 5. 系统长期目标函数
+
+至此，平台目标不再只是完成任务，而是：
+
+[
+\max
+\sum_{t=1}^{T}
+\Big[
+\lambda_1 Q(t)+
+\lambda_2 U_p(t)+
+\lambda_3 Retention(t)
+\Big]
+]
+
+其中：
+
+* (Q(t))：数据质量指标
+* (U_p(t))：平台效用
+* (Retention(t))：可信工人留存率
+
+---
+
+# 6. 与前文模型如何衔接
+
+---
+
+## 前文已有：
+
+### CMAB 招募：
+
+解决：
+
+> 怎么选工人
+
+---
+
+### 验证任务：
+
+解决：
+
+> 谁可信
+
+---
+
+## 本章新增：
+
+### 平台效用：
+
+解决：
+
+> 平台赚不赚钱
+
+---
+
+### 留存模型：
+
+解决：
+
+> 可信工人会不会走
+
+---
+
+所以完整链条变成：
+
+> 选工人 → 验证可信 → 留住可信 → 平台持续盈利
+
+---
+
+# 7. 为什么先补这章再做激励机制
+
+因为激励机制本质是解决：
+
+### （1）平台效用低
+
+用会员费提高收益
+
+### （2）可信工人流失
+
+用沉没成本提高留存
+
+若这两个问题没有数学定义，
+
+激励机制无法落地。
+
+---
+
+# 8. 下一章（激励机制章节）怎么接
+
+下一章自然写：
+
+# 第X+1章 基于参照依赖与沉没成本的可信工人长期激励机制
+
+包含：
+
+## 第一部分 PGRD
+
+解决：
+
+> 为什么可信工人愿意成为会员
+
+---
+
+## 第二部分 LGSC
+
+解决：
+
+> 为什么会员可信工人长期留下
+
+---
+
+# 9. 你现在下一步具体做什么（最重要）
+
+按顺序：
+
+### 第一步：
+
+把这一章加入论文（系统模型补充）
+
+### 第二步：
+
+代码中加入两个变量：
+
+```python
+platform_utility
+worker_leave_prob
+```
+
+### 第三步：
+
+先跑“无激励版本”
+
+即：
+
+CMAB + 信任更新 + 留存模型
+
+看看长期 trusted 数量是否下降。
+
+### 第四步：
+
+再引入 PGRD + LGSC
+
+证明：
+
+* 留存率提高
+* 平台收益提高
+* 数据质量提高
+
+---
+
+# 10. 我直接告诉你结论
+
+你现在已经到了论文最关键一步：
+
+> 从“算法论文”升级成“系统机制论文”
+
+这是档次提升最大的地方。
+
+---
+
+# 我建议你下一步直接做：
+
+## 第7步代码：
+
+```python
+加入平台效用 + 工人退出机制（无激励）
+```
+
+然后：
+
+## 第8步代码：
+
+```python
+加入PGRD + LGSC
+```
+
+---
+
+# 如果你愿意，我下一步可以直接帮你写：
+
+## 完全适配你当前代码的 Step7 文档：
+
+> experiment2_第7步加入平台效用与可信工人退出机制.md
+
+以及公式 + python代码框架。
+
+这个是你现在最该做的。

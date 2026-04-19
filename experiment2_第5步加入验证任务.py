@@ -24,6 +24,11 @@ PLOT_UNKNOWN = "experiment2_cmab_trust_unknown_count.png"
 PLOT_MALICIOUS = "experiment2_cmab_trust_malicious_count.png"
 PLOT_VALIDATION = "experiment2_cmab_trust_validation_count.png"
 PLOT_TRUST = "experiment2_cmab_trust_avg_trust.png"
+PLOT_PLATFORM_UTILITY = "experiment2_cmab_trust_platform_utility.png"
+PLOT_CUM_PLATFORM_UTILITY = "experiment2_cmab_trust_cumulative_platform_utility.png"
+PLOT_ACTIVE_WORKERS = "experiment2_cmab_trust_active_workers.png"
+PLOT_LEFT_WORKERS = "experiment2_cmab_trust_left_workers.png"
+PLOT_LEAVE_PROB = "experiment2_cmab_trust_avg_leave_probability.png"
 
 TOTAL_SLOTS = 86400 // 600
 PER_ROUND_BUDGET = 1000
@@ -33,6 +38,21 @@ RANDOM_SEED = 3
 # 完成判定质量阈值（只用于评价）
 DELTA = 0.45
 DEFAULT_INIT_UCB = 1.0
+
+# ===== Platform Utility =====
+# 将“任务权重 × 完成质量”货币化
+RHO = 10.0
+
+# ===== Worker Cost =====
+# 工人真实执行成本 = WORKER_COST_RATIO × 工人报酬
+WORKER_COST_RATIO = 0.6
+
+# ===== Leave Model =====
+# 退出概率：
+# sigmoid(BETA0 + BETA1 * cumulative_cost - BETA2 * avg_reward_per_selected_round)
+BETA0 = -1
+BETA1 = 0.1
+BETA2 = 0.1
 
 # 验证任务参数
 VALIDATION_TOP_M = 5
@@ -56,6 +76,11 @@ SKIP_EMPTY_ROUNDS = True
 
 random.seed(RANDOM_SEED)
 np.random.seed(RANDOM_SEED)
+
+
+def sigmoid(x: float) -> float:
+    x = max(-20.0, min(20.0, x))
+    return 1.0 / (1.0 + math.exp(-x))
 
 
 def load_worker_options():
@@ -144,6 +169,16 @@ def build_worker_profiles(worker_options):
             # CMAB stats
             "n_obs": 0,
             "avg_quality": 0.0,
+
+            # ===== long-run worker state =====
+            "is_active": True,
+            "cumulative_reward": 0.0,
+            "cumulative_cost": 0.0,
+            "recent_reward": 0.0,
+            "leave_probability": 0.0,
+            "selected_rounds": 0,
+            "active_rounds": 0,
+            "left_round_id": None,
         }
 
     return workers
@@ -200,7 +235,7 @@ def rebuild_sets(workers):
 def get_available_workers(workers, slot_id):
     return [
         worker for worker in workers.values()
-        if slot_id in worker["available_slots"]
+        if slot_id in worker["available_slots"] and worker["is_active"]
     ]
 
 
@@ -386,6 +421,8 @@ def evaluate_round(selected_worker_ids, workers, round_tasks, slot_id, delta):
         weighted_gain = weight * best_quality
         weighted_completion_quality += weighted_gain
 
+        platform_value = RHO * weight * best_quality
+
         task_result = {
             "task_id": task_id,
             "slot_id": slot_id,
@@ -398,6 +435,7 @@ def evaluate_round(selected_worker_ids, workers, round_tasks, slot_id, delta):
             "best_quality": round(best_quality, 4),
             "avg_quality": round(avg_quality, 4),
             "weighted_gain": round(weighted_gain, 4),
+            "platform_value": round(platform_value, 4),
         }
         task_results.append(task_result)
 
@@ -436,6 +474,30 @@ def evaluate_round(selected_worker_ids, workers, round_tasks, slot_id, delta):
         "completed_tasks": completed_tasks,
         "uncompleted_tasks": uncompleted_tasks,
         "task_results": task_results,
+    }
+
+
+def compute_platform_utility(eval_result, selected_worker_ids, workers):
+    """
+    平台单轮收益：
+        task_value_t = sum_j (RHO * weight_j * best_quality_j)
+        payment_t = sum_i bid_i
+        utility_t = task_value_t - payment_t
+    """
+    platform_task_value = sum(
+        float(task_result["platform_value"])
+        for task_result in eval_result["task_results"]
+    )
+    platform_payment = sum(
+        float(workers[worker_id]["bid_price"])
+        for worker_id in selected_worker_ids
+    )
+    platform_utility = platform_task_value - platform_payment
+
+    return {
+        "platform_task_value": round(platform_task_value, 4),
+        "platform_payment": round(platform_payment, 4),
+        "platform_utility": round(platform_utility, 4),
     }
 
 
@@ -620,6 +682,75 @@ def update_worker_statistics(selected_worker_ids, workers, slot_id):
     return total_new_observations
 
 
+def update_worker_reward_cost(selected_worker_ids, workers):
+    """
+    更新被选工人的：
+    - cumulative_reward
+    - cumulative_cost
+    - recent_reward
+    - selected_rounds
+    """
+    selected_set = set(selected_worker_ids)
+
+    for worker_id, worker in workers.items():
+        if worker_id in selected_set:
+            reward_t = float(worker["bid_price"])
+            cost_t = WORKER_COST_RATIO * reward_t
+
+            worker["recent_reward"] = reward_t
+            worker["cumulative_reward"] += reward_t
+            worker["cumulative_cost"] += cost_t
+            worker["selected_rounds"] += 1
+        else:
+            worker["recent_reward"] = 0.0
+
+
+def update_worker_leave_state(workers, round_id, selected_worker_ids):
+    """
+    只对本轮被选中的工人执行退出判定。
+    这样更符合：参与任务 -> 产生收益/成本 -> 再决定是否离开。
+    """
+    left_worker_ids = []
+    leave_probabilities = []
+    selected_set = set(selected_worker_ids)
+
+    for worker_id, worker in workers.items():
+        if not worker["is_active"]:
+            continue
+
+        if worker_id not in selected_set:
+            worker["leave_probability"] = 0.0
+            continue
+
+        avg_reward = worker["cumulative_reward"] / max(1, worker["selected_rounds"])
+        leave_probability = sigmoid(
+            BETA0
+            + BETA1 * float(worker["cumulative_cost"])
+            - BETA2 * float(avg_reward)
+        )
+
+        worker["leave_probability"] = float(leave_probability)
+        leave_probabilities.append(float(leave_probability))
+
+        if random.random() < leave_probability:
+            worker["is_active"] = False
+            worker["left_round_id"] = round_id
+            left_worker_ids.append(worker["worker_id"])
+
+    avg_leave_probability = float(np.mean(leave_probabilities)) if leave_probabilities else 0.0
+
+    return {
+        "left_worker_ids": left_worker_ids,
+        "num_left_workers_this_round": len(left_worker_ids),
+        "avg_leave_probability": round(avg_leave_probability, 4),
+    }
+
+
+def update_active_rounds(available_workers):
+    for worker in available_workers:
+        worker["active_rounds"] += 1
+
+
 def update_cumulative_metrics(round_result, cumulative_state):
     covered_task_results = [
         tr for tr in round_result["task_results"] if tr["covered"]
@@ -634,6 +765,9 @@ def update_cumulative_metrics(round_result, cumulative_state):
         float(tr["best_quality"]) for tr in covered_task_results
     )
     cumulative_state["quality_count"] += len(covered_task_results)
+    cumulative_state["platform_task_value_sum"] += round_result["platform_task_value"]
+    cumulative_state["platform_payment_sum"] += round_result["platform_payment"]
+    cumulative_state["platform_utility_sum"] += round_result["platform_utility"]
 
     cumulative_coverage_rate = (
         cumulative_state["num_covered"] / cumulative_state["num_tasks"]
@@ -661,6 +795,9 @@ def update_cumulative_metrics(round_result, cumulative_state):
         cumulative_normalized_completion_quality, 4
     )
     round_result["cumulative_avg_quality"] = round(cumulative_avg_quality, 4)
+    round_result["cumulative_platform_task_value"] = round(cumulative_state["platform_task_value_sum"], 4)
+    round_result["cumulative_platform_payment"] = round(cumulative_state["platform_payment_sum"], 4)
+    round_result["cumulative_platform_utility"] = round(cumulative_state["platform_utility_sum"], 4)
 
 
 def compute_cumulative_summary(round_results):
@@ -672,6 +809,9 @@ def compute_cumulative_summary(round_results):
         "weighted_completion_quality_sum": 0.0,
         "quality_sum": 0.0,
         "quality_count": 0,
+        "platform_task_value_sum": 0.0,
+        "platform_payment_sum": 0.0,
+        "platform_utility_sum": 0.0,
     }
 
     for round_result in round_results:
@@ -687,6 +827,9 @@ def compute_cumulative_summary(round_results):
             float(tr["best_quality"]) for tr in covered_task_results
         )
         cumulative_state["quality_count"] += len(covered_task_results)
+        cumulative_state["platform_task_value_sum"] += round_result["platform_task_value"]
+        cumulative_state["platform_payment_sum"] += round_result["platform_payment"]
+        cumulative_state["platform_utility_sum"] += round_result["platform_utility"]
 
     cumulative_coverage_rate = (
         cumulative_state["num_covered"] / cumulative_state["num_tasks"]
@@ -713,10 +856,31 @@ def compute_cumulative_summary(round_results):
         "cumulative_completion_rate": round(cumulative_completion_rate, 4),
         "cumulative_normalized_completion_quality": round(cumulative_normalized_completion_quality, 4),
         "cumulative_avg_quality": round(cumulative_avg_quality, 4),
+        "cumulative_platform_task_value": round(cumulative_state["platform_task_value_sum"], 4),
+        "cumulative_platform_payment": round(cumulative_state["platform_payment_sum"], 4),
+        "cumulative_platform_utility": round(cumulative_state["platform_utility_sum"], 4),
     }
 
 
-def summarize_results(round_results, initial_stats=None):
+def summarize_worker_longrun_stats(workers):
+    active_workers = [w for w in workers.values() if w["is_active"]]
+    left_workers = [w for w in workers.values() if not w["is_active"]]
+
+    def safe_mean(values):
+        return round(float(np.mean(values)), 4) if values else 0.0
+
+    return {
+        "final_num_active_workers": len(active_workers),
+        "final_num_left_workers": len(left_workers),
+        "final_avg_cumulative_reward": safe_mean([w["cumulative_reward"] for w in workers.values()]),
+        "final_avg_cumulative_cost": safe_mean([w["cumulative_cost"] for w in workers.values()]),
+        "final_avg_selected_rounds": safe_mean([w["selected_rounds"] for w in workers.values()]),
+        "final_avg_active_rounds": safe_mean([w["active_rounds"] for w in workers.values()]),
+        "final_avg_leave_probability_active_workers": safe_mean([w["leave_probability"] for w in active_workers]),
+    }
+
+
+def summarize_results(round_results, workers, initial_stats=None):
     valid_rounds = [r for r in round_results if r["num_tasks"] > 0]
 
     def safe_mean(key, data):
@@ -725,9 +889,10 @@ def summarize_results(round_results, initial_stats=None):
         return round(float(np.mean([r[key] for r in data])), 4)
 
     cumulative_all = compute_cumulative_summary(valid_rounds)
+    worker_stats = summarize_worker_longrun_stats(workers)
 
     summary = {
-        "selection_logic": "paper_style_cmab_plus_validation",
+        "selection_logic": "paper_style_cmab_plus_validation_longrun",
         "max_selected_workers_per_round": K,
         "total_rounds_recorded": len(round_results),
         "total_non_empty_rounds": len(valid_rounds),
@@ -741,18 +906,28 @@ def summarize_results(round_results, initial_stats=None):
         "avg_reward_all_non_empty": safe_mean("reward", valid_rounds),
         "avg_cost_all_non_empty": safe_mean("cost", valid_rounds),
         "avg_efficiency_all_non_empty": safe_mean("efficiency", valid_rounds),
+        "avg_platform_task_value_all_non_empty": safe_mean("platform_task_value", valid_rounds),
+        "avg_platform_payment_all_non_empty": safe_mean("platform_payment", valid_rounds),
+        "avg_platform_utility_all_non_empty": safe_mean("platform_utility", valid_rounds),
         "avg_validation_count_all_non_empty": safe_mean("num_validation_tasks", valid_rounds),
         "avg_trusted_count_all_non_empty": safe_mean("trusted_count", valid_rounds),
         "avg_unknown_count_all_non_empty": safe_mean("unknown_count", valid_rounds),
         "avg_malicious_count_all_non_empty": safe_mean("malicious_count", valid_rounds),
         "avg_trust_all_non_empty": safe_mean("avg_trust", valid_rounds),
+        "avg_num_active_workers_all_non_empty": safe_mean("num_active_workers", valid_rounds),
+        "avg_num_left_workers_this_round_all_non_empty": safe_mean("num_left_workers_this_round", valid_rounds),
+        "avg_leave_probability_all_non_empty": safe_mean("avg_leave_probability", valid_rounds),
         "final_cumulative_coverage_rate_all_non_empty": cumulative_all["cumulative_coverage_rate"],
         "final_cumulative_completion_rate_all_non_empty": cumulative_all["cumulative_completion_rate"],
         "final_cumulative_avg_quality_all_non_empty": cumulative_all["cumulative_avg_quality"],
         "final_cumulative_normalized_completion_quality_all_non_empty": (
             cumulative_all["cumulative_normalized_completion_quality"]
         ),
+        "final_cumulative_platform_task_value": cumulative_all["cumulative_platform_task_value"],
+        "final_cumulative_platform_payment": cumulative_all["cumulative_platform_payment"],
+        "final_cumulative_platform_utility": cumulative_all["cumulative_platform_utility"],
     }
+    summary.update(worker_stats)
     if initial_stats:
         summary.update(initial_stats)
     return summary
@@ -808,6 +983,9 @@ def main():
         "weighted_completion_quality_sum": 0.0,
         "quality_sum": 0.0,
         "quality_count": 0,
+        "platform_task_value_sum": 0.0,
+        "platform_payment_sum": 0.0,
+        "platform_utility_sum": 0.0,
     }
 
     for slot_id in range(TOTAL_SLOTS):
@@ -818,6 +996,7 @@ def main():
             continue
 
         available_workers = get_available_workers(workers, slot_id)
+        update_active_rounds(available_workers)
 
         # Step A: 论文风格 CMAB 招募
         selected_worker_ids, cost_t, selection_details, est_quality_state = greedy_select_workers(
@@ -856,21 +1035,28 @@ def main():
         )
 
         # Step E: 更新集合统计
-        Uc, Uu, Um = rebuild_sets(workers)
-
-        # Step F: 更新 CMAB 学习统计
-        total_observations_before_round = total_observations
-        total_observations += update_worker_statistics(selected_worker_ids, workers, slot_id)
-
         reward_t = eval_result["weighted_completion_quality"]
         efficiency_t = (reward_t / cost_t) if cost_t > 0 else 0.0
+        update_worker_reward_cost(selected_worker_ids, workers)
+        platform_result = compute_platform_utility(eval_result, selected_worker_ids, workers)
+        leave_result = update_worker_leave_state(
+            workers=workers,
+            round_id=round_id,
+            selected_worker_ids=selected_worker_ids,
+        )
 
+        Uc, Uu, Um = rebuild_sets(workers)
+
+        total_observations_before_round = total_observations
+        total_observations += update_worker_statistics(selected_worker_ids, workers, slot_id)
         avg_trust_t = float(np.mean([w["trust"] for w in workers.values()])) if workers else 0.0
+        current_active_workers = sum(1 for worker in workers.values() if worker["is_active"])
+        cumulative_left_workers = sum(1 for worker in workers.values() if not worker["is_active"])
 
         round_result = {
             "round_id": round_id,
             "slot_id": slot_id,
-            "selection_mode": "paper_style_cmab_plus_validation",
+            "selection_mode": "paper_style_cmab_plus_validation_longrun",
             "num_available_workers": len(available_workers),
             "num_selected_workers": len(selected_worker_ids),
             "selected_workers": selected_worker_ids,
@@ -890,6 +1076,9 @@ def main():
             "reward": round(reward_t, 4),
             "cost": round(cost_t, 4),
             "efficiency": round(efficiency_t, 4),
+            "platform_task_value": platform_result["platform_task_value"],
+            "platform_payment": platform_result["platform_payment"],
+            "platform_utility": platform_result["platform_utility"],
 
             "num_validation_tasks": len(validation_tasks),
             "validation_tasks": validation_tasks,
@@ -900,12 +1089,18 @@ def main():
             "unknown_count": len(Uu),
             "malicious_count": len(Um),
             "avg_trust": round(avg_trust_t, 4),
+            "num_active_workers": current_active_workers,
+            "num_left_workers_this_round": leave_result["num_left_workers_this_round"],
+            "left_worker_ids_this_round": leave_result["left_worker_ids"],
+            "cumulative_left_workers": cumulative_left_workers,
+            "avg_leave_probability": leave_result["avg_leave_probability"],
 
             "covered_tasks": eval_result["covered_tasks"],
             "completed_tasks": eval_result["completed_tasks"],
             "uncompleted_tasks": eval_result["uncompleted_tasks"],
             "task_results": eval_result["task_results"],
             "total_observations_before_round": total_observations_before_round,
+            "total_observations_after_round": total_observations,
         }
 
         update_cumulative_metrics(round_result, cumulative_state)
@@ -919,14 +1114,16 @@ def main():
             f"coverage={round_result['coverage_rate']:.4f} | "
             f"completion={round_result['completion_rate']:.4f} | "
             f"avg_quality={round_result['avg_quality']:.4f} | "
+            f"platform_utility={round_result['platform_utility']:.2f} | "
             f"trusted={round_result['trusted_count']} | "
             f"unknown={round_result['unknown_count']} | "
             f"malicious={round_result['malicious_count']} | "
-            f"cum_quality={round_result['cumulative_avg_quality']:.4f} | "
-            f"cost={round_result['cost']:.2f}"
+            f"active_workers={round_result['num_active_workers']} | "
+            f"left_this_round={round_result['num_left_workers_this_round']} | "
+            f"cum_utility={round_result['cumulative_platform_utility']:.2f}"
         )
 
-    summary = summarize_results(round_results, initial_stats)
+    summary = summarize_results(round_results, workers, initial_stats)
 
     save_json(round_results, ROUND_RESULTS_FILE)
     save_json(summary, SUMMARY_FILE)
@@ -942,6 +1139,11 @@ def main():
     plot_metric(round_results, "malicious_count", "Malicious Count", PLOT_MALICIOUS)
     plot_metric(round_results, "num_validation_tasks", "Validation Task Count", PLOT_VALIDATION)
     plot_metric(round_results, "avg_trust", "Average Trust", PLOT_TRUST)
+    plot_metric(round_results, "platform_utility", "Platform Utility", PLOT_PLATFORM_UTILITY)
+    plot_metric(round_results, "cumulative_platform_utility", "Cumulative Platform Utility", PLOT_CUM_PLATFORM_UTILITY)
+    plot_metric(round_results, "num_active_workers", "Active Workers", PLOT_ACTIVE_WORKERS)
+    plot_metric(round_results, "cumulative_left_workers", "Cumulative Left Workers", PLOT_LEFT_WORKERS)
+    plot_metric(round_results, "avg_leave_probability", "Average Leave Probability", PLOT_LEAVE_PROB)
 
     print("全部完成")
     print("Summary:")

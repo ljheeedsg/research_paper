@@ -13,7 +13,7 @@
 
 ## 2. 输入
 
-输入文件为 [experiment2_worker_options.json](C:\Users\ASUS\Desktop\research_paper\experiment2_worker_options.json)。
+输入文件为 $$experiment2_worker_options.json$$(C:\Users\ASUS\Desktop\research_paper\experiment2_worker_options.json)。
 
 对每个工人 `i`，平台可见：
 
@@ -110,19 +110,19 @@ $$score_i(t) = \frac{\Delta_i(t)}{c_i}$$
 
 ```mermaid
 flowchart TD
-    A[开始轮次] --> B[提取本轮任务集合 T_t]
-    B --> C[提取本轮可用工人集合 W_t]
-    C --> D[计算每个候选工人的 q_hat_i(t)]
-    D --> E[初始化 Q_j^cur(t) = 0 for all j]
+    A$$开始轮次$$ --> B$$提取本轮任务集合 T_t$$
+    B --> C$$提取本轮可用工人集合 W_t$$
+    C --> D$$计算每个候选工人的 q_hat_i(t)$$
+    D --> E$$初始化 Q_j^cur(t) = 0 for all j$$
     E --> F{预算充足且有正增益工人?}
-    F -->|是| G[选择 score_i(t) 最大的工人]
-    G --> H[加入工人到 A_t]
-    H --> I[更新 Q_j^cur(t) for j in S_i(t)]
+    F -->|是| G$$选择 score_i(t) 最大的工人$$
+    G --> H$$加入工人到 A_t$$
+    H --> I$$更新 Q_j^cur(t) for j in S_i(t)$$
     I --> F
-    F -->|否| J[用真实 q_ij 计算 Q_j(t)]
-    J --> K[更新工人历史]
-    K --> L[计算指标: coverage_rate, completion_rate, avg_quality]
-    L --> M[结束轮次]
+    F -->|否| J$$用真实 q_ij 计算 Q_j(t)$$
+    J --> K$$更新工人历史$$
+    K --> L$$计算指标: coverage_rate, completion_rate, avg_quality$$
+    L --> M$$结束轮次$$
 ```
 
 ## 8. 输出指标
@@ -224,16 +224,16 @@ $$\frac{\sum_j w_j \cdot Q_j(t)}{\sum_j w_j}$$
 
 #### 3. 结果文件
 
-- [experiment2_cmab_round_results.json](C:\Users\ASUS\Desktop\research_paper\experiment2_cmab_round_results.json)
+- $$experiment2_cmab_round_results.json$$(C:\Users\ASUS\Desktop\research_paper\experiment2_cmab_round_results.json)
   - 记录每一轮的详细结果
 
-- [experiment2_cmab_summary.json](C:\Users\ASUS\Desktop\research_paper\experiment2_cmab_summary.json)
+- $$experiment2_cmab_summary.json$$(C:\Users\ASUS\Desktop\research_paper\experiment2_cmab_summary.json)
   - 记录整体汇总指标
 
-- [experiment2_random_round_results.json](C:\Users\ASUS\Desktop\research_paper\experiment2_random_round_results.json)
+- $$experiment2_random_round_results.json$$(C:\Users\ASUS\Desktop\research_paper\experiment2_random_round_results.json)
   - 记录随机招募基线每一轮的详细结果
 
-- [experiment2_random_summary.json](C:\Users\ASUS\Desktop\research_paper\experiment2_random_summary.json)
+- $$experiment2_random_summary.json$$(C:\Users\ASUS\Desktop\research_paper\experiment2_random_summary.json)
   - 记录随机招募基线的整体汇总指标
 
 ### 8.4 看图时的建议
