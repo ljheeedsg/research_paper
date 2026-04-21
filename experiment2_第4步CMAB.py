@@ -52,9 +52,14 @@ WORKER_COST_RATIO = 0.6
 # ===== Leave Model =====
 # 退出概率：
 # sigmoid(BETA0 + BETA1 * cumulative_cost - BETA2 * avg_reward_per_selected_round)
-BETA0 = -2.5
-BETA1 = 0.02
-BETA2 = 0.3
+#BETA0 = -2.5
+#BETA1 = 0.02
+#BETA2 = 0.3
+
+# High churn setting
+BETA0 = -0.5
+BETA1 = 0.05
+BETA2 = 0.1
 
 SKIP_EMPTY_ROUNDS = True
 # =======================================================
