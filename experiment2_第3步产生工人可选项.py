@@ -10,9 +10,13 @@ import numpy as np
 VEHICLE_FILE = "experiment2_vehicle.csv"
 TASK_FILE = "experiment2_tasks.csv"
 OUTPUT_JSON = "experiment2_worker_options.json"
+SUMMARY_FILE = "experiment2_worker_options_summary.json"
+ALL_RUNS_SUMMARY_FILE = "experiment2_worker_options_summary_all_runs.json"
 
 SLOT_SEC = 600
-RANDOM_SEED = 100
+RANDOM_SEED = 3
+NUM_EXPERIMENT_RUNS = 10
+SEED_STEP = 1
 
 # q_ij 噪声
 SIGMA_QUALITY = 0.03
@@ -30,6 +34,29 @@ TRUE_VALUE_MAX = 1.0
 
 random.seed(RANDOM_SEED)
 np.random.seed(RANDOM_SEED)
+
+
+def set_random_seed(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+
+
+def average_numeric_values(values):
+    if all(isinstance(value, int) and not isinstance(value, bool) for value in values):
+        return int(round(float(np.mean(values))))
+    return round(float(np.mean(values)), 4)
+
+
+def average_dict_records(records):
+    averaged = {}
+    for key in records[0].keys():
+        values = [record[key] for record in records]
+        first_value = values[0]
+        if all(isinstance(value, (int, float)) and not isinstance(value, bool) for value in values):
+            averaged[key] = average_numeric_values(values)
+        else:
+            averaged[key] = first_value
+    return averaged
 
 
 def load_vehicle_segments():
@@ -243,6 +270,11 @@ def summarize_worker_options(worker_options):
     qualities_trusted = []
     qualities_unknown = []
     qualities_malicious = []
+    option_qualities = []
+    option_abs_errors = []
+    option_abs_errors_trusted = []
+    option_abs_errors_unknown = []
+    option_abs_errors_malicious = []
     total_task_options = 0
 
     for worker in worker_options.values():
@@ -250,7 +282,21 @@ def summarize_worker_options(worker_options):
         init_category = worker["init_category"]
 
         qualities_all.append(base_quality)
-        total_task_options += len(worker.get("tasks", []))
+        worker_tasks = worker.get("tasks", [])
+        total_task_options += len(worker_tasks)
+
+        for task in worker_tasks:
+            option_quality = float(task["quality"])
+            abs_error = abs(float(task["task_data"]) - float(task["true_value"]))
+            option_qualities.append(option_quality)
+            option_abs_errors.append(abs_error)
+
+            if init_category == "trusted":
+                option_abs_errors_trusted.append(abs_error)
+            elif init_category == "malicious":
+                option_abs_errors_malicious.append(abs_error)
+            else:
+                option_abs_errors_unknown.append(abs_error)
 
         if init_category == "trusted":
             qualities_trusted.append(base_quality)
@@ -264,6 +310,9 @@ def summarize_worker_options(worker_options):
     unknown_count = len(qualities_unknown)
     malicious_count = len(qualities_malicious)
     trusted_ratio = (trusted_count / total_workers) if total_workers > 0 else 0.0
+    avg_task_options_per_worker = (
+        total_task_options / total_workers
+    ) if total_workers > 0 else 0.0
 
     def safe_mean(values):
         return round(float(np.mean(values)), 4) if values else 0.0
@@ -279,6 +328,12 @@ def summarize_worker_options(worker_options):
         "avg_base_quality_unknown": safe_mean(qualities_unknown),
         "avg_base_quality_malicious": safe_mean(qualities_malicious),
         "total_task_options": total_task_options,
+        "avg_task_options_per_worker": round(avg_task_options_per_worker, 4),
+        "avg_option_quality": safe_mean(option_qualities),
+        "avg_abs_data_error": safe_mean(option_abs_errors),
+        "avg_abs_data_error_trusted": safe_mean(option_abs_errors_trusted),
+        "avg_abs_data_error_unknown": safe_mean(option_abs_errors_unknown),
+        "avg_abs_data_error_malicious": safe_mean(option_abs_errors_malicious),
     }
     return summary
 
@@ -289,25 +344,74 @@ def save_worker_options(worker_options):
     print(f"已生成 {OUTPUT_JSON}")
 
 
+def save_json(obj, filepath):
+    with open(filepath, "w", encoding="utf-8") as f:
+        json.dump(obj, f, indent=2, ensure_ascii=False)
+    print(f"已保存 {filepath}")
+
+
 def main():
+    seeds = [RANDOM_SEED + i * SEED_STEP for i in range(NUM_EXPERIMENT_RUNS)]
+    print(f"开始重复实验，共 {NUM_EXPERIMENT_RUNS} 次，随机种子: {seeds}")
+
     workers = load_vehicle_segments()
-    _, tasks_by_region = load_tasks()
-    worker_options = build_worker_options(workers, tasks_by_region)
-    summary = summarize_worker_options(worker_options)
-    save_worker_options(worker_options)
+
+    all_summaries = []
+    all_runs_summary = []
+    representative_worker_options = None
+    for run_idx, seed in enumerate(seeds, start=1):
+        print(f"\n===== Run {run_idx}/{NUM_EXPERIMENT_RUNS} | seed={seed} =====")
+        set_random_seed(seed)
+        _, tasks_by_region = load_tasks()
+        worker_options = build_worker_options(workers, tasks_by_region)
+        summary = summarize_worker_options(worker_options)
+        all_summaries.append(summary)
+        all_runs_summary.append(
+            {
+                "run_index": run_idx,
+                "seed": seed,
+                **summary,
+            }
+        )
+
+        print(
+            "本次工人可选项统计: "
+            f"workers={summary['total_workers']} | "
+            f"trusted={summary['trusted_count']} | "
+            f"unknown={summary['unknown_count']} | "
+            f"malicious={summary['malicious_count']} | "
+            f"trusted_ratio={summary['trusted_ratio']:.4f} | "
+            f"avg_base_quality={summary['avg_base_quality_all']:.4f} | "
+            f"total_task_options={summary['total_task_options']}"
+        )
+
+        if representative_worker_options is None:
+            representative_worker_options = worker_options
+
+    avg_summary = average_dict_records(all_summaries)
+    avg_summary["num_experiment_runs"] = NUM_EXPERIMENT_RUNS
+    avg_summary["experiment_seeds"] = seeds
+    avg_summary["downstream_output_seed"] = seeds[0]
+
+    save_worker_options(representative_worker_options)
+    save_json(all_runs_summary, ALL_RUNS_SUMMARY_FILE)
+    save_json(avg_summary, SUMMARY_FILE)
 
     print(
-        "工人可选项统计: "
-        f"workers={summary['total_workers']} | "
-        f"trusted={summary['trusted_count']} | "
-        f"unknown={summary['unknown_count']} | "
-        f"malicious={summary['malicious_count']} | "
-        f"trusted_ratio={summary['trusted_ratio']:.4f} | "
-        f"avg_base_quality={summary['avg_base_quality_all']:.4f} | "
-        f"trusted_avg_quality={summary['avg_base_quality_trusted']:.4f} | "
-        f"unknown_avg_quality={summary['avg_base_quality_unknown']:.4f} | "
-        f"malicious_avg_quality={summary['avg_base_quality_malicious']:.4f} | "
-        f"total_task_options={summary['total_task_options']}"
+        "平均工人可选项统计: "
+        f"workers={avg_summary['total_workers']} | "
+        f"trusted={avg_summary['trusted_count']} | "
+        f"unknown={avg_summary['unknown_count']} | "
+        f"malicious={avg_summary['malicious_count']} | "
+        f"trusted_ratio={avg_summary['trusted_ratio']:.4f} | "
+        f"avg_base_quality={avg_summary['avg_base_quality_all']:.4f} | "
+        f"trusted_avg_quality={avg_summary['avg_base_quality_trusted']:.4f} | "
+        f"unknown_avg_quality={avg_summary['avg_base_quality_unknown']:.4f} | "
+        f"malicious_avg_quality={avg_summary['avg_base_quality_malicious']:.4f} | "
+        f"total_task_options={avg_summary['total_task_options']} | "
+        f"avg_task_options_per_worker={avg_summary['avg_task_options_per_worker']:.4f} | "
+        f"avg_option_quality={avg_summary['avg_option_quality']:.4f} | "
+        f"avg_abs_data_error={avg_summary['avg_abs_data_error']:.4f}"
     )
     print("全部完成")
 

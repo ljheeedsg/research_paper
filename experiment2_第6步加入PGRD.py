@@ -23,7 +23,6 @@ PLOT_TRUSTED = "experiment2_cmab_trust_pgrd_trusted_count.png"
 PLOT_UNKNOWN = "experiment2_cmab_trust_pgrd_unknown_count.png"
 PLOT_MALICIOUS = "experiment2_cmab_trust_pgrd_malicious_count.png"
 PLOT_VALIDATION = "experiment2_cmab_trust_pgrd_validation_count.png"
-PLOT_TRUST = "experiment2_cmab_trust_pgrd_avg_trust.png"
 PLOT_PLATFORM_UTILITY = "experiment2_cmab_trust_pgrd_platform_utility.png"
 PLOT_CUM_PLATFORM_UTILITY = "experiment2_cmab_trust_pgrd_cumulative_platform_utility.png"
 PLOT_ACTIVE_WORKERS = "experiment2_cmab_trust_pgrd_active_workers.png"
@@ -55,7 +54,7 @@ WORKER_COST_RATIO = 0.6
 # ===== Leave Model =====
 # 退出概率：
 # sigmoid(BETA0 + BETA1 * cumulative_cost - BETA2 * avg_reward_per_selected_round)
-BETA0 = -2.5
+BETA0 = -0.5
 BETA1 = 0.02
 BETA2 = 0.3
 
@@ -580,6 +579,9 @@ def split_member_and_normal_tasks(round_tasks):
     if not round_tasks:
         return set(), set()
 
+    if MEMBER_TASK_RATIO <= 0:
+        return set(), {task["task_id"] for task in round_tasks}
+
     task_infos = []
     for task in round_tasks:
         task_id = task["task_id"]
@@ -588,7 +590,7 @@ def split_member_and_normal_tasks(round_tasks):
         task_infos.append((task_id, member_score))
 
     task_infos.sort(key=lambda x: (-x[1], x[0]))
-    member_count = max(1, int(round(len(task_infos) * MEMBER_TASK_RATIO)))
+    member_count = int(round(len(task_infos) * MEMBER_TASK_RATIO))
     member_count = min(member_count, len(task_infos))
 
     member_task_ids = {tid for tid, _ in task_infos[:member_count]}
@@ -608,6 +610,11 @@ def update_membership_by_pgrd(available_workers, slot_id, member_task_ids, norma
         bid_task_ids = set(worker["tasks_by_slot"].get(slot_id, []))
         member_bid_tasks = sorted(list(bid_task_ids & member_task_ids))
         normal_bid_tasks = sorted(list(bid_task_ids & normal_task_ids))
+
+        if not member_task_ids:
+            worker["is_member"] = False
+            bid_tasks_map[worker["worker_id"]] = sorted(list(bid_task_ids & normal_task_ids))
+            continue
 
         if worker["category"] == "malicious":
             worker["is_member"] = False
@@ -1108,7 +1115,6 @@ def summarize_results(round_results, workers, initial_stats=None):
         "avg_trusted_count_all_non_empty": safe_mean("trusted_count", valid_rounds),
         "avg_unknown_count_all_non_empty": safe_mean("unknown_count", valid_rounds),
         "avg_malicious_count_all_non_empty": safe_mean("malicious_count", valid_rounds),
-        "avg_trust_all_non_empty": safe_mean("avg_trust", valid_rounds),
         "avg_member_count_all_non_empty": safe_mean("member_count", valid_rounds),
         "avg_trusted_member_count_all_non_empty": safe_mean("trusted_member_count", valid_rounds),
         "avg_num_active_workers_all_non_empty": safe_mean("num_active_workers", valid_rounds),
@@ -1279,7 +1285,6 @@ def run_single_experiment(seed):
             slot_id,
             bid_tasks_map=bid_tasks_map,
         )
-        avg_trust_t = float(np.mean([w["trust"] for w in workers.values()])) if workers else 0.0
         current_active_workers = sum(1 for worker in workers.values() if worker["is_active"])
         cumulative_left_workers = sum(1 for worker in workers.values() if not worker["is_active"])
         member_workers = [w for w in workers.values() if w["is_member"]]
@@ -1327,7 +1332,6 @@ def run_single_experiment(seed):
             "trusted_count": len(Uc),
             "unknown_count": len(Uu),
             "malicious_count": len(Um),
-            "avg_trust": round(avg_trust_t, 4),
             "num_active_workers": current_active_workers,
             "num_left_workers_this_round": leave_result["num_left_workers_this_round"],
             "left_worker_ids_this_round": leave_result["left_worker_ids"],
@@ -1410,7 +1414,6 @@ def main():
     plot_metric(avg_round_results, "unknown_count", "Unknown Count", PLOT_UNKNOWN)
     plot_metric(avg_round_results, "malicious_count", "Malicious Count", PLOT_MALICIOUS)
     plot_metric(avg_round_results, "num_validation_tasks", "Validation Task Count", PLOT_VALIDATION)
-    plot_metric(avg_round_results, "avg_trust", "Average Trust", PLOT_TRUST)
     plot_metric(avg_round_results, "platform_utility", "Platform Utility", PLOT_PLATFORM_UTILITY)
     plot_metric(avg_round_results, "cumulative_platform_utility", "Cumulative Platform Utility", PLOT_CUM_PLATFORM_UTILITY)
     plot_metric(avg_round_results, "num_active_workers", "Active Workers", PLOT_ACTIVE_WORKERS)

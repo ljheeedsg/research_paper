@@ -1,0 +1,32 @@
+{
+  "total_workers": 285,
+  "trusted_count": 60,
+  "unknown_count": 115,
+  "malicious_count": 110,
+  "trusted_ratio": 0.2105,
+  "avg_base_quality_all": 0.6132,
+  "avg_base_quality_trusted": 0.8922,
+  "avg_base_quality_unknown": 0.7899,
+  "avg_base_quality_malicious": 0.2762,
+  "total_task_options": 35161,
+  "avg_task_options_per_worker": 123.3719,
+  "avg_option_quality": 0.6141,
+  "avg_abs_data_error": 0.1627,
+  "avg_abs_data_error_trusted": 0.017,
+  "avg_abs_data_error_unknown": 0.033,
+  "avg_abs_data_error_malicious": 0.3821,
+  "num_experiment_runs": 10,
+  "experiment_seeds": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "downstream_output_seed": 3
+}

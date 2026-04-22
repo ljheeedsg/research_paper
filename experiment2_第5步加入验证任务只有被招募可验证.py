@@ -23,7 +23,6 @@ PLOT_TRUSTED = "experiment2_cmab_trust_trusted_count.png"
 PLOT_UNKNOWN = "experiment2_cmab_trust_unknown_count.png"
 PLOT_MALICIOUS = "experiment2_cmab_trust_malicious_count.png"
 PLOT_VALIDATION = "experiment2_cmab_trust_validation_count.png"
-PLOT_TRUST = "experiment2_cmab_trust_avg_trust.png"
 PLOT_PLATFORM_UTILITY = "experiment2_cmab_trust_platform_utility.png"
 PLOT_CUM_PLATFORM_UTILITY = "experiment2_cmab_trust_cumulative_platform_utility.png"
 PLOT_ACTIVE_WORKERS = "experiment2_cmab_trust_active_workers.png"
@@ -32,7 +31,7 @@ PLOT_LEAVE_PROB = "experiment2_cmab_trust_avg_leave_probability.png"
 
 TOTAL_SLOTS = 86400 // 600
 PER_ROUND_BUDGET = 1000
-K = 7
+K = 20
 RANDOM_SEED = 3
 NUM_EXPERIMENT_RUNS = 10
 SEED_STEP = 1
@@ -64,9 +63,10 @@ TRUST_INIT_TRUSTED = 1.0
 TRUST_INIT_UNKNOWN = 0.5
 
 # trust 更新参数
-ETA = 0.10
+ETA = 6
 THETA_HIGH = 0.8
 THETA_LOW = 0.20
+TRUST_EPS = 1e-9
 
 # 分段误差阈值
 ERROR_GOOD = 0.15
@@ -545,21 +545,22 @@ def compute_platform_utility(eval_result, selected_worker_ids, workers):
     }
 
 
-def generate_validation_tasks_by_grid(available_workers, workers, task_grid_map, round_tasks, slot_id, top_m):
+def generate_validation_tasks_by_grid(worker_ids_for_validation, workers, task_grid_map, round_tasks, slot_id, top_m):
     """
-    正确的验证任务生成逻辑：
-    1. 先按 grid(region) 聚合 trusted / unknown 的空间重叠
-    2. 选 top-M grid
-    3. 再从这些 grid 中挑选本轮有效任务作为验证任务
+    只在指定的验证参与者集合中生成验证任务。
+    对本文件的 strict version 来说，worker_ids_for_validation 就是本轮被招募工人。
+
+    1. 先按 task 聚合 trusted / unknown 的精确重叠
+    2. 只有同一个 task 同时存在被招募 trusted 和 unknown，才可作为验证任务
+    3. 选择 unknown 更多、trusted 更多的 top-M task
     """
-    available_ids = {w["worker_id"] for w in available_workers}
+    validation_worker_ids = set(worker_ids_for_validation)
     round_task_ids = {task["task_id"] for task in round_tasks}
 
-    grid_uc = defaultdict(int)
-    grid_uu = defaultdict(int)
-    grid_tasks = defaultdict(set)
+    task_uc = defaultdict(int)
+    task_uu = defaultdict(int)
 
-    for worker_id in available_ids:
+    for worker_id in validation_worker_ids:
         worker = workers[worker_id]
 
         for task_id in worker["tasks_by_slot"].get(slot_id, []):
@@ -570,53 +571,48 @@ def generate_validation_tasks_by_grid(available_workers, workers, task_grid_map,
             if gid is None:
                 continue
 
-            grid_tasks[gid].add(task_id)
-
             if worker["category"] == "trusted":
-                grid_uc[gid] += 1
+                task_uc[task_id] += 1
             elif worker["category"] == "unknown":
-                grid_uu[gid] += 1
+                task_uu[task_id] += 1
 
-    candidate_grids = []
-    for gid in grid_tasks:
-        uc_cnt = grid_uc.get(gid, 0)
-        uu_cnt = grid_uu.get(gid, 0)
+    candidate_tasks = []
+    for task_id in round_task_ids:
+        uc_cnt = task_uc.get(task_id, 0)
+        uu_cnt = task_uu.get(task_id, 0)
 
-        # 必须同时有 trusted 和 unknown
+        # 必须在同一个 task 上同时有被招募 trusted 和 unknown
         if uc_cnt > 0 and uu_cnt > 0:
-            candidate_grids.append({
-                "grid_id": gid,
+            candidate_tasks.append({
+                "task_id": task_id,
+                "grid_id": task_grid_map.get(task_id),
                 "trusted_count": uc_cnt,
                 "unknown_count": uu_cnt,
-                "task_ids": sorted(list(grid_tasks[gid])),
             })
 
-    candidate_grids.sort(
-        key=lambda x: (-x["unknown_count"], -x["trusted_count"], x["grid_id"])
+    candidate_tasks.sort(
+        key=lambda x: (-x["unknown_count"], -x["trusted_count"], x["grid_id"], x["task_id"])
     )
 
-    selected_grids = candidate_grids[:top_m]
+    validation_tasks = candidate_tasks[:top_m]
 
-    validation_tasks = []
-    for item in selected_grids:
-        # 固定选择该 grid 中 task_id 最小的任务，保证稳定
-        chosen_task = item["task_ids"][0]
-        validation_tasks.append({
-            "task_id": chosen_task,
-            "grid_id": item["grid_id"],
-            "trusted_count": item["trusted_count"],
-            "unknown_count": item["unknown_count"],
-        })
-
-    return validation_tasks, candidate_grids
+    return validation_tasks, candidate_tasks
 
 
-def update_trust_by_validation(validation_tasks, available_workers, workers, slot_id):
+def update_trust_by_validation(validation_tasks, selected_worker_ids, workers, slot_id):
     """
-    用 trusted 作为参考，对 unknown 进行验证并更新 trust。
+    修改版（Strict Version）：
+    只有本轮被招募 selected_worker_ids 的工人，
+    才能参与验证任务并上传数据。
     """
+
     trust_update_records = []
-    available_ids = {w["worker_id"] for w in available_workers}
+
+    # ===============================
+    # 修改1：参与验证的人从 available_workers
+    # 改成 selected_worker_ids
+    # ===============================
+    selected_ids = set(selected_worker_ids)
 
     for item in validation_tasks:
         task_id = item["task_id"]
@@ -624,29 +620,50 @@ def update_trust_by_validation(validation_tasks, available_workers, workers, slo
         trusted_workers = []
         unknown_workers = []
 
-        for worker_id in available_ids:
+        # ===============================
+        # 修改2：只遍历 selected_ids
+        # 原来是 available_ids
+        # ===============================
+        for worker_id in selected_ids:
             worker = workers[worker_id]
+
             if task_id not in worker["tasks_by_slot"].get(slot_id, []):
                 continue
 
             if worker["category"] == "trusted":
                 trusted_workers.append(worker_id)
+
             elif worker["category"] == "unknown":
                 unknown_workers.append(worker_id)
 
+        # 没有trusted参考值，则跳过
+        if not trusted_workers:
+            continue
+
+        # ===============================
+        # trusted 提供参考值
+        # ===============================
         trusted_data = []
+
         for worker_id in trusted_workers:
             worker = workers[worker_id]
+
             if task_id in worker["task_map"]:
-                trusted_data.append(float(worker["task_map"][task_id]["task_data"]))
+                trusted_data.append(
+                    float(worker["task_map"][task_id]["task_data"])
+                )
 
         if not trusted_data:
             continue
 
         base_v = float(np.median(trusted_data))
 
+        # ===============================
+        # 更新 unknown trust
+        # ===============================
         for worker_id in unknown_workers:
             worker = workers[worker_id]
+
             if task_id not in worker["task_map"]:
                 continue
 
@@ -661,8 +678,10 @@ def update_trust_by_validation(validation_tasks, available_workers, workers, slo
 
             if error <= ERROR_GOOD:
                 new_trust = old_trust + ETA
+
             elif error <= ERROR_BAD:
                 new_trust = old_trust
+
             else:
                 new_trust = old_trust - ETA
 
@@ -670,10 +689,13 @@ def update_trust_by_validation(validation_tasks, available_workers, workers, slo
             worker["trust"] = new_trust
 
             old_category = worker["category"]
-            if new_trust >= THETA_HIGH:
+
+            if new_trust >= THETA_HIGH - TRUST_EPS:
                 worker["category"] = "trusted"
-            elif new_trust <= THETA_LOW:
+
+            elif new_trust <= THETA_LOW + TRUST_EPS:
                 worker["category"] = "malicious"
+
             else:
                 worker["category"] = "unknown"
 
@@ -957,7 +979,6 @@ def summarize_results(round_results, workers, initial_stats=None):
         "avg_trusted_count_all_non_empty": safe_mean("trusted_count", valid_rounds),
         "avg_unknown_count_all_non_empty": safe_mean("unknown_count", valid_rounds),
         "avg_malicious_count_all_non_empty": safe_mean("malicious_count", valid_rounds),
-        "avg_trust_all_non_empty": safe_mean("avg_trust", valid_rounds),
         "avg_num_active_workers_all_non_empty": safe_mean("num_active_workers", valid_rounds),
         "avg_num_left_workers_this_round_all_non_empty": safe_mean("num_left_workers_this_round", valid_rounds),
         "avg_leave_probability_all_non_empty": safe_mean("avg_leave_probability", valid_rounds),
@@ -1063,7 +1084,7 @@ def run_single_experiment(seed):
 
         # Step C: 生成验证任务（先 grid 后 task）
         validation_tasks, validation_candidates = generate_validation_tasks_by_grid(
-            available_workers=available_workers,
+            worker_ids_for_validation=selected_worker_ids,
             workers=workers,
             task_grid_map=task_grid_map,
             round_tasks=round_tasks,
@@ -1074,7 +1095,7 @@ def run_single_experiment(seed):
         # Step D: 执行验证并更新 trust
         trust_update_records = update_trust_by_validation(
             validation_tasks=validation_tasks,
-            available_workers=available_workers,
+            selected_worker_ids=selected_worker_ids,
             workers=workers,
             slot_id=slot_id,
         )
@@ -1094,7 +1115,6 @@ def run_single_experiment(seed):
 
         total_observations_before_round = total_observations
         total_observations += update_worker_statistics(selected_worker_ids, workers, slot_id)
-        avg_trust_t = float(np.mean([w["trust"] for w in workers.values()])) if workers else 0.0
         current_active_workers = sum(1 for worker in workers.values() if worker["is_active"])
         cumulative_left_workers = sum(1 for worker in workers.values() if not worker["is_active"])
 
@@ -1133,7 +1153,6 @@ def run_single_experiment(seed):
             "trusted_count": len(Uc),
             "unknown_count": len(Uu),
             "malicious_count": len(Um),
-            "avg_trust": round(avg_trust_t, 4),
             "num_active_workers": current_active_workers,
             "num_left_workers_this_round": leave_result["num_left_workers_this_round"],
             "left_worker_ids_this_round": leave_result["left_worker_ids"],
@@ -1214,7 +1233,6 @@ def main():
     plot_metric(avg_round_results, "unknown_count", "Unknown Count", PLOT_UNKNOWN)
     plot_metric(avg_round_results, "malicious_count", "Malicious Count", PLOT_MALICIOUS)
     plot_metric(avg_round_results, "num_validation_tasks", "Validation Task Count", PLOT_VALIDATION)
-    plot_metric(avg_round_results, "avg_trust", "Average Trust", PLOT_TRUST)
     plot_metric(avg_round_results, "platform_utility", "Platform Utility", PLOT_PLATFORM_UTILITY)
     plot_metric(avg_round_results, "cumulative_platform_utility", "Cumulative Platform Utility", PLOT_CUM_PLATFORM_UTILITY)
     plot_metric(avg_round_results, "num_active_workers", "Active Workers", PLOT_ACTIVE_WORKERS)

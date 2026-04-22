@@ -24,8 +24,6 @@ PLOT_TRUSTED = "experiment2_cmab_trust_pgrd_lgsc_trusted_count.png"
 PLOT_UNKNOWN = "experiment2_cmab_trust_pgrd_lgsc_unknown_count.png"
 PLOT_MALICIOUS = "experiment2_cmab_trust_pgrd_lgsc_malicious_count.png"
 PLOT_VALIDATION = "experiment2_cmab_trust_pgrd_lgsc_validation_count.png"
-PLOT_TRUST = "experiment2_cmab_trust_pgrd_lgsc_avg_trust.png"
-
 PLOT_PLATFORM_UTILITY = "experiment2_cmab_trust_pgrd_lgsc_platform_utility.png"
 PLOT_CUM_PLATFORM_UTILITY = "experiment2_cmab_trust_pgrd_lgsc_cumulative_platform_utility.png"
 PLOT_ACTIVE_WORKERS = "experiment2_cmab_trust_pgrd_lgsc_active_workers.png"
@@ -53,8 +51,8 @@ RHO = 10.0
 WORKER_COST_RATIO = 0.6
 
 BETA0 = -0.5
-BETA1 = 0.05
-BETA2 = 0.1
+BETA1 = 0.02
+BETA2 = 0.3
 BETA3 = 1.0
 BETA4 = 2.0
 

@@ -1,0 +1,25 @@
+{
+  "total_tasks": 2000,
+  "target_tasks": 2000,
+  "candidate_slot_count": 7131,
+  "total_capacity": 45536,
+  "regions_with_tasks": 74,
+  "avg_tasks_per_active_region": 27.2193,
+  "max_tasks_in_region": 174,
+  "avg_required_workers": 1.0,
+  "avg_task_weight": 2.0041,
+  "num_experiment_runs": 10,
+  "experiment_seeds": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "downstream_output_seed": 3
+}

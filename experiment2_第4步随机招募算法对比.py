@@ -32,7 +32,7 @@ PLOT_LEAVE_PROB = "experiment2_random_longrun_avg_leave_probability.png"
 TOTAL_SLOTS = 86400 // 600
 PER_ROUND_BUDGET = 1000
 K = 7
-RANDOM_SEED = 13
+RANDOM_SEED = 3
 NUM_EXPERIMENT_RUNS = 10
 SEED_STEP = 1
 
@@ -46,7 +46,7 @@ RHO = 10.0
 WORKER_COST_RATIO = 0.6
 
 # ===== Leave Model =====
-BETA0 = -2.5
+BETA0 = -0.5
 BETA1 = 0.02
 BETA2 = 0.3
 

@@ -13,6 +13,8 @@ VEHICLE_FILE = "experiment2_vehicle.csv"
 TASK_CSV = "experiment2_tasks.csv"
 TASK_JSON = "experiment2_task_segments.json"
 PLOT_FILE = "experiment2_tasks_distribution.png"
+SUMMARY_FILE = "experiment2_tasks_summary.json"
+ALL_RUNS_SUMMARY_FILE = "experiment2_tasks_summary_all_runs.json"
 
 TOTAL_TASKS = 2000
 SLOT_SEC = 600
@@ -21,7 +23,9 @@ SLOTS_PER_DAY = 86400 // SLOT_SEC
 MAX_REQUIRED_WORKERS = 1
 TASK_WEIGHT_MIN = 1.0
 TASK_WEIGHT_MAX = 3.0
-RANDOM_SEED = 100
+RANDOM_SEED = 3
+NUM_EXPERIMENT_RUNS = 10
+SEED_STEP = 1
 
 GRID_X_NUM = 10
 GRID_Y_NUM = 10
@@ -29,6 +33,29 @@ GRID_Y_NUM = 10
 
 
 random.seed(RANDOM_SEED)
+
+
+def set_random_seed(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+
+
+def average_numeric_values(values):
+    if all(isinstance(value, int) and not isinstance(value, bool) for value in values):
+        return int(round(float(np.mean(values))))
+    return round(float(np.mean(values)), 4)
+
+
+def average_dict_records(records):
+    averaged = {}
+    for key in records[0].keys():
+        values = [record[key] for record in records]
+        first_value = values[0]
+        if all(isinstance(value, (int, float)) and not isinstance(value, bool) for value in values):
+            averaged[key] = average_numeric_values(values)
+        else:
+            averaged[key] = first_value
+    return averaged
 
 
 def get_slot_index(t_seconds: int) -> int:
@@ -161,6 +188,27 @@ def generate_tasks(candidate_slots):
     return tasks, tasks_by_region
 
 
+def summarize_tasks(tasks, tasks_by_region, candidate_slots, total_capacity):
+    task_counts = [len(task_list) for task_list in tasks_by_region.values()]
+    weights = [task["weight"] for task in tasks]
+    required_workers = [task["required_workers"] for task in tasks]
+
+    def safe_mean(values):
+        return round(float(np.mean(values)), 4) if values else 0.0
+
+    return {
+        "total_tasks": len(tasks),
+        "target_tasks": TOTAL_TASKS,
+        "candidate_slot_count": len(candidate_slots),
+        "total_capacity": total_capacity,
+        "regions_with_tasks": len(tasks_by_region),
+        "avg_tasks_per_active_region": safe_mean(task_counts),
+        "max_tasks_in_region": max(task_counts) if task_counts else 0,
+        "avg_required_workers": safe_mean(required_workers),
+        "avg_task_weight": safe_mean(weights),
+    }
+
+
 def save_tasks_csv(tasks):
     with open(TASK_CSV, "w", encoding="utf-8", newline="") as f:
         writer = csv.writer(f)
@@ -289,7 +337,16 @@ def plot_task_distribution(region_density, tasks_by_region):
     print(f"已保存分布图至 {PLOT_FILE}")
 
 
+def save_json(obj, filepath):
+    with open(filepath, "w", encoding="utf-8") as f:
+        json.dump(obj, f, indent=2, ensure_ascii=False)
+    print(f"已保存 {filepath}")
+
+
 def main():
+    seeds = [RANDOM_SEED + i * SEED_STEP for i in range(NUM_EXPERIMENT_RUNS)]
+    print(f"开始重复实验，共 {NUM_EXPERIMENT_RUNS} 次，随机种子: {seeds}")
+
     capacity_count, region_density, total_capacity = load_vehicle_capacity()
 
     if total_capacity == 0:
@@ -301,16 +358,47 @@ def main():
         print("错误：没有任何可用的 (region, slot) 候选位置。")
         return
 
-    tasks, tasks_by_region = generate_tasks(candidate_slots)
+    all_summaries = []
+    all_runs_summary = []
+    representative_tasks = None
+    representative_tasks_by_region = None
+    for run_idx, seed in enumerate(seeds, start=1):
+        print(f"\n===== Run {run_idx}/{NUM_EXPERIMENT_RUNS} | seed={seed} =====")
+        set_random_seed(seed)
+        tasks, tasks_by_region = generate_tasks(candidate_slots)
+        summary = summarize_tasks(tasks, tasks_by_region, candidate_slots, total_capacity)
+        all_summaries.append(summary)
+        all_runs_summary.append(
+            {
+                "run_index": run_idx,
+                "seed": seed,
+                **summary,
+            }
+        )
 
-    actual_tasks = len(tasks)
-    print(f"实际生成任务数: {actual_tasks} / 目标 {TOTAL_TASKS}")
-    if actual_tasks < TOTAL_TASKS:
-        print("警告：当前时空容量不足，未能达到目标任务数。")
+        actual_tasks = len(tasks)
+        print(f"实际生成任务数: {actual_tasks} / 目标 {TOTAL_TASKS}")
+        if actual_tasks < TOTAL_TASKS:
+            print("警告：当前时空容量不足，未能达到目标任务数。")
 
-    save_tasks_csv(tasks)
-    save_tasks_json(tasks_by_region)
-    plot_task_distribution(region_density, tasks_by_region)
+        if representative_tasks is None:
+            representative_tasks = tasks
+            representative_tasks_by_region = tasks_by_region
+
+    avg_summary = average_dict_records(all_summaries)
+    avg_summary["num_experiment_runs"] = NUM_EXPERIMENT_RUNS
+    avg_summary["experiment_seeds"] = seeds
+    avg_summary["downstream_output_seed"] = seeds[0]
+
+    save_tasks_csv(representative_tasks)
+    save_tasks_json(representative_tasks_by_region)
+    plot_task_distribution(region_density, representative_tasks_by_region)
+    save_json(all_runs_summary, ALL_RUNS_SUMMARY_FILE)
+    save_json(avg_summary, SUMMARY_FILE)
+
+    print("平均任务统计:")
+    for k, v in avg_summary.items():
+        print(f"  {k}: {v}")
 
     print("全部完成")
 

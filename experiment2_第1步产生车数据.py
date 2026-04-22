@@ -1,4 +1,5 @@
 import csv
+import json
 import random
 from collections import defaultdict
 
@@ -10,6 +11,8 @@ import numpy as np
 INPUT_CSV = "dataset/beijing_300_cars_2008-02-03.csv"
 OUTPUT_SEG = "experiment2_vehicle.csv"
 OUTPUT_PLOT = "experiment2_grid_partition.png"
+SUMMARY_FILE = "experiment2_vehicle_summary.json"
+ALL_RUNS_SUMMARY_FILE = "experiment2_vehicle_summary_all_runs.json"
 
 LOW_PERCENTILE = 1
 HIGH_PERCENTILE = 99
@@ -26,11 +29,13 @@ TRUSTED_RATIO = 0.2
 MALICIOUS_RATIO = 0.4
 
 SLOT_SEC = 600
-RANDOM_SEED = 100
+RANDOM_SEED = 3
+NUM_EXPERIMENT_RUNS = 10
+SEED_STEP = 1
 
 # 三类工人质量区间
 TRUSTED_QUALITY_MIN = 0.8
-TRUSTED_QUALITY_MAX = 0.90
+TRUSTED_QUALITY_MAX = 1
 
 UNKNOWN_QUALITY_MIN = 0.6
 UNKNOWN_QUALITY_MAX = 1.0
@@ -44,6 +49,29 @@ POINT_ALPHA = 0.5
 
 
 random.seed(RANDOM_SEED)
+
+
+def set_random_seed(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+
+
+def average_numeric_values(values):
+    if all(isinstance(value, int) and not isinstance(value, bool) for value in values):
+        return int(round(float(np.mean(values))))
+    return round(float(np.mean(values)), 4)
+
+
+def average_dict_records(records):
+    averaged = {}
+    for key in records[0].keys():
+        values = [record[key] for record in records]
+        first_value = values[0]
+        if all(isinstance(value, (int, float)) and not isinstance(value, bool) for value in values):
+            averaged[key] = average_numeric_values(values)
+        else:
+            averaged[key] = first_value
+    return averaged
 
 
 def safe_int_key(value):
@@ -298,6 +326,12 @@ def summarize_vehicle_attributes(segments):
     }
 
 
+def save_json(obj, filepath):
+    with open(filepath, "w", encoding="utf-8") as f:
+        json.dump(obj, f, indent=2, ensure_ascii=False)
+    print(f"已保存 {filepath}")
+
+
 def save_csv(segments, filepath):
     segments_sorted = sorted(segments, key=lambda item: (item[0], item[2], item[3], item[1]))
     with open(filepath, "w", encoding="utf-8", newline="") as f:
@@ -369,6 +403,9 @@ def plot_grid(lon_min, lon_max, lat_min, lat_max, all_points, grid_counts):
 
 
 def main():
+    seeds = [RANDOM_SEED + i * SEED_STEP for i in range(NUM_EXPERIMENT_RUNS)]
+    print(f"开始重复实验，共 {NUM_EXPERIMENT_RUNS} 次，随机种子: {seeds}")
+
     rows = read_input_data()
     if not rows:
         print("输入数据为空，程序结束")
@@ -389,23 +426,58 @@ def main():
 
     merged_segments = merge_segments(segments)
     slot_segments = split_by_slot(merged_segments)
-    final_segments = final_renumber_and_attributes(slot_segments)
-    summary = summarize_vehicle_attributes(final_segments)
 
-    save_csv(final_segments, OUTPUT_SEG)
+    all_summaries = []
+    all_runs_summary = []
+    representative_segments = None
+    for run_idx, seed in enumerate(seeds, start=1):
+        print(f"\n===== Run {run_idx}/{NUM_EXPERIMENT_RUNS} | seed={seed} =====")
+        set_random_seed(seed)
+        final_segments = final_renumber_and_attributes(slot_segments)
+        summary = summarize_vehicle_attributes(final_segments)
+        all_summaries.append(summary)
+        all_runs_summary.append(
+            {
+                "run_index": run_idx,
+                "seed": seed,
+                **summary,
+            }
+        )
+        if representative_segments is None:
+            representative_segments = final_segments
+
+        print(
+            "本次工人统计: "
+            f"workers={summary['total_workers']} | "
+            f"trusted={summary['trusted_count']} | "
+            f"unknown={summary['unknown_count']} | "
+            f"malicious={summary['malicious_count']} | "
+            f"trusted_ratio={summary['trusted_ratio']:.4f} | "
+            f"malicious_ratio={summary['malicious_ratio']:.4f} | "
+            f"avg_base_quality={summary['avg_base_quality_all']:.4f}"
+        )
+
+    avg_summary = average_dict_records(all_summaries)
+    avg_summary["num_experiment_runs"] = NUM_EXPERIMENT_RUNS
+    avg_summary["experiment_seeds"] = seeds
+    avg_summary["downstream_output_seed"] = seeds[0]
+
+    save_csv(representative_segments, OUTPUT_SEG)
     plot_grid(lon_min, lon_max, lat_min, lat_max, all_points, grid_counts)
+    save_json(all_runs_summary, ALL_RUNS_SUMMARY_FILE)
+    save_json(avg_summary, SUMMARY_FILE)
     print(
-        "初始工人统计: "
-        f"workers={summary['total_workers']} | "
-        f"trusted={summary['trusted_count']} | "
-        f"unknown={summary['unknown_count']} | "
-        f"malicious={summary['malicious_count']} | "
-        f"trusted_ratio={summary['trusted_ratio']:.4f} | "
-        f"malicious_ratio={summary['malicious_ratio']:.4f} | "
-        f"avg_base_quality={summary['avg_base_quality_all']:.4f} | "
-        f"trusted_avg_quality={summary['avg_base_quality_trusted']:.4f} | "
-        f"unknown_avg_quality={summary['avg_base_quality_unknown']:.4f} | "
-        f"malicious_avg_quality={summary['avg_base_quality_malicious']:.4f}"
+        "平均初始工人统计: "
+        f"workers={avg_summary['total_workers']} | "
+        f"trusted={avg_summary['trusted_count']} | "
+        f"unknown={avg_summary['unknown_count']} | "
+        f"malicious={avg_summary['malicious_count']} | "
+        f"trusted_ratio={avg_summary['trusted_ratio']:.4f} | "
+        f"malicious_ratio={avg_summary['malicious_ratio']:.4f} | "
+        f"avg_base_quality={avg_summary['avg_base_quality_all']:.4f} | "
+        f"trusted_avg_quality={avg_summary['avg_base_quality_trusted']:.4f} | "
+        f"unknown_avg_quality={avg_summary['avg_base_quality_unknown']:.4f} | "
+        f"malicious_avg_quality={avg_summary['avg_base_quality_malicious']:.4f}"
     )
     print("全部完成")
 

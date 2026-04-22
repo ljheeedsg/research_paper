@@ -8,8 +8,8 @@ SERIES_CONFIG = [
     {
         "label": "Random",
         "paths": [
-            "experiment2_random_round_results.json",
             "experiment2_random_longrun_round_results.json",
+            "experiment2_random_round_results.json",
         ],
         "color": "#4C78A8",
         "marker": "o",
@@ -17,8 +17,8 @@ SERIES_CONFIG = [
     {
         "label": "CMAB",
         "paths": [
-            "experiment2_cmab_round_results.json",
             "experiment2_cmab_longrun_round_results.json",
+            "experiment2_cmab_round_results.json",
         ],
         "color": "#F58518",
         "marker": "s",
