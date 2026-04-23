@@ -51,7 +51,7 @@ RHO = 10.0
 WORKER_COST_RATIO = 0.6
 
 BETA0 = -0.5
-BETA1 = 0.02
+BETA1 = 0.1
 BETA2 = 0.3
 BETA3 = 1.0
 BETA4 = 2.0
@@ -66,12 +66,12 @@ ERROR_GOOD = 0.15
 ERROR_BAD = 0.35
 
 MEMBERSHIP_FEE = 2
-MEMBER_TASK_RATIO = 0.3
+MEMBER_TASK_RATIO = 0.2
 MEMBER_REWARD_MULTIPLIER = 1.25
 NORMAL_REWARD_MULTIPLIER = 1.0
 PGRD_LAMBDA = 1.5
 PGRD_XI = 4.0
-MEMBERSHIP_THRESHOLD = 0.55
+MEMBERSHIP_THRESHOLD = 0.5
 
 SUNK_THRESHOLD = 30
 MEMBER_BONUS = 30
@@ -703,6 +703,9 @@ def split_member_and_normal_tasks(round_tasks):
     if not round_tasks:
         return set(), set()
 
+    if MEMBER_TASK_RATIO <= 0:
+        return set(), {task["task_id"] for task in round_tasks}
+
     task_infos = []
     for task in round_tasks:
         task_id = task["task_id"]
@@ -711,7 +714,7 @@ def split_member_and_normal_tasks(round_tasks):
         task_infos.append((task_id, member_score))
 
     task_infos.sort(key=lambda x: (-x[1], x[0]))
-    member_count = max(1, int(round(len(task_infos) * MEMBER_TASK_RATIO)))
+    member_count = int(round(len(task_infos) * MEMBER_TASK_RATIO))
     member_count = min(member_count, len(task_infos))
 
     member_task_ids = {tid for tid, _ in task_infos[:member_count]}
@@ -731,6 +734,11 @@ def update_membership_by_pgrd(available_workers, slot_id, member_task_ids, norma
         bid_task_ids = set(worker["tasks_by_slot"].get(slot_id, []))
         member_bid_tasks = sorted(list(bid_task_ids & member_task_ids))
         normal_bid_tasks = sorted(list(bid_task_ids & normal_task_ids))
+
+        if not member_task_ids:
+            worker["is_member"] = False
+            bid_tasks_map[worker["worker_id"]] = sorted(list(bid_task_ids & normal_task_ids))
+            continue
 
         if worker["category"] == "malicious":
             worker["is_member"] = False

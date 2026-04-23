@@ -55,7 +55,7 @@ WORKER_COST_RATIO = 0.6
 # 退出概率：
 # sigmoid(BETA0 + BETA1 * cumulative_cost - BETA2 * avg_reward_per_selected_round)
 BETA0 = -0.5
-BETA1 = 0.02
+BETA1 = 0.1
 BETA2 = 0.3
 
 # 验证任务参数
@@ -76,12 +76,12 @@ ERROR_BAD = 0.35
 
 # ===== PGRD Membership =====
 MEMBERSHIP_FEE = 2
-MEMBER_TASK_RATIO = 0.3
+MEMBER_TASK_RATIO = 0.2
 MEMBER_REWARD_MULTIPLIER = 1.25
 NORMAL_REWARD_MULTIPLIER = 1.0
 PGRD_LAMBDA = 1.5
 PGRD_XI = 4.0
-MEMBERSHIP_THRESHOLD = 0.55
+MEMBERSHIP_THRESHOLD = 0.5
 
 SKIP_EMPTY_ROUNDS = True
 # =======================================================

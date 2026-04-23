@@ -52,7 +52,7 @@ WORKER_COST_RATIO = 0.6
 # 退出概率：
 # sigmoid(BETA0 + BETA1 * cumulative_cost - BETA2 * avg_reward_per_selected_round)
 BETA0 = -0.5
-BETA1 = 0.02
+BETA1 = 0.1
 BETA2 = 0.3
 
 
