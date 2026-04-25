@@ -3,6 +3,8 @@ import json
 import random
 from collections import defaultdict
 
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import Patch, Circle

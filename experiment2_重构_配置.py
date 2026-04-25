@@ -57,6 +57,22 @@ MODE_OUTPUTS = {
             "avg_leave_probability",
         ],
     },
+    "epsilon_first": {
+    "prefix": "experiment2_epsilon_first_longrun",
+    "plot_keys": [
+        "coverage_rate",
+        "completion_rate",
+        "avg_quality",
+        "cumulative_coverage_rate",
+        "cumulative_completion_rate",
+        "cumulative_avg_quality",
+        "platform_utility",
+        "cumulative_platform_utility",
+        "num_active_workers",
+        "cumulative_left_workers",
+        "avg_leave_probability",
+    ],
+    },
     "cmab": {
         "prefix": "experiment2_cmab_longrun",
         "plot_keys": [
@@ -142,12 +158,15 @@ def build_config(mode, overrides=None):
     config["MODE"] = mode
     config.update(MODE_OUTPUTS[mode])
 
-    if mode == "random":
-        config["BETA1"] = 0.02
-    elif mode == "cmab":
-        config["BETA1"] = 0.02
-    elif mode in {"trust", "pgrd", "lgsc"}:
-        config["BETA1"] = 0.1
+    # if mode == "random":
+    #     config["BETA1"] = 0.02
+    # elif mode == "cmab":
+    #     config["BETA1"] = 0.02
+    # elif mode in {"trust", "pgrd", "lgsc"}:
+    #     config["BETA1"] = 0.1
+
+    if mode == "epsilon_first":
+        config["EPSILON_FIRST_RATIO"] = 0.3
 
     if overrides:
         config.update(overrides)

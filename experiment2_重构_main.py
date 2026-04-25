@@ -18,10 +18,11 @@ from experiment2_重构_结果管理 import (
 from experiment2_重构_实验器 import Simulator
 from experiment2_重构_配置 import build_config
 from experiment2_重构_随机算法 import RandomAlgorithm
-
+from experiment2_重构_EpsilonFirst算法 import EpsilonFirstAlgorithm
 
 ALGORITHM_FACTORY = {
     "random": RandomAlgorithm,
+    "epsilon_first": EpsilonFirstAlgorithm,
     "cmab": CMABAlgorithm,
     "trust": TrustCMABAlgorithm,
     "pgrd": PGRDAlgorithm,

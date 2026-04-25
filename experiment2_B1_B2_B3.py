@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 
@@ -15,18 +17,19 @@ SERIES_CONFIG = [
         "marker": "o",
     },
     {
-        "label": "B2 CMAB",
+        "label": "B2 Epsilon-First",
         "paths": [
-            "experiment2_cmab_longrun_round_results.json",
-            "experiment2_cmab_round_results.json",
+            "experiment2_epsilon_first_longrun_round_results.json",
+            "experiment2_epsilon_first_round_results.json",
         ],
         "color": "#F58518",
         "marker": "s",
     },
     {
-        "label": "B3 CMAB + Validation",
+        "label": "B3 Pure CMAB",
         "paths": [
-            "experiment2_cmab_trust_round_results.json",
+            "experiment2_cmab_longrun_round_results.json",
+            "experiment2_cmab_round_results.json",
         ],
         "color": "#54A24B",
         "marker": "^",
@@ -257,7 +260,7 @@ def plot_metric(series, metric):
 
 def plot_b3_worker_type_counts(series):
     b3_series = next(
-        (config for config in series if config["label"] == "B3 CMAB + Validation"),
+        (config for config in series if config["label"] == "B3 Pure CMAB"),
         None,
     )
     if b3_series is None:
