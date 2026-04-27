@@ -3,6 +3,8 @@ import json
 import random
 from collections import defaultdict
 
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -34,14 +36,15 @@ NUM_EXPERIMENT_RUNS = 10
 SEED_STEP = 1
 
 # 三类工人质量区间
-TRUSTED_QUALITY_MIN = 0.8
-TRUSTED_QUALITY_MAX = 1
+TRUSTED_QUALITY_MIN = 0.90
+TRUSTED_QUALITY_MAX = 1.00
 
+# unknown 改回原始单一区间分布，不分好中坏。
 UNKNOWN_QUALITY_MIN = 0.6
 UNKNOWN_QUALITY_MAX = 1.0
 
-MALICIOUS_QUALITY_MIN = 0.10
-MALICIOUS_QUALITY_MAX = 0.45
+MALICIOUS_QUALITY_MIN = 0.05
+MALICIOUS_QUALITY_MAX = 0.25
 
 POINT_SIZE = 1
 POINT_ALPHA = 0.5

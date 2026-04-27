@@ -26,9 +26,10 @@ DATA_SCALE = 0.20
 MALICIOUS_BIAS_MIN = 0.35
 MALICIOUS_BIAS_MAX = 0.70
 
-# true_value 范围
+# true_value 合法范围
 TRUE_VALUE_MIN = 0.0
 TRUE_VALUE_MAX = 1.0
+
 # =======================================================
 
 
@@ -115,8 +116,9 @@ def load_vehicle_segments():
 
 def load_tasks():
     """
-    读取第二步输出的 experiment2_tasks.csv
-    并为每个任务生成 true_value。
+    读取第二步输出的 experiment2_tasks.csv。
+    true_value 由第二步固定生成并写入任务文件，这里只做读取，
+    避免第3步重新采样导致上下游不一致。
     """
     tasks = []
     tasks_by_region = defaultdict(list)
@@ -144,7 +146,7 @@ def load_tasks():
                     "end_time": int(row["end_time"]),
                     "required_workers": int(row["required_workers"]),
                     "weight": float(row["weight"]),
-                    "true_value": round(random.uniform(TRUE_VALUE_MIN, TRUE_VALUE_MAX), 4),
+                    "true_value": float(row["true_value"]),
                 }
             except (TypeError, ValueError, KeyError, AttributeError):
                 continue

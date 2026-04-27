@@ -40,9 +40,10 @@ def evaluate_round(selected_worker_ids, workers, round_tasks, slot_id, delta, bi
         avg_quality = float(np.mean(qualities)) if qualities else 0.0
         completed = (num_workers >= required_workers) and (avg_quality >= delta)
 
-        weighted_gain = weight * best_quality
+        # 主统计口径使用任务内平均质量，best_quality 仅作为辅助分析字段保留。
+        weighted_gain = weight * avg_quality
         weighted_completion_quality += weighted_gain
-        platform_value = rho * weight * best_quality
+        platform_value = rho * weight * avg_quality
 
         task_result = {
             "task_id": task_id,
@@ -75,7 +76,7 @@ def evaluate_round(selected_worker_ids, workers, round_tasks, slot_id, delta, bi
     normalized_completion_quality = (
         weighted_completion_quality / total_weight if total_weight > 0 else 0.0
     )
-    covered_qualities = [tr["best_quality"] for tr in task_results if tr["covered"]]
+    covered_qualities = [tr["avg_quality"] for tr in task_results if tr["covered"]]
     avg_quality_t = float(np.mean(covered_qualities)) if covered_qualities else 0.0
 
     return {
@@ -134,7 +135,7 @@ def update_cumulative_metrics(round_result, cumulative_state):
     cumulative_state["task_weight_sum"] += round_result["total_task_weight"]
     cumulative_state["weighted_completion_quality_sum"] += round_result["weighted_completion_quality"]
     cumulative_state["quality_sum"] += sum(
-        float(task_result["best_quality"]) for task_result in covered_task_results
+        float(task_result["avg_quality"]) for task_result in covered_task_results
     )
     cumulative_state["quality_count"] += len(covered_task_results)
     cumulative_state["platform_task_value_sum"] += round_result["platform_task_value"]

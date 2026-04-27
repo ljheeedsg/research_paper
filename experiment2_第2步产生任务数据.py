@@ -163,6 +163,7 @@ def generate_tasks(candidate_slots):
         base_weight = random.uniform(TASK_WEIGHT_MIN, TASK_WEIGHT_MAX)
         weight_bonus = 0.2 * (required_workers - 1)
         weight = round(min(TASK_WEIGHT_MAX, base_weight + weight_bonus), 2)
+        true_value = round(random.uniform(0.0, 1.0), 4)
 
         start_time = slot_id * SLOT_SEC
         end_time = (slot_id + 1) * SLOT_SEC - 1
@@ -179,6 +180,7 @@ def generate_tasks(candidate_slots):
             "required_workers": required_workers,
             "weight": weight,
             "candidate_capacity": cap,
+            "true_value": true_value,
         }
 
         tasks.append(task_record)
@@ -207,6 +209,7 @@ def summarize_tasks(tasks, tasks_by_region, candidate_slots, total_capacity):
         "avg_tasks_per_active_region": safe_mean(task_counts),
         "max_tasks_in_region": max(task_counts) if task_counts else 0,
         "avg_required_workers": safe_mean(required_workers),
+        "max_required_workers": max(required_workers) if required_workers else 0,
         "avg_task_weight": safe_mean(weights),
     }
 
@@ -223,6 +226,7 @@ def save_tasks_csv(tasks):
             "required_workers",
             "weight",
             "candidate_capacity",
+            "true_value",
         ])
         for task in tasks:
             writer.writerow([
@@ -234,6 +238,7 @@ def save_tasks_csv(tasks):
                 task["required_workers"],
                 task["weight"],
                 task["candidate_capacity"],
+                task["true_value"],
             ])
     print(f"已生成 {TASK_CSV}")
 
