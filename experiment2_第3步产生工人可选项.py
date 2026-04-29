@@ -14,8 +14,8 @@ SUMMARY_FILE = "experiment2_worker_options_summary.json"
 ALL_RUNS_SUMMARY_FILE = "experiment2_worker_options_summary_all_runs.json"
 
 SLOT_SEC = 600
-RANDOM_SEED = 3
-NUM_EXPERIMENT_RUNS = 10
+RANDOM_SEED = 100
+NUM_EXPERIMENT_RUNS = 1
 SEED_STEP = 1
 
 # q_ij 噪声

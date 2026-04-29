@@ -1,26 +1,17 @@
 {
   "total_workers": 285,
   "trusted_count": 61,
-  "unknown_count": 114,
-  "malicious_count": 110,
+  "unknown_count": 113,
+  "malicious_count": 111,
   "trusted_ratio": 0.214,
-  "malicious_ratio": 0.3863,
-  "avg_base_quality_all": 0.5811,
-  "avg_base_quality_trusted": 0.9484,
-  "avg_base_quality_unknown": 0.8034,
-  "avg_base_quality_malicious": 0.1475,
-  "num_experiment_runs": 10,
+  "malicious_ratio": 0.3895,
+  "avg_base_quality_all": 0.5387,
+  "avg_base_quality_trusted": 0.8509,
+  "avg_base_quality_unknown": 0.7604,
+  "avg_base_quality_malicious": 0.1416,
+  "num_experiment_runs": 1,
   "experiment_seeds": [
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12
+    10
   ],
-  "downstream_output_seed": 3
+  "downstream_output_seed": 10
 }

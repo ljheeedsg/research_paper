@@ -112,6 +112,7 @@ class Simulator:
                 decision.selected_worker_ids,
                 self.workers,
                 slot_id,
+                self.config,
                 bid_tasks_map=bid_tasks_map,
             )
 

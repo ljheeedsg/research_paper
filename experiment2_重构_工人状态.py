@@ -17,8 +17,9 @@ def get_available_workers(workers, slot_id):
     ]
 
 
-def update_worker_statistics(selected_worker_ids, workers, slot_id, bid_tasks_map=None):
+def update_worker_statistics(selected_worker_ids, workers, slot_id, config, bid_tasks_map=None):
     total_new_observations = 0
+    round_level_quality_update = bool(config.get("ROUND_LEVEL_QUALITY_UPDATE", False))
 
     for worker_id in selected_worker_ids:
         worker = workers[worker_id]
@@ -37,14 +38,21 @@ def update_worker_statistics(selected_worker_ids, workers, slot_id, bid_tasks_ma
 
         old_n = worker["n_obs"]
         old_avg = worker["avg_quality"]
-        new_obs = len(qualities)
-        new_total_quality = old_n * old_avg + sum(qualities)
-        new_n = old_n + new_obs
-        new_avg = new_total_quality / new_n
+
+        if round_level_quality_update:
+            round_avg_quality = sum(qualities) / len(qualities)
+            new_n = old_n + 1
+            new_avg = ((old_n * old_avg) + round_avg_quality) / new_n
+            total_new_observations += 1
+        else:
+            new_obs = len(qualities)
+            new_total_quality = old_n * old_avg + sum(qualities)
+            new_n = old_n + new_obs
+            new_avg = new_total_quality / new_n
+            total_new_observations += new_obs
 
         worker["n_obs"] = new_n
         worker["avg_quality"] = float(new_avg)
-        total_new_observations += new_obs
 
     return total_new_observations
 

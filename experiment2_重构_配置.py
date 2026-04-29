@@ -9,33 +9,44 @@ BASE_CONFIG = {
     "RANDOM_SEED": 3,
     "NUM_EXPERIMENT_RUNS": 10,
     "SEED_STEP": 1,
-    "DELTA": 0.45,
-    "DEFAULT_INIT_UCB": 1.0,
-    "RHO": 10.0,
+
+    "DELTA": 0.45, # 完成任务的质量阈值，低于该值视为失败
+    "UCB_EXPLORATION_ALPHA": 0.5,
+    "DEFAULT_INIT_UCB": 0.7,
+    "QUALITY_SCORE_LAMBDA": 0.3,
+    "UNCERTAINTY_PENALTY_MU": 0.2,
+    "ROUND_LEVEL_QUALITY_UPDATE": True,
+    "STABILITY_BONUS_GAMMA": 0.12,
+    "MAX_NEW_WORKERS_PER_ROUND": 2,
+    "UCB_STATE_DELTA_CAP": 0.12,
+    "COLD_START_PENALTY_ZERO": 0.18,
+    "COLD_START_PENALTY_FEW": 0.08,
+    "COLD_START_MIN_OBS": 3,
+    "RHO": 10.0, 
     "WORKER_COST_RATIO": 0.6,
     "BETA0": -0.5,
     "BETA1": 0.1,
     "BETA2": 0.3,
-    "VALIDATION_TOP_M": 10,
+    "VALIDATION_TOP_M": 7,
     "TRUST_INIT_TRUSTED": 1.0,
     "TRUST_INIT_UNKNOWN": 0.5,
-    "ETA": 0.02,
+    "ETA": 0.05, # 信任更新步长
     "THETA_HIGH": 0.8,
     "THETA_LOW": 0.20,
-    "ERROR_GOOD": 0.15,
-    "ERROR_BAD": 0.35,
-    "MEMBERSHIP_FEE": 2,
-    "MEMBER_TASK_RATIO": 0.2,
-    "MEMBER_REWARD_MULTIPLIER": 1.25,
-    "NORMAL_REWARD_MULTIPLIER": 1.0,
-    "PGRD_LAMBDA": 1.5,
-    "PGRD_XI": 4.0,
-    "MEMBERSHIP_THRESHOLD": 0.5,
+    "ERROR_GOOD": 0.15, # 误差小于该值视为好
+    "ERROR_BAD": 0.35, # 误差大于该值视为坏
+    "MEMBERSHIP_FEE": 2, 
+    "MEMBER_TASK_RATIO": 0.3, 
+    "MEMBER_REWARD_MULTIPLIER": 1.3, # 会员任务奖励乘数
+    "NORMAL_REWARD_MULTIPLIER": 1.0, # 非会员任务奖励乘数
+    "PGRD_LAMBDA": 1.5, # PGRD损失函数中参考损失的权重
+    "PGRD_XI": 4.0, # PGRD中sigmoid函数的参数，控制会员资格概率的分布
+    "MEMBERSHIP_THRESHOLD": 0.5, # 会员资格概率阈值
     "SUNK_THRESHOLD": 30,
     "MEMBER_BONUS": 30,
-    "RHO_INIT": 1.0,
-    "BETA3": 1.0,
-    "BETA4": 2.0,
+    "RHO_INIT": 1.0, # PGRD初始rho值
+    "BETA3": 1.0, # LGSC算法中当前沉没损失对会员资格概率的影响权重
+    "BETA4": 2.0, # LGSC算法中累计沉没损失对会员资格概率的影响权重
     "SKIP_EMPTY_ROUNDS": True,
 }
 
@@ -167,6 +178,10 @@ def build_config(mode, overrides=None):
 
     if mode == "epsilon_first":
         config["EPSILON_FIRST_RATIO"] = 0.3
+        config["ROUND_LEVEL_QUALITY_UPDATE"] = False
+
+    if mode == "random":
+        config["ROUND_LEVEL_QUALITY_UPDATE"] = False
 
     if overrides:
         config.update(overrides)
