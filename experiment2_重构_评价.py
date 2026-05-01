@@ -1,9 +1,26 @@
 from collections import defaultdict
+import math
 
 import numpy as np
 
 
-def evaluate_round(selected_worker_ids, workers, round_tasks, slot_id, delta, bid_tasks_map=None, rho=10.0):
+def quality_value(q, r_max=10.0, k=10.0, q0=0.6):
+    q = max(0.0, min(1.0, float(q)))
+    return float(r_max) * (2.0 / (1.0 + math.exp(-float(k) * (q - float(q0)))) - 1.0)
+
+
+def evaluate_round(
+    selected_worker_ids,
+    workers,
+    round_tasks,
+    slot_id,
+    delta,
+    bid_tasks_map=None,
+    rho=10.0,
+    quality_value_r_max=10.0,
+    quality_value_k=10.0,
+    quality_value_q0=0.6,
+):
     task_quality_values = defaultdict(list)
     task_execution = defaultdict(list)
 
@@ -43,7 +60,12 @@ def evaluate_round(selected_worker_ids, workers, round_tasks, slot_id, delta, bi
         # 主统计口径使用任务内平均质量，best_quality 仅作为辅助分析字段保留。
         weighted_gain = weight * avg_quality
         weighted_completion_quality += weighted_gain
-        platform_value = rho * weight * avg_quality
+        platform_value = weight * quality_value(
+            avg_quality,
+            r_max=quality_value_r_max,
+            k=quality_value_k,
+            q0=quality_value_q0,
+        )
 
         task_result = {
             "task_id": task_id,

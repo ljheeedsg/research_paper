@@ -5,6 +5,7 @@ from pathlib import Path
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 
 
 SERIES_CONFIG = [
@@ -12,50 +13,60 @@ SERIES_CONFIG = [
         "label": "Random",
         "csv_key": "random",
         "path": "experiment2_random_longrun_round_results.json",
-        "color": "#1f77b4",
+        "color": "#4C78A8",
         "marker": "o",
-        "linewidth": 1.15,
-        "markersize": 3.6,
+        "linestyle": "-",
+        "linewidth": 1.8,
+        "markersize": 4.2,
+        "alpha": 0.95,
         "zorder": 3,
     },
     {
-        "label": r"$\epsilon$-First",
+        "label": "Explore-First",
         "csv_key": "epsilon_first",
         "path": "experiment2_epsilon_first_longrun_round_results.json",
-        "color": "#ff7f0e",
+        "color": "#F58518",
         "marker": "s",
-        "linewidth": 1.15,
-        "markersize": 3.6,
+        "linestyle": "-",
+        "linewidth": 1.8,
+        "markersize": 4.2,
+        "alpha": 0.95,
         "zorder": 3,
     },
     {
-        "label": "CMAB",
+        "label": "UCB-Greedy",
         "csv_key": "cmab",
         "path": "experiment2_cmab_longrun_round_results.json",
-        "color": "#2ca02c",
+        "color": "#54A24B",
         "marker": "^",
-        "linewidth": 1.15,
-        "markersize": 3.8,
+        "linestyle": "-",
+        "linewidth": 1.8,
+        "markersize": 4.4,
+        "alpha": 0.95,
         "zorder": 4,
     },
     {
-        "label": "CMAB-Trust",
+        "label": "Trust-Aware",
         "csv_key": "cmab_trust",
         "path": "experiment2_cmab_trust_round_results.json",
-        "color": "#d62728",
+        "color": "#E45756",
         "marker": "D",
-        "linewidth": 1.15,
-        "markersize": 3.6,
+        "linestyle": "-",
+        "linewidth": 2.1,
+        "markersize": 4.2,
+        "alpha": 0.98,
         "zorder": 4,
     },
     {
-        "label": "CMAB-Trust-PGRD",
+        "label": "Membership-Aware",
         "csv_key": "cmab_trust_pgrd",
         "path": "experiment2_cmab_trust_pgrd_round_results.json",
-        "color": "#17becf",
+        "color": "#72B7B2",
         "marker": "v",
-        "linewidth": 1.15,
-        "markersize": 3.8,
+        "linestyle": "-",
+        "linewidth": 2.1,
+        "markersize": 4.4,
+        "alpha": 0.98,
         "zorder": 4,
     },
     {
@@ -64,8 +75,10 @@ SERIES_CONFIG = [
         "path": "experiment2_cmab_trust_pgrd_lgsc_round_results.json",
         "color": "#000000",
         "marker": "P",
-        "linewidth": 1.9,
-        "markersize": 4.2,
+        "linestyle": "-",
+        "linewidth": 2.9,
+        "markersize": 4.8,
+        "alpha": 1.0,
         "zorder": 5,
     },
 ]
@@ -76,6 +89,12 @@ OUTPUT_PDF = "experiment2_Fig. 1(a)：每轮平均数据质量.pdf"
 OUTPUT_CSV = "experiment2_Fig. 1(a)：每轮平均数据质量.csv"
 METRIC_KEY = "avg_quality"
 SMOOTH_WINDOW = 5
+LEGEND_MODE = "manual"
+LEGEND_LOC = "lower right"
+LEGEND_BBOX_TO_ANCHOR = (0.6, 0.02)
+LEGEND_NCOL = 2
+YLIM_MODE = "manual"
+YLIM = (0.0, 0.9)
 
 
 def load_round_results(path):
@@ -88,11 +107,10 @@ def moving_average(values, window):
     if window <= 1 or len(values) <= 2:
         return [round(float(value), 4) for value in values]
 
-    half_window = window // 2
     smoothed = []
     for idx in range(len(values)):
-        start = max(0, idx - half_window)
-        end = min(len(values), idx + half_window + 1)
+        start = max(0, idx - window + 1)
+        end = idx + 1
         smoothed.append(round(sum(values[start:end]) / (end - start), 4))
     return smoothed
 
@@ -115,14 +133,15 @@ def set_figure_style():
             "font.family": "serif",
             "font.serif": ["Times New Roman", "Times", "DejaVu Serif"],
             "mathtext.fontset": "stix",
-            "font.size": 9.5,
-            "axes.labelsize": 11.5,
-            "xtick.labelsize": 9.2,
-            "ytick.labelsize": 9.2,
-            "legend.fontsize": 8.8,
-            "axes.linewidth": 0.8,
+            "font.size": 10.0,
+            "axes.labelsize": 12.0,
+            "xtick.labelsize": 9.6,
+            "ytick.labelsize": 9.6,
+            "legend.fontsize": 9.2,
+            "axes.linewidth": 0.95,
             "pdf.fonttype": 42,
             "ps.fonttype": 42,
+            "figure.dpi": 150,
             "savefig.dpi": 600,
         }
     )
@@ -131,18 +150,19 @@ def set_figure_style():
 def plot_figure():
     set_figure_style()
 
-    fig, ax = plt.subplots(figsize=(6.3, 4.25))
+    fig, ax = plt.subplots(figsize=(6.2, 4.8))
     fig.patch.set_facecolor("white")
     ax.set_facecolor("white")
+    ax.set_axisbelow(True)
     csv_rounds = None
     csv_series_rows = []
+    legend_handles = []
 
     for config in SERIES_CONFIG:
         rounds = load_round_results(config["path"])
         x = [int(item["round_id"]) for item in rounds]
         y_raw = [float(item[METRIC_KEY]) for item in rounds]
         y = moving_average(y_raw, SMOOTH_WINDOW)
-        mark_every = max(1, len(x) // 12)
 
         if csv_rounds is None:
             csv_rounds = x
@@ -154,42 +174,91 @@ def plot_figure():
             label=config["label"],
             color=config["color"],
             marker=config["marker"],
+            linestyle=config["linestyle"],
             linewidth=config["linewidth"],
             markersize=config["markersize"],
-            markevery=mark_every,
+            markevery=1,
             markerfacecolor="white",
-            markeredgewidth=0.75,
+            markeredgewidth=0.95,
+            alpha=config["alpha"],
             zorder=config["zorder"],
+            solid_capstyle="round",
+            solid_joinstyle="round",
+            antialiased=True,
+        )
+        legend_handles.append(
+            Line2D(
+                [0],
+                [0],
+                label=config["label"],
+                color=config["color"],
+                linestyle=config["linestyle"],
+                linewidth=config["linewidth"],
+                marker=config["marker"],
+                markersize=config["markersize"],
+                markerfacecolor="white",
+                markeredgewidth=0.95,
+            )
         )
 
     ax.set_xlabel("Round")
-    ax.set_ylabel("Per-Round Average Quality")
+    ax.set_ylabel("Average Quality per Round")
     ax.set_xlim(0, 145)
-    ax.set_ylim(0.0, 1.02)
+    if YLIM_MODE == "manual":
+        ax.set_ylim(*YLIM)
+    ax.set_xticks(range(0, 141, 20))
+    # Generate yticks that stay within YLIM
+    if YLIM_MODE == "manual":
+        y_min, y_max = YLIM
+        ax.set_yticks([i for i in [i / 10 for i in range(0, 11, 2)] if i <= y_max])
+    else:
+        ax.set_yticks([i / 10 for i in range(0, 11, 2)])
 
-    ax.grid(True, which="major", linestyle="--", linewidth=0.5, color="#b6b6b6", alpha=0.65)
-
-    for side in ["top", "right", "bottom", "left"]:
-        ax.spines[side].set_visible(True)
-        ax.spines[side].set_linewidth(0.8)
-
-    ax.tick_params(axis="both", which="both", direction="in", top=True, right=True, length=3.0, width=0.8)
-
-    ax.legend(
-        loc="lower right",
-        ncol=2,
-        frameon=True,
-        fancybox=False,
-        framealpha=1.0,
-        edgecolor="black",
-        borderpad=0.28,
-        handlelength=1.8,
-        handletextpad=0.4,
-        columnspacing=0.7,
-        labelspacing=0.3,
+    ax.grid(
+        True,
+        axis="y",
+        which="major",
+        linestyle="--",
+        linewidth=0.65,
+        color="#b8b8b8",
+        alpha=0.55,
+    )
+    ax.grid(
+        True,
+        axis="x",
+        which="major",
+        linestyle=":",
+        linewidth=0.5,
+        color="#c7c7c7",
+        alpha=0.35,
     )
 
-    fig.tight_layout(pad=0.4)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["bottom"].set_linewidth(0.95)
+    ax.spines["left"].set_linewidth(0.95)
+
+    ax.tick_params(axis="both", which="both", direction="in", top=False, right=False, length=3.8, width=0.9)
+
+    legend_kwargs = {
+        "handles": legend_handles,
+        "loc": LEGEND_LOC if LEGEND_MODE == "manual" else "best",
+        "ncol": LEGEND_NCOL,
+        "frameon": True,
+        "fancybox": False,
+        "framealpha": 0.9,
+        "facecolor": "white",
+        "edgecolor": "#666666",
+        "handlelength": 2.2,
+        "handletextpad": 0.5,
+        "columnspacing": 1.2,
+        "labelspacing": 0.5,
+    }
+    if LEGEND_MODE == "manual":
+        legend_kwargs["bbox_to_anchor"] = LEGEND_BBOX_TO_ANCHOR
+    ax.legend(**legend_kwargs)
+
+    fig.subplots_adjust(left=0.14, right=0.985, bottom=0.16, top=0.96)
     fig.savefig(OUTPUT_PNG, bbox_inches="tight")
     fig.savefig(OUTPUT_PDF, bbox_inches="tight")
     plt.close(fig)

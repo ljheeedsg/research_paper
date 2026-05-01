@@ -69,6 +69,9 @@ class Simulator:
                 delta=self.config["DELTA"],
                 bid_tasks_map=bid_tasks_map,
                 rho=self.config["RHO"],
+                quality_value_r_max=self.config["QUALITY_VALUE_R_MAX"],
+                quality_value_k=self.config["QUALITY_VALUE_K"],
+                quality_value_q0=self.config["QUALITY_VALUE_Q0"],
             )
 
             reward_t = eval_result["weighted_completion_quality"]
