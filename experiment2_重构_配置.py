@@ -23,7 +23,7 @@ BASE_CONFIG = {
     "COLD_START_PENALTY_FEW": 0.08,
     "COLD_START_MIN_OBS": 3,
     "RHO": 10.0,
-    "QUALITY_VALUE_R_MAX": 20.0,
+    "QUALITY_VALUE_R_MAX": 30.0,
     "QUALITY_VALUE_K": 10.0,
     "QUALITY_VALUE_Q0": 0.5,
     "WORKER_COST_RATIO": 0.6,
@@ -46,10 +46,10 @@ BASE_CONFIG = {
     "PGRD_XI": 4.0, # PGRD中sigmoid函数的参数，控制会员资格概率的分布
     "MEMBERSHIP_THRESHOLD": 0.45, # 会员资格概率阈值
     "SUNK_THRESHOLD": 30,
-    "MEMBER_BONUS": 30,
+    "MEMBER_BONUS": 20,
     "RHO_INIT": 1.0, # PGRD初始rho值
-    "BETA3": 1.0, # LGSC算法中当前沉没损失对会员资格概率的影响权重
-    "BETA4": 2.0, # LGSC算法中累计沉没损失对会员资格概率的影响权重
+    "BETA3": 2, # LGSC算法中当前沉没损失对会员资格概率的影响权重
+    "BETA4": 3, # LGSC算法中累计沉没损失对会员资格概率的影响权重
     "SKIP_EMPTY_ROUNDS": True,
 }
 
