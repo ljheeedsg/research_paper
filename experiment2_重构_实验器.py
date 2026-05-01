@@ -1,6 +1,7 @@
 from experiment2_重构_工人状态 import (
     get_available_workers,
     update_active_rounds,
+    update_worker_bonus_rewards,
     update_worker_leave_state,
     update_worker_reward_cost,
     update_worker_statistics,
@@ -76,6 +77,10 @@ class Simulator:
                 decision.selected_worker_ids,
                 self.workers,
                 self.config["WORKER_COST_RATIO"],
+                mode=self.algorithm.loader_mode,
+                config=self.config,
+                bid_tasks_map=bid_tasks_map,
+                member_task_ids=decision.extra_info.get("member_task_ids"),
             )
 
             feedback = {
@@ -91,6 +96,10 @@ class Simulator:
                 "decision": decision,
             }
             algorithm_update = self.algorithm.update(feedback) or {}
+            update_worker_bonus_rewards(
+                self.workers,
+                algorithm_update.get("bonus_reward_map", {}),
+            )
 
             platform_result = compute_platform_utility(
                 eval_result=eval_result,
@@ -116,9 +125,6 @@ class Simulator:
                 bid_tasks_map=bid_tasks_map,
             )
 
-            current_active_workers = sum(
-                1 for worker in self.workers.values() if worker["is_active"]
-            )
             cumulative_left_workers = sum(
                 1 for worker in self.workers.values() if not worker["is_active"]
             )
@@ -150,11 +156,9 @@ class Simulator:
                 "platform_task_value": platform_result["platform_task_value"],
                 "platform_payment": platform_result["platform_payment"],
                 "platform_utility": platform_result["platform_utility"],
-                "num_active_workers": current_active_workers,
                 "num_left_workers_this_round": leave_result["num_left_workers_this_round"],
                 "left_worker_ids_this_round": leave_result["left_worker_ids"],
                 "cumulative_left_workers": cumulative_left_workers,
-                "avg_leave_probability": leave_result["avg_leave_probability"],
                 "total_observations_before_round": total_observations_before_round,
                 "total_observations_after_round": total_observations,
             }
@@ -184,6 +188,6 @@ class Simulator:
             f"completion={round_result['completion_rate']:.4f} | "
             f"avg_quality={round_result['avg_quality']:.4f} | "
             f"platform_utility={round_result['platform_utility']:.2f} | "
-            f"active_workers={round_result['num_active_workers']} | "
+            f"left_this_round={round_result['num_left_workers_this_round']} | "
             f"cum_utility={round_result['cumulative_platform_utility']:.2f}"
         )

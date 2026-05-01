@@ -4,6 +4,7 @@ from experiment2_重构_PGRD算法 import PGRDAlgorithm
 def update_lgsc_state(selected_worker_ids, workers, slot_id, config, bid_tasks_map=None):
     bonus_payment_t = 0.0
     bonus_trigger_count = 0
+    bonus_reward_map = {}
     lgsc_records = []
 
     selected_set = set(selected_worker_ids)
@@ -52,6 +53,7 @@ def update_lgsc_state(selected_worker_ids, workers, slot_id, config, bid_tasks_m
             bonus_payment_t += bonus_paid
             bonus_trigger_count += 1
             bonus_triggered = True
+            bonus_reward_map[worker_id] = bonus_reward_map.get(worker_id, 0.0) + bonus_paid
 
         worker["current_sunk_loss"] = (
             float(config["MEMBER_BONUS"]) / float(config["SUNK_THRESHOLD"])
@@ -73,6 +75,7 @@ def update_lgsc_state(selected_worker_ids, workers, slot_id, config, bid_tasks_m
     return {
         "bonus_payment": round(bonus_payment_t, 4),
         "bonus_trigger_count": bonus_trigger_count,
+        "bonus_reward_map": {worker_id: round(amount, 4) for worker_id, amount in bonus_reward_map.items()},
         "lgsc_records": lgsc_records,
     }
 

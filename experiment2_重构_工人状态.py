@@ -57,12 +57,33 @@ def update_worker_statistics(selected_worker_ids, workers, slot_id, config, bid_
     return total_new_observations
 
 
-def update_worker_reward_cost(selected_worker_ids, workers, worker_cost_ratio):
+def update_worker_reward_cost(
+    selected_worker_ids,
+    workers,
+    worker_cost_ratio,
+    mode="base",
+    config=None,
+    bid_tasks_map=None,
+    member_task_ids=None,
+):
     selected_set = set(selected_worker_ids)
+    member_task_ids = set(member_task_ids or [])
+    config = config or {}
 
     for worker_id, worker in workers.items():
         if worker_id in selected_set:
-            reward_t = float(worker["bid_price"])
+            reward_multiplier = 1.0
+            if mode in {"pgrd", "lgsc"} and worker.get("is_member"):
+                task_ids = (
+                    bid_tasks_map.get(worker_id, [])
+                    if bid_tasks_map is not None else []
+                )
+                if any(task_id in member_task_ids for task_id in task_ids):
+                    reward_multiplier = float(config.get("MEMBER_REWARD_MULTIPLIER", 1.0))
+                else:
+                    reward_multiplier = float(config.get("NORMAL_REWARD_MULTIPLIER", 1.0))
+
+            reward_t = reward_multiplier * float(worker["bid_price"])
             cost_t = worker_cost_ratio * reward_t
             worker["recent_reward"] = reward_t
             worker["cumulative_reward"] += reward_t
@@ -70,6 +91,16 @@ def update_worker_reward_cost(selected_worker_ids, workers, worker_cost_ratio):
             worker["selected_rounds"] += 1
         else:
             worker["recent_reward"] = 0.0
+
+
+def update_worker_bonus_rewards(workers, bonus_reward_map):
+    for worker_id, bonus_reward in bonus_reward_map.items():
+        if worker_id not in workers:
+            continue
+        worker = workers[worker_id]
+        reward_bonus = float(bonus_reward)
+        worker["recent_reward"] += reward_bonus
+        worker["cumulative_reward"] += reward_bonus
 
 
 def update_worker_leave_state(workers, round_id, selected_worker_ids, config, mode):

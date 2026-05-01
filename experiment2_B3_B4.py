@@ -76,10 +76,11 @@ METRICS_TO_PLOT = [
         "filename": "experiment2_B3_B4_cumulative_platform_utility.png",
     },
     {
-        "key": "retention_rate",
-        "ylabel": "Worker Retention Rate",
-        "title": "Experiment 2 B3-B4: Worker Retention Rate Comparison",
-        "filename": "experiment2_B3_B4_retention_rate.png",
+        "key": "num_left_workers_this_round",
+        "ylabel": "Left Workers per Round",
+        "title": "Experiment 2 B3-B4: Left Workers per Round Comparison",
+        "filename": "experiment2_B3_B4_left_workers_per_round.png",
+        "smooth_window": 7,
     },
 ]
 
@@ -98,16 +99,6 @@ def load_round_results(filepath):
     return [item for item in round_results if int(item.get("num_tasks", 0)) > 0]
 
 
-def load_summary(filepath):
-    summary_path = filepath.with_name(
-        filepath.name.replace("_round_results.json", "_summary.json")
-    )
-    if not summary_path.exists():
-        return {}
-    with summary_path.open("r", encoding="utf-8") as f:
-        return json.load(f)
-
-
 def build_series():
     series = []
     for config in SERIES_CONFIG:
@@ -120,16 +111,6 @@ def build_series():
         if not rounds:
             print(f"Skip {config['label']}: no non-empty rounds in {path.name}")
             continue
-
-        summary = load_summary(path)
-        initial_total_workers = float(summary.get("initial_total_workers", 0.0))
-        for item in rounds:
-            active_workers = float(item.get("num_active_workers", 0.0))
-            item["retention_rate"] = (
-                round(active_workers / initial_total_workers, 4)
-                if initial_total_workers > 0
-                else 0.0
-            )
 
         series.append(
             {

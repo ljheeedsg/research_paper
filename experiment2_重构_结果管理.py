@@ -75,7 +75,6 @@ def summarize_results(round_results, workers, algorithm, initial_stats=None):
         values = [record[key] for record in valid_rounds if key in record]
         return round(float(np.mean(values)), 4) if values else 0.0
 
-    active_workers = [worker for worker in workers.values() if worker["is_active"]]
     left_workers = [worker for worker in workers.values() if not worker["is_active"]]
     member_workers = [worker for worker in workers.values() if worker.get("is_member", False)]
 
@@ -93,20 +92,17 @@ def summarize_results(round_results, workers, algorithm, initial_stats=None):
         "avg_completion_rate_all_non_empty": safe_mean_round("completion_rate"),
         "avg_avg_quality_all_non_empty": safe_mean_round("avg_quality"),
         "avg_platform_utility_all_non_empty": safe_mean_round("platform_utility"),
-        "avg_num_active_workers_all_non_empty": safe_mean_round("num_active_workers"),
-        "avg_leave_probability_all_non_empty": safe_mean_round("avg_leave_probability"),
+        "avg_num_left_workers_this_round_all_non_empty": safe_mean_round("num_left_workers_this_round"),
         "final_cumulative_coverage_rate_all_non_empty": round_results[-1]["cumulative_coverage_rate"] if round_results else 0.0,
         "final_cumulative_completion_rate_all_non_empty": round_results[-1]["cumulative_completion_rate"] if round_results else 0.0,
         "final_cumulative_avg_quality_all_non_empty": round_results[-1]["cumulative_avg_quality"] if round_results else 0.0,
         "final_cumulative_platform_utility": round_results[-1]["cumulative_platform_utility"] if round_results else 0.0,
-        "final_num_active_workers": len(active_workers),
         "final_num_left_workers": len(left_workers),
         "final_num_member_workers": len(member_workers),
         "final_avg_cumulative_reward": safe_mean_values([worker["cumulative_reward"] for worker in workers.values()]),
         "final_avg_cumulative_cost": safe_mean_values([worker["cumulative_cost"] for worker in workers.values()]),
         "final_avg_selected_rounds": safe_mean_values([worker["selected_rounds"] for worker in workers.values()]),
         "final_avg_active_rounds": safe_mean_values([worker["active_rounds"] for worker in workers.values()]),
-        "final_avg_leave_probability_active_workers": safe_mean_values([worker["leave_probability"] for worker in active_workers]),
     }
 
     optional_round_keys = [

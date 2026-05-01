@@ -10,7 +10,7 @@ BASE_CONFIG = {
     "NUM_EXPERIMENT_RUNS": 10,
     "SEED_STEP": 1,
 
-    "DELTA": 0.45, # 完成任务的质量阈值，低于该值视为失败
+    "DELTA": 0.2, # 完成任务的质量阈值，低于该值视为失败
     "UCB_EXPLORATION_ALPHA": 0.5,
     "DEFAULT_INIT_UCB": 0.7,
     "QUALITY_SCORE_LAMBDA": 0.3,
@@ -37,11 +37,11 @@ BASE_CONFIG = {
     "ERROR_BAD": 0.35, # 误差大于该值视为坏
     "MEMBERSHIP_FEE": 2, 
     "MEMBER_TASK_RATIO": 0.3, 
-    "MEMBER_REWARD_MULTIPLIER": 1.3, # 会员任务奖励乘数
+    "MEMBER_REWARD_MULTIPLIER": 1.6, # 会员任务奖励乘数
     "NORMAL_REWARD_MULTIPLIER": 1.0, # 非会员任务奖励乘数
     "PGRD_LAMBDA": 1.5, # PGRD损失函数中参考损失的权重
     "PGRD_XI": 4.0, # PGRD中sigmoid函数的参数，控制会员资格概率的分布
-    "MEMBERSHIP_THRESHOLD": 0.5, # 会员资格概率阈值
+    "MEMBERSHIP_THRESHOLD": 0.45, # 会员资格概率阈值
     "SUNK_THRESHOLD": 30,
     "MEMBER_BONUS": 30,
     "RHO_INIT": 1.0, # PGRD初始rho值
@@ -63,9 +63,8 @@ MODE_OUTPUTS = {
             "cumulative_avg_quality",
             "platform_utility",
             "cumulative_platform_utility",
-            "num_active_workers",
+            "num_left_workers_this_round",
             "cumulative_left_workers",
-            "avg_leave_probability",
         ],
     },
     "epsilon_first": {
@@ -79,9 +78,8 @@ MODE_OUTPUTS = {
         "cumulative_avg_quality",
         "platform_utility",
         "cumulative_platform_utility",
-        "num_active_workers",
+        "num_left_workers_this_round",
         "cumulative_left_workers",
-        "avg_leave_probability",
     ],
     },
     "cmab": {
@@ -95,9 +93,8 @@ MODE_OUTPUTS = {
             "cumulative_avg_quality",
             "platform_utility",
             "cumulative_platform_utility",
-            "num_active_workers",
+            "num_left_workers_this_round",
             "cumulative_left_workers",
-            "avg_leave_probability",
         ],
     },
     "trust": {
@@ -115,9 +112,8 @@ MODE_OUTPUTS = {
             "num_validation_tasks",
             "platform_utility",
             "cumulative_platform_utility",
-            "num_active_workers",
+            "num_left_workers_this_round",
             "cumulative_left_workers",
-            "avg_leave_probability",
         ],
     },
     "pgrd": {
@@ -135,9 +131,8 @@ MODE_OUTPUTS = {
             "num_validation_tasks",
             "platform_utility",
             "cumulative_platform_utility",
-            "num_active_workers",
+            "num_left_workers_this_round",
             "cumulative_left_workers",
-            "avg_leave_probability",
             "member_count",
             "trusted_member_count",
             "membership_fee_income",
@@ -154,8 +149,8 @@ MODE_OUTPUTS = {
             "cumulative_avg_quality",
             "platform_utility",
             "cumulative_platform_utility",
-            "num_active_workers",
-            "avg_leave_probability",
+            "num_left_workers_this_round",
+            "cumulative_left_workers",
             "member_count",
             "membership_fee_income",
             "bonus_payment",
@@ -200,9 +195,8 @@ def build_config(mode, overrides=None):
         "cumulative_avg_quality": f"{prefix}_cumulative_avg_quality.png",
         "platform_utility": f"{prefix}_platform_utility.png",
         "cumulative_platform_utility": f"{prefix}_cumulative_platform_utility.png",
-        "num_active_workers": f"{prefix}_active_workers.png",
+        "num_left_workers_this_round": f"{prefix}_left_workers_per_round.png",
         "cumulative_left_workers": f"{prefix}_left_workers.png",
-        "avg_leave_probability": f"{prefix}_avg_leave_probability.png",
         "trusted_count": f"{prefix}_trusted_count.png",
         "unknown_count": f"{prefix}_unknown_count.png",
         "malicious_count": f"{prefix}_malicious_count.png",
