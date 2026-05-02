@@ -1,0 +1,5 @@
+﻿algorithm,final_seed_retention,final_trusted_pool_normalized
+UCB-Greedy,0.3049,0.0653
+Trust-Aware,0.118,0.5095
+Membership-Aware,0.1082,0.553
+TruthRide,0.5738,0.5779

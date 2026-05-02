@@ -48,8 +48,8 @@ BASE_CONFIG = {
     "SUNK_THRESHOLD": 30,
     "MEMBER_BONUS": 20,
     "RHO_INIT": 1.0, # PGRD初始rho值
-    "BETA3": 2, # LGSC算法中当前沉没损失对会员资格概率的影响权重
-    "BETA4": 3, # LGSC算法中累计沉没损失对会员资格概率的影响权重
+    "BETA3": 3.5, # LGSC算法中当前沉没损失对会员资格概率的影响权重
+    "BETA4": 4.0, # LGSC算法中累计沉没损失对会员资格概率的影响权重
     "SKIP_EMPTY_ROUNDS": True,
 }
 
