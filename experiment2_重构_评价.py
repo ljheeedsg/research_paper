@@ -124,6 +124,7 @@ def compute_platform_utility(
     workers,
     membership_fee_income=0.0,
     bonus_payment=0.0,
+    validation_cost=0.0,
 ):
     platform_task_value = sum(
         float(task_result["platform_value"])
@@ -133,8 +134,14 @@ def compute_platform_utility(
         float(workers[worker_id]["bid_price"])
         for worker_id in selected_worker_ids
     )
+    total_platform_cost = platform_payment + bonus_payment + validation_cost
+    net_platform_cost = total_platform_cost - membership_fee_income
     platform_utility = (
-        platform_task_value + membership_fee_income - platform_payment - bonus_payment
+        platform_task_value
+        + membership_fee_income
+        - platform_payment
+        - bonus_payment
+        - validation_cost
     )
 
     return {
@@ -142,6 +149,9 @@ def compute_platform_utility(
         "platform_payment": round(platform_payment, 4),
         "membership_fee_income": round(membership_fee_income, 4),
         "bonus_payment": round(bonus_payment, 4),
+        "validation_cost": round(validation_cost, 4),
+        "total_platform_cost": round(total_platform_cost, 4),
+        "net_platform_cost": round(net_platform_cost, 4),
         "platform_utility": round(platform_utility, 4),
     }
 
@@ -164,6 +174,12 @@ def update_cumulative_metrics(round_result, cumulative_state):
     cumulative_state["platform_payment_sum"] += round_result["platform_payment"]
     cumulative_state["membership_fee_income_sum"] += round_result.get("membership_fee_income", 0.0)
     cumulative_state["bonus_payment_sum"] += round_result.get("bonus_payment", 0.0)
+    cumulative_state["validation_cost_sum"] += round_result.get("validation_cost", 0.0)
+    cumulative_state["total_platform_cost_sum"] += round_result.get("total_platform_cost", 0.0)
+    cumulative_state["net_platform_cost_sum"] += round_result.get("net_platform_cost", 0.0)
+    cumulative_state["validation_reports_sum"] += round_result.get("num_validation_reports", 0)
+    cumulative_state["extra_validation_reports_sum"] += round_result.get("num_extra_validation_reports", 0)
+    cumulative_state["reused_validation_reports_sum"] += round_result.get("num_reused_validation_reports", 0)
     cumulative_state["platform_utility_sum"] += round_result["platform_utility"]
 
     cumulative_coverage_rate = (
@@ -203,6 +219,22 @@ def update_cumulative_metrics(round_result, cumulative_state):
     )
     round_result["cumulative_bonus_payment"] = round(
         cumulative_state["bonus_payment_sum"], 4
+    )
+    round_result["cumulative_validation_cost"] = round(
+        cumulative_state["validation_cost_sum"], 4
+    )
+    round_result["cumulative_total_platform_cost"] = round(
+        cumulative_state["total_platform_cost_sum"], 4
+    )
+    round_result["cumulative_net_platform_cost"] = round(
+        cumulative_state["net_platform_cost_sum"], 4
+    )
+    round_result["cumulative_validation_reports"] = cumulative_state["validation_reports_sum"]
+    round_result["cumulative_extra_validation_reports"] = (
+        cumulative_state["extra_validation_reports_sum"]
+    )
+    round_result["cumulative_reused_validation_reports"] = (
+        cumulative_state["reused_validation_reports_sum"]
     )
     round_result["cumulative_platform_utility"] = round(
         cumulative_state["platform_utility_sum"], 4

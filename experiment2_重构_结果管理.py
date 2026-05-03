@@ -113,7 +113,15 @@ def summarize_results(round_results, workers, algorithm, initial_stats=None):
         "trusted_member_count",
         "membership_fee_income",
         "bonus_payment",
+        "validation_cost",
+        "total_platform_cost",
+        "net_platform_cost",
         "num_validation_tasks",
+        "num_validation_reports",
+        "num_reused_validation_reports",
+        "num_extra_validation_reports",
+        "num_ref_reports",
+        "num_unknown_reports",
     ]
     for key in optional_round_keys:
         if valid_rounds and any(key in record for record in valid_rounds):
@@ -125,6 +133,24 @@ def summarize_results(round_results, workers, algorithm, initial_stats=None):
         )
         summary["final_cumulative_bonus_payment"] = round_results[-1].get(
             "cumulative_bonus_payment", 0.0
+        )
+        summary["final_cumulative_validation_cost"] = round_results[-1].get(
+            "cumulative_validation_cost", 0.0
+        )
+        summary["final_cumulative_total_platform_cost"] = round_results[-1].get(
+            "cumulative_total_platform_cost", 0.0
+        )
+        summary["final_cumulative_net_platform_cost"] = round_results[-1].get(
+            "cumulative_net_platform_cost", 0.0
+        )
+        summary["final_cumulative_validation_reports"] = round_results[-1].get(
+            "cumulative_validation_reports", 0
+        )
+        summary["final_cumulative_extra_validation_reports"] = round_results[-1].get(
+            "cumulative_extra_validation_reports", 0
+        )
+        summary["final_cumulative_reused_validation_reports"] = round_results[-1].get(
+            "cumulative_reused_validation_reports", 0
         )
 
     if initial_stats:

@@ -1,7 +1,0 @@
-﻿algorithm,csv_key,total_cost,cumulative_utility,task_scale,bubble_size
-Random,random,12889.66,-53137.7554,2000.0,925.0
-Explore-First,epsilon_first,9497.47,-51087.0797,2000.0,925.0
-UCB-Greedy,cmab,11447.48,-9677.5606,2000.0,925.0
-Trust-Aware,cmab_trust,10874.96,11325.893,2000.0,925.0
-Incentive-Aware,cmab_trust_pgrd,10796.77,11676.6394,2000.0,925.0
-TruthRide,truthride,16403.21,29407.9662,2000.0,925.0

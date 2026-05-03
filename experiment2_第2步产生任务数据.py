@@ -1,6 +1,7 @@
 import csv
 import json
 import random
+import argparse
 from collections import defaultdict
 
 import matplotlib
@@ -351,6 +352,29 @@ def save_json(obj, filepath):
 
 
 def main():
+    global VEHICLE_FILE, TASK_CSV, TASK_JSON, PLOT_FILE, SUMMARY_FILE, ALL_RUNS_SUMMARY_FILE
+    global RANDOM_SEED, NUM_EXPERIMENT_RUNS
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--vehicle-file", default=VEHICLE_FILE)
+    parser.add_argument("--task-csv", default=TASK_CSV)
+    parser.add_argument("--task-json", default=TASK_JSON)
+    parser.add_argument("--plot-file", default=PLOT_FILE)
+    parser.add_argument("--summary-file", default=SUMMARY_FILE)
+    parser.add_argument("--all-runs-summary-file", default=ALL_RUNS_SUMMARY_FILE)
+    parser.add_argument("--seed", type=int, default=RANDOM_SEED)
+    parser.add_argument("--runs", type=int, default=NUM_EXPERIMENT_RUNS)
+    args = parser.parse_args()
+
+    VEHICLE_FILE = args.vehicle_file
+    TASK_CSV = args.task_csv
+    TASK_JSON = args.task_json
+    PLOT_FILE = args.plot_file
+    SUMMARY_FILE = args.summary_file
+    ALL_RUNS_SUMMARY_FILE = args.all_runs_summary_file
+    RANDOM_SEED = args.seed
+    NUM_EXPERIMENT_RUNS = args.runs
+
     seeds = [RANDOM_SEED + i * SEED_STEP for i in range(NUM_EXPERIMENT_RUNS)]
     print(f"开始重复实验，共 {NUM_EXPERIMENT_RUNS} 次，随机种子: {seeds}")
 

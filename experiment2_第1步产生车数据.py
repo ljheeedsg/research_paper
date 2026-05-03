@@ -1,6 +1,7 @@
 import csv
 import json
 import random
+import argparse
 from collections import defaultdict
 
 import matplotlib
@@ -271,10 +272,26 @@ def final_renumber_and_attributes(segments):
     )
     new_id_map = {orig_id: index + 1 for index, orig_id in enumerate(present_orig_ids)}
 
+    vehicle_ids = list(new_id_map.values())
+    random.shuffle(vehicle_ids)
+    total_workers = len(vehicle_ids)
+    trusted_target = int(round(total_workers * TRUSTED_RATIO))
+    malicious_target = int(round(total_workers * MALICIOUS_RATIO))
+    trusted_target = min(trusted_target, total_workers)
+    malicious_target = min(malicious_target, max(0, total_workers - trusted_target))
+
+    trusted_set = set(vehicle_ids[:trusted_target])
+    malicious_set = set(vehicle_ids[trusted_target:trusted_target + malicious_target])
+
     attributes = {}
     for vehicle_id in new_id_map.values():
         cost = round(random.uniform(COST_MIN, COST_MAX), 1)
-        init_category = sample_init_category()
+        if vehicle_id in trusted_set:
+            init_category = "trusted"
+        elif vehicle_id in malicious_set:
+            init_category = "malicious"
+        else:
+            init_category = "unknown"
         base_quality = sample_base_quality(init_category)
         attributes[vehicle_id] = (cost, init_category, base_quality)
 
@@ -406,6 +423,29 @@ def plot_grid(lon_min, lon_max, lat_min, lat_max, all_points, grid_counts):
 
 
 def main():
+    global OUTPUT_SEG, OUTPUT_PLOT, SUMMARY_FILE, ALL_RUNS_SUMMARY_FILE
+    global TRUSTED_RATIO, MALICIOUS_RATIO, RANDOM_SEED, NUM_EXPERIMENT_RUNS
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--output-seg", default=OUTPUT_SEG)
+    parser.add_argument("--output-plot", default=OUTPUT_PLOT)
+    parser.add_argument("--summary-file", default=SUMMARY_FILE)
+    parser.add_argument("--all-runs-summary-file", default=ALL_RUNS_SUMMARY_FILE)
+    parser.add_argument("--trusted-ratio", type=float, default=TRUSTED_RATIO)
+    parser.add_argument("--malicious-ratio", type=float, default=MALICIOUS_RATIO)
+    parser.add_argument("--seed", type=int, default=RANDOM_SEED)
+    parser.add_argument("--runs", type=int, default=NUM_EXPERIMENT_RUNS)
+    args = parser.parse_args()
+
+    OUTPUT_SEG = args.output_seg
+    OUTPUT_PLOT = args.output_plot
+    SUMMARY_FILE = args.summary_file
+    ALL_RUNS_SUMMARY_FILE = args.all_runs_summary_file
+    TRUSTED_RATIO = args.trusted_ratio
+    MALICIOUS_RATIO = args.malicious_ratio
+    RANDOM_SEED = args.seed
+    NUM_EXPERIMENT_RUNS = args.runs
+
     seeds = [RANDOM_SEED + i * SEED_STEP for i in range(NUM_EXPERIMENT_RUNS)]
     print(f"开始重复实验，共 {NUM_EXPERIMENT_RUNS} 次，随机种子: {seeds}")
 

@@ -95,29 +95,30 @@ def run_experiment(mode, overrides=None):
     save_json(avg_round_results, config["ROUND_RESULTS_FILE"])
     save_json(avg_summary, config["SUMMARY_FILE"])
 
-    plot_labels = {
-        "coverage_rate": "Coverage Rate",
-        "completion_rate": "Completion Rate",
-        "avg_quality": "Average Realized Quality",
-        "cumulative_coverage_rate": "Cumulative Coverage Rate",
-        "cumulative_completion_rate": "Cumulative Completion Rate",
-        "cumulative_avg_quality": "Cumulative Average Quality",
-        "platform_utility": "Platform Utility",
-        "cumulative_platform_utility": "Cumulative Platform Utility",
-        "num_left_workers_this_round": "Left Workers per Round",
-        "cumulative_left_workers": "Cumulative Left Workers",
-        "trusted_count": "Trusted Count",
-        "unknown_count": "Unknown Count",
-        "malicious_count": "Malicious Count",
-        "num_validation_tasks": "Validation Task Count",
-        "member_count": "Member Count",
-        "trusted_member_count": "Trusted Member Count",
-        "membership_fee_income": "Membership Fee Income",
-        "bonus_payment": "Bonus Payment",
-    }
-    for key in config["plot_keys"]:
-        ylabel = plot_labels[key]
-        plot_metric(avg_round_results, key, ylabel, config["PLOT_FILES"][key])
+    if config.get("GENERATE_LEGACY_PLOTS", False):
+        plot_labels = {
+            "coverage_rate": "Coverage Rate",
+            "completion_rate": "Completion Rate",
+            "avg_quality": "Average Realized Quality",
+            "cumulative_coverage_rate": "Cumulative Coverage Rate",
+            "cumulative_completion_rate": "Cumulative Completion Rate",
+            "cumulative_avg_quality": "Cumulative Average Quality",
+            "platform_utility": "Net Platform Utility",
+            "cumulative_platform_utility": "Cumulative Net Platform Utility",
+            "num_left_workers_this_round": "Left Workers per Round",
+            "cumulative_left_workers": "Cumulative Left Workers",
+            "trusted_count": "Trusted Count",
+            "unknown_count": "Unknown Count",
+            "malicious_count": "Malicious Count",
+            "num_validation_tasks": "Validation Task Count",
+            "member_count": "Member Count",
+            "trusted_member_count": "Trusted Member Count",
+            "membership_fee_income": "Membership Fee Income",
+            "bonus_payment": "Bonus Payment",
+        }
+        for key in config["plot_keys"]:
+            ylabel = plot_labels[key]
+            plot_metric(avg_round_results, key, ylabel, config["PLOT_FILES"][key])
 
     return avg_round_results, avg_summary
 

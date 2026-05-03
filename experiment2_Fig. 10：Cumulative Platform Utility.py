@@ -1,0 +1,259 @@
+import csv
+import json
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
+
+
+SERIES_CONFIG = [
+    {
+        "label": "Random",
+        "csv_key": "random",
+        "path": "experiment2_random_longrun_round_results.json",
+        "color": "#4C78A8",
+        "marker": "o",
+        "linestyle": "-",
+        "linewidth": 1.8,
+        "markersize": 4.2,
+        "alpha": 0.95,
+        "zorder": 3,
+    },
+    {
+        "label": "Explore-First",
+        "csv_key": "epsilon_first",
+        "path": "experiment2_epsilon_first_longrun_round_results.json",
+        "color": "#F58518",
+        "marker": "s",
+        "linestyle": "-",
+        "linewidth": 1.8,
+        "markersize": 4.0,
+        "alpha": 0.95,
+        "zorder": 3,
+    },
+    {
+        "label": "UCB-Greedy",
+        "csv_key": "cmab",
+        "path": "experiment2_cmab_longrun_round_results.json",
+        "color": "#54A24B",
+        "marker": "^",
+        "linestyle": "-",
+        "linewidth": 1.8,
+        "markersize": 4.4,
+        "alpha": 0.95,
+        "zorder": 4,
+    },
+    {
+        "label": "Trust-Aware",
+        "csv_key": "cmab_trust",
+        "path": "experiment2_cmab_trust_round_results.json",
+        "color": "#E45756",
+        "marker": "D",
+        "linestyle": "-",
+        "linewidth": 2.0,
+        "markersize": 4.2,
+        "alpha": 0.98,
+        "zorder": 4,
+    },
+    {
+        "label": "Incentive-Aware",
+        "csv_key": "cmab_trust_pgrd",
+        "path": "experiment2_cmab_trust_pgrd_round_results.json",
+        "color": "#72B7B2",
+        "marker": "v",
+        "linestyle": "-",
+        "linewidth": 2.1,
+        "markersize": 4.3,
+        "alpha": 0.98,
+        "zorder": 4,
+    },
+    {
+        "label": "TruthRide",
+        "csv_key": "truthride",
+        "path": "experiment2_cmab_trust_pgrd_lgsc_round_results.json",
+        "color": "#000000",
+        "marker": "P",
+        "linestyle": "-",
+        "linewidth": 2.9,
+        "markersize": 4.8,
+        "alpha": 1.0,
+        "zorder": 5,
+    },
+]
+
+
+OUTPUT_PNG = "experiment2_Fig. 10：Cumulative Platform Utility.png"
+OUTPUT_PDF = "experiment2_Fig. 10：Cumulative Platform Utility.pdf"
+OUTPUT_CSV = "experiment2_Fig. 10：Cumulative Platform Utility.csv"
+METRIC_KEY = "cumulative_platform_utility"
+LEGEND_MODE = "manual"
+LEGEND_LOC = "upper center"
+LEGEND_BBOX_TO_ANCHOR = (0.25, 0.98)
+LEGEND_NCOL = 2
+YLIM_MODE = "auto"
+YLIM = None
+
+
+def load_round_results(path):
+    with Path(path).open("r", encoding="utf-8") as f:
+        records = json.load(f)
+    return [item for item in records if int(item.get("num_tasks", 0)) > 0]
+
+
+def save_plot_data_csv(output_csv, rounds, series_rows, series_config):
+    headers = ["round"] + [config["csv_key"] for config in series_config]
+    with open(output_csv, "w", encoding="utf-8-sig", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(headers)
+        for idx, round_id in enumerate(rounds):
+            row = [round_id]
+            for values in series_rows:
+                row.append(values[idx])
+            writer.writerow(row)
+
+
+def set_figure_style():
+    plt.rcParams.update(
+        {
+            "font.family": "serif",
+            "font.serif": ["Times New Roman", "Times", "DejaVu Serif"],
+            "mathtext.fontset": "stix",
+            "font.size": 10.0,
+            "axes.labelsize": 12.0,
+            "xtick.labelsize": 9.6,
+            "ytick.labelsize": 9.6,
+            "legend.fontsize": 8.8,
+            "axes.linewidth": 0.95,
+            "pdf.fonttype": 42,
+            "ps.fonttype": 42,
+            "figure.dpi": 150,
+            "savefig.dpi": 600,
+        }
+    )
+
+
+def plot_figure():
+    set_figure_style()
+
+    fig, ax = plt.subplots(figsize=(6.2, 4.8))
+    fig.patch.set_facecolor("white")
+    ax.set_facecolor("white")
+    ax.set_axisbelow(True)
+    csv_rounds = None
+    csv_series_rows = []
+    legend_handles = []
+    y_values_all = []
+
+    for config in SERIES_CONFIG:
+        rounds = load_round_results(config["path"])
+        x = [int(item["round_id"]) for item in rounds]
+        y = [float(item[METRIC_KEY]) for item in rounds]
+
+        if csv_rounds is None:
+            csv_rounds = x
+        csv_series_rows.append(y)
+        y_values_all.extend(y)
+
+        ax.plot(
+            x,
+            y,
+            label=config["label"],
+            color=config["color"],
+            marker=config["marker"],
+            linestyle=config["linestyle"],
+            linewidth=config["linewidth"],
+            markersize=config["markersize"],
+            markevery=1,
+            markerfacecolor="white",
+            markeredgewidth=0.95,
+            alpha=config["alpha"],
+            zorder=config["zorder"],
+            solid_capstyle="round",
+            solid_joinstyle="round",
+            antialiased=True,
+        )
+        legend_handles.append(
+            Line2D(
+                [0],
+                [0],
+                label=config["label"],
+                color=config["color"],
+                linestyle=config["linestyle"],
+                linewidth=config["linewidth"],
+                marker=config["marker"],
+                markersize=config["markersize"],
+                markerfacecolor="white",
+                markeredgewidth=0.95,
+            )
+        )
+
+    ax.set_xlabel("Round")
+    ax.set_ylabel("Cumulative Net Platform Utility")
+    ax.set_xlim(0, 145)
+    ax.set_xticks(range(0, 141, 20))
+    if YLIM_MODE == "manual" and YLIM is not None:
+        ax.set_ylim(*YLIM)
+    elif y_values_all:
+        y_min = min(y_values_all)
+        y_max = max(y_values_all)
+        margin = max((y_max - y_min) * 0.08, 200.0)
+        ax.set_ylim(y_min - margin, y_max + margin)
+
+    ax.grid(
+        True,
+        axis="y",
+        which="major",
+        linestyle="--",
+        linewidth=0.65,
+        color="#b8b8b8",
+        alpha=0.55,
+    )
+    ax.grid(
+        True,
+        axis="x",
+        which="major",
+        linestyle=":",
+        linewidth=0.5,
+        color="#c7c7c7",
+        alpha=0.35,
+    )
+
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["bottom"].set_linewidth(0.95)
+    ax.spines["left"].set_linewidth(0.95)
+    ax.tick_params(axis="both", which="both", direction="in", top=False, right=False, length=3.8, width=0.9)
+
+    legend_kwargs = {
+        "handles": legend_handles,
+        "loc": LEGEND_LOC if LEGEND_MODE == "manual" else "best",
+        "ncol": LEGEND_NCOL,
+        "frameon": True,
+        "fancybox": False,
+        "framealpha": 0.9,
+        "facecolor": "white",
+        "edgecolor": "#666666",
+        "handlelength": 2.2,
+        "handletextpad": 0.5,
+        "columnspacing": 1.2,
+        "labelspacing": 0.5,
+    }
+    if LEGEND_MODE == "manual":
+        legend_kwargs["bbox_to_anchor"] = LEGEND_BBOX_TO_ANCHOR
+    ax.legend(**legend_kwargs)
+
+    fig.subplots_adjust(left=0.14, right=0.985, bottom=0.16, top=0.96)
+    fig.savefig(OUTPUT_PNG, bbox_inches="tight")
+    fig.savefig(OUTPUT_PDF, bbox_inches="tight")
+    plt.close(fig)
+    save_plot_data_csv(OUTPUT_CSV, csv_rounds, csv_series_rows, SERIES_CONFIG)
+
+    print(f"Saved {OUTPUT_PNG}")
+    print(f"Saved {OUTPUT_PDF}")
+    print(f"Saved {OUTPUT_CSV}")
+
+
+if __name__ == "__main__":
+    plot_figure()

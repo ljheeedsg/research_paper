@@ -5,7 +5,7 @@ BASE_CONFIG = {
     "WORKER_OPTIONS_FILE": "experiment2_worker_options.json",
     "TOTAL_SLOTS": 86400 // 600,
     "PER_ROUND_BUDGET": 1000,
-    "K": 7,
+    "K": 10,
     "RANDOM_SEED": 3,
     "NUM_EXPERIMENT_RUNS": 10,
     "SEED_STEP": 1,
@@ -27,10 +27,13 @@ BASE_CONFIG = {
     "QUALITY_VALUE_K": 10.0,
     "QUALITY_VALUE_Q0": 0.5,
     "WORKER_COST_RATIO": 0.6,
-    "BETA0": -0.5,
-    "BETA1": 0.1,
-    "BETA2": 0.3,
-    "VALIDATION_TOP_M": 7,
+    "BETA0": -0.7,
+    "BETA1": 0.08,
+    "BETA2": 0.35,
+    "VALIDATION_TOP_M": 3,
+    "VALIDATION_REPORT_COST": 2.0,
+    "MAX_REF_WORKERS_PER_VALIDATION": 3,
+    "MAX_UNKNOWN_WORKERS_PER_VALIDATION": 10,
     "TRUST_INIT_TRUSTED": 1.0,
     "TRUST_INIT_UNKNOWN": 0.5,
     "ETA": 0.05, # 信任更新步长
@@ -44,13 +47,14 @@ BASE_CONFIG = {
     "NORMAL_REWARD_MULTIPLIER": 1.0, # 非会员任务奖励乘数
     "PGRD_LAMBDA": 1.5, # PGRD损失函数中参考损失的权重
     "PGRD_XI": 4.0, # PGRD中sigmoid函数的参数，控制会员资格概率的分布
-    "MEMBERSHIP_THRESHOLD": 0.45, # 会员资格概率阈值
-    "SUNK_THRESHOLD": 30,
+    "MEMBERSHIP_THRESHOLD": 0.40, # 会员资格概率阈值
+    "SUNK_THRESHOLD": 50,
     "MEMBER_BONUS": 20,
     "RHO_INIT": 1.0, # PGRD初始rho值
-    "BETA3": 3.5, # LGSC算法中当前沉没损失对会员资格概率的影响权重
-    "BETA4": 4.0, # LGSC算法中累计沉没损失对会员资格概率的影响权重
+    "BETA3": 4.2, # LGSC算法中当前沉没损失对会员资格概率的影响权重
+    "BETA4": 4.8, # LGSC算法中累计沉没损失对会员资格概率的影响权重
     "SKIP_EMPTY_ROUNDS": True,
+    "GENERATE_LEGACY_PLOTS": False,
 }
 
 

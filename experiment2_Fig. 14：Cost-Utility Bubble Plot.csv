@@ -1,0 +1,7 @@
+﻿algorithm,csv_key,total_cost,cumulative_platform_payment,cumulative_bonus_payment,cumulative_validation_cost,cumulative_utility,task_scale,bubble_size
+Random,random,18517.24,18517.24,0.0,0.0,-43240.6449,2000.0,925.0
+Explore-First,epsilon_first,15520.37,15520.37,0.0,0.0,-30294.2479,2000.0,925.0
+UCB-Greedy,cmab,15711.31,15711.31,0.0,0.0,11641.7394,2000.0,925.0
+Trust-Aware,cmab_trust,19855.39,15405.59,0.0,4449.8,32184.4617,2000.0,925.0
+Incentive-Aware,cmab_trust_pgrd,19080.79,14318.99,0.0,4761.8,24719.2633,2000.0,925.0
+TruthRide,truthride,23975.31,13830.91,5256.0,4888.4,42090.02,2000.0,925.0
