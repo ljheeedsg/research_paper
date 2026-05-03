@@ -12,6 +12,20 @@ from matplotlib.patches import Patch, Circle
 
 
 # ==================== Configuration ====================
+DATASET_NAME = "rome"
+
+DATASET_TASK_CONFIG = {
+    "beijing": {
+        "total_tasks": 2000,
+    },
+    "rome": {
+        "total_tasks": 1200,
+    },
+    "chicago": {
+        "total_tasks": 3000,
+    },
+}
+
 VEHICLE_FILE = "experiment2_vehicle.csv"
 TASK_CSV = "experiment2_tasks.csv"
 TASK_JSON = "experiment2_task_segments.json"
@@ -19,7 +33,6 @@ PLOT_FILE = "experiment2_tasks_distribution.png"
 SUMMARY_FILE = "experiment2_tasks_summary.json"
 ALL_RUNS_SUMMARY_FILE = "experiment2_tasks_summary_all_runs.json"
 
-TOTAL_TASKS = 2000
 SLOT_SEC = 600
 SLOTS_PER_DAY = 86400 // SLOT_SEC
 
@@ -59,6 +72,15 @@ def average_dict_records(records):
         else:
             averaged[key] = first_value
     return averaged
+
+
+def resolve_total_tasks():
+    dataset_key = str(DATASET_NAME).strip().lower()
+    if dataset_key not in DATASET_TASK_CONFIG:
+        raise ValueError(
+            f"不支持的数据集 DATASET_NAME={DATASET_NAME!r}，可选: {sorted(DATASET_TASK_CONFIG.keys())}"
+        )
+    return dataset_key, int(DATASET_TASK_CONFIG[dataset_key]["total_tasks"])
 
 
 def get_slot_index(t_seconds: int) -> int:
@@ -125,7 +147,7 @@ def build_candidate_slots(capacity_count):
     return candidate_slots
 
 
-def generate_tasks(candidate_slots):
+def generate_tasks(candidate_slots, total_tasks):
     """
     按容量加权采样生成任务。
     规则：
@@ -144,10 +166,10 @@ def generate_tasks(candidate_slots):
     tasks = []
     tasks_by_region = defaultdict(list)
 
-    max_attempts = TOTAL_TASKS * 20
+    max_attempts = total_tasks * 20
     attempts = 0
 
-    while len(tasks) < TOTAL_TASKS and attempts < max_attempts:
+    while len(tasks) < total_tasks and attempts < max_attempts:
         attempts += 1
 
         region_id, slot_id, cap = random.choices(candidate_slots, weights=weights, k=1)[0]
@@ -193,7 +215,7 @@ def generate_tasks(candidate_slots):
     return tasks, tasks_by_region
 
 
-def summarize_tasks(tasks, tasks_by_region, candidate_slots, total_capacity):
+def summarize_tasks(tasks, tasks_by_region, candidate_slots, total_capacity, total_tasks):
     task_counts = [len(task_list) for task_list in tasks_by_region.values()]
     weights = [task["weight"] for task in tasks]
     required_workers = [task["required_workers"] for task in tasks]
@@ -203,7 +225,7 @@ def summarize_tasks(tasks, tasks_by_region, candidate_slots, total_capacity):
 
     return {
         "total_tasks": len(tasks),
-        "target_tasks": TOTAL_TASKS,
+        "target_tasks": total_tasks,
         "candidate_slot_count": len(candidate_slots),
         "total_capacity": total_capacity,
         "regions_with_tasks": len(tasks_by_region),
@@ -375,8 +397,11 @@ def main():
     RANDOM_SEED = args.seed
     NUM_EXPERIMENT_RUNS = args.runs
 
+    dataset_key, total_tasks = resolve_total_tasks()
     seeds = [RANDOM_SEED + i * SEED_STEP for i in range(NUM_EXPERIMENT_RUNS)]
     print(f"开始重复实验，共 {NUM_EXPERIMENT_RUNS} 次，随机种子: {seeds}")
+    print(f"当前数据集: {dataset_key}")
+    print(f"目标任务数: {total_tasks}")
 
     capacity_count, region_density, total_capacity = load_vehicle_capacity()
 
@@ -396,8 +421,8 @@ def main():
     for run_idx, seed in enumerate(seeds, start=1):
         print(f"\n===== Run {run_idx}/{NUM_EXPERIMENT_RUNS} | seed={seed} =====")
         set_random_seed(seed)
-        tasks, tasks_by_region = generate_tasks(candidate_slots)
-        summary = summarize_tasks(tasks, tasks_by_region, candidate_slots, total_capacity)
+        tasks, tasks_by_region = generate_tasks(candidate_slots, total_tasks)
+        summary = summarize_tasks(tasks, tasks_by_region, candidate_slots, total_capacity, total_tasks)
         all_summaries.append(summary)
         all_runs_summary.append(
             {
@@ -408,8 +433,8 @@ def main():
         )
 
         actual_tasks = len(tasks)
-        print(f"实际生成任务数: {actual_tasks} / 目标 {TOTAL_TASKS}")
-        if actual_tasks < TOTAL_TASKS:
+        print(f"实际生成任务数: {actual_tasks} / 目标 {total_tasks}")
+        if actual_tasks < total_tasks:
             print("警告：当前时空容量不足，未能达到目标任务数。")
 
         if representative_tasks is None:

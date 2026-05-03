@@ -1,14 +1,14 @@
 {
-  "total_tasks": 2000,
-  "target_tasks": 2000,
-  "candidate_slot_count": 7131,
-  "total_capacity": 45536,
-  "regions_with_tasks": 76,
-  "avg_tasks_per_active_region": 26.3158,
-  "max_tasks_in_region": 176,
+  "total_tasks": 1200,
+  "target_tasks": 1200,
+  "candidate_slot_count": 4365,
+  "total_capacity": 10225,
+  "regions_with_tasks": 64,
+  "avg_tasks_per_active_region": 18.75,
+  "max_tasks_in_region": 202,
   "avg_required_workers": 1.0,
   "max_required_workers": 1,
-  "avg_task_weight": 2.0102,
+  "avg_task_weight": 2.0061,
   "num_experiment_runs": 1,
   "experiment_seeds": [
     100

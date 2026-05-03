@@ -11,7 +11,23 @@ import numpy as np
 
 
 # ==================== Configuration ====================
-INPUT_CSV = "dataset/beijing_300_cars_2008-02-03.csv"
+DATASET_NAME = "rome"
+
+DATASET_REGISTRY = {
+    "beijing": {
+        "input_csv": "dataset/beijing_300_cars_2008-02-03.csv",
+        "preprocessor": "beijing",
+    },
+    "rome": {
+        "input_csv": "dataset/crowd_temperature.csv",
+        "preprocessor": "rome",
+    },
+    "chicago": {
+        "input_csv": "dataset/Chicago_points.csv",
+        "preprocessor": "chicago",
+    },
+}
+
 OUTPUT_SEG = "experiment2_vehicle.csv"
 OUTPUT_PLOT = "experiment2_grid_partition.png"
 SUMMARY_FILE = "experiment2_vehicle_summary.json"
@@ -35,6 +51,12 @@ SLOT_SEC = 600
 RANDOM_SEED = 10
 NUM_EXPERIMENT_RUNS = 1
 SEED_STEP = 1
+MAX_DAY_SEC = 86400
+ROME_TARGET_DATE = "02-01-14"
+CHICAGO_MAX_VEHICLES = 2000
+CHICAGO_MIN_DURATION_HOURS = 6
+CHICAGO_MAX_DURATION_HOURS = 15
+SECONDS_PER_HOUR = 3600
 
 # 三类工人质量区间
 TRUSTED_QUALITY_MIN = 0.80
@@ -89,13 +111,13 @@ def detect_columns(fieldnames):
     taxi_col = time_col = lat_col = lon_col = None
     for col in fieldnames or []:
         col_lower = col.lower()
-        if col_lower in ("taxi_id", "taxiid", "id"):
+        if col_lower in ("ride_id", "vehicle_id", "taxi_id", "taxiid", "id"):
             taxi_col = col
         elif col_lower in ("time_sec", "time", "timestamp"):
             time_col = col
         elif col_lower in ("lat", "latitude"):
             lat_col = col
-        elif col_lower in ("lon", "longitude"):
+        elif col_lower in ("lon", "lng", "longitude"):
             lon_col = col
 
     if None in (taxi_col, time_col, lat_col, lon_col):
@@ -103,11 +125,20 @@ def detect_columns(fieldnames):
     return taxi_col, time_col, lat_col, lon_col
 
 
-def read_input_data():
+def resolve_dataset_config():
+    dataset_key = str(DATASET_NAME).strip().lower()
+    if dataset_key not in DATASET_REGISTRY:
+        raise ValueError(
+            f"不支持的数据集 DATASET_NAME={DATASET_NAME!r}，可选: {sorted(DATASET_REGISTRY.keys())}"
+        )
+    return dataset_key, DATASET_REGISTRY[dataset_key]
+
+
+def preprocess_beijing_like(input_csv):
     rows = []
     taxi_ids = set()
 
-    with open(INPUT_CSV, "r", encoding="utf-8-sig", newline="") as f:
+    with open(input_csv, "r", encoding="utf-8-sig", newline="") as f:
         reader = csv.DictReader(f)
         taxi_col, time_col, lat_col, lon_col = detect_columns(reader.fieldnames)
 
@@ -125,6 +156,108 @@ def read_input_data():
 
     print(f"读取 {len(rows)} 个点，共 {len(taxi_ids)} 辆不同的车")
     return rows
+
+
+def preprocess_beijing(input_csv):
+    return preprocess_beijing_like(input_csv)
+
+
+def time_to_seconds_rome(time_str):
+    time_str = str(time_str).strip().split("+")[0]
+    time_str = time_str.split(".")[0]
+    hour, minute, second = map(int, time_str.split(":"))
+    return hour * 3600 + minute * 60 + second
+
+
+def preprocess_rome(input_csv):
+    rows = []
+    renumbered_rows = []
+
+    with open(input_csv, "r", encoding="utf-8-sig", newline="") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            try:
+                if str(row["Date"]).strip() != ROME_TARGET_DATE:
+                    continue
+                orig_id = str(row["Taxi ID"]).strip()
+                time_sec = time_to_seconds_rome(row["Time"])
+                lat = float(row["Latitude"])
+                lon = float(row["Longitude"])
+            except (TypeError, ValueError, KeyError, AttributeError):
+                continue
+
+            rows.append((orig_id, time_sec, lat, lon))
+
+    if not rows:
+        raise ValueError(f"Rome 数据集中未找到日期 {ROME_TARGET_DATE} 的有效记录")
+
+    rows.sort(key=lambda item: (safe_int_key(item[0]), item[1], item[2], item[3]))
+    unique_ids = sorted({row[0] for row in rows}, key=safe_int_key)
+    id_mapping = {orig_id: str(index) for index, orig_id in enumerate(unique_ids, start=1)}
+
+    for orig_id, time_sec, lat, lon in rows:
+        renumbered_rows.append((id_mapping[orig_id], time_sec, lat, lon))
+
+    print(
+        f"Rome 原始数据筛选日期 {ROME_TARGET_DATE} 后，"
+        f"读取 {len(renumbered_rows)} 个点，共 {len(unique_ids)} 辆不同的车"
+    )
+    return renumbered_rows
+
+
+def preprocess_chicago(input_csv):
+    rows = []
+    taxi_ids_in_order = []
+    seen_ids = set()
+
+    with open(input_csv, "r", encoding="utf-8-sig", newline="") as f:
+        reader = csv.DictReader(f)
+        taxi_col, time_col, lat_col, lon_col = detect_columns(reader.fieldnames)
+
+        for row in reader:
+            try:
+                orig_id = row[taxi_col].strip()
+                time_sec = int(float(row[time_col]))
+                lat = float(row[lat_col])
+                lon = float(row[lon_col])
+            except (TypeError, ValueError, KeyError, AttributeError):
+                continue
+
+            rows.append((orig_id, time_sec, lat, lon))
+            if orig_id not in seen_ids:
+                seen_ids.add(orig_id)
+                taxi_ids_in_order.append(orig_id)
+
+    if len(taxi_ids_in_order) > CHICAGO_MAX_VEHICLES:
+        keep_ids = set(taxi_ids_in_order[:CHICAGO_MAX_VEHICLES])
+        rows = [row for row in rows if row[0] in keep_ids]
+        taxi_ids_in_order = taxi_ids_in_order[:CHICAGO_MAX_VEHICLES]
+
+    print(
+        f"Chicago 读取 {len(rows)} 个点，共 {len(taxi_ids_in_order)} 辆车"
+        f"（限制为前 {CHICAGO_MAX_VEHICLES} 辆）"
+    )
+    return rows
+
+
+def read_input_data():
+    dataset_key, dataset_config = resolve_dataset_config()
+    input_csv = dataset_config["input_csv"]
+    preprocessor_name = dataset_config["preprocessor"]
+
+    preprocessor_map = {
+        "beijing": preprocess_beijing,
+        "rome": preprocess_rome,
+        "chicago": preprocess_chicago,
+    }
+    if preprocessor_name not in preprocessor_map:
+        raise ValueError(
+            f"数据集 {dataset_key} 的预处理器 {preprocessor_name!r} 未注册"
+        )
+
+    print(f"当前数据集: {dataset_key}")
+    print(f"输入文件: {input_csv}")
+    return preprocessor_map[preprocessor_name](input_csv)
 
 
 def get_shifted_bbox(rows):
@@ -156,6 +289,40 @@ def get_shifted_bbox(rows):
         f"纬度 [{lat_min_new:.6f}, {lat_max_new:.6f}]"
     )
     return lon_min_new, lon_max_new, lat_min_new, lat_max_new
+
+
+def get_minmax_bbox(rows, dataset_label="dataset"):
+    lats = np.array([row[2] for row in rows], dtype=float)
+    lons = np.array([row[3] for row in rows], dtype=float)
+
+    lon_min = float(np.min(lons))
+    lon_max = float(np.max(lons))
+    lat_min = float(np.min(lats))
+    lat_max = float(np.max(lats))
+
+    width = lon_max - lon_min
+    height = lat_max - lat_min
+    if width <= 0 or height <= 0:
+        raise ValueError(f"{dataset_label} 数据集的经纬度边界无效")
+
+    print(
+        f"{dataset_label} 原始边界: "
+        f"经度 [{lon_min:.6f}, {lon_max:.6f}], 纬度 [{lat_min:.6f}, {lat_max:.6f}]"
+    )
+    print(
+        f"{dataset_label} 网格尺寸: "
+        f"经度宽度 {width / GRID_X_NUM:.6f}, 纬度高度 {height / GRID_Y_NUM:.6f}"
+    )
+    return lon_min, lon_max, lat_min, lat_max
+
+
+def get_dataset_bbox(rows):
+    dataset_key, _ = resolve_dataset_config()
+    if dataset_key == "rome":
+        return get_minmax_bbox(rows, dataset_label="Rome")
+    if dataset_key == "chicago":
+        return get_minmax_bbox(rows, dataset_label="Chicago")
+    return get_shifted_bbox(rows)
 
 
 def assign_region_ids(rows, lon_min, lon_max, lat_min, lat_max):
@@ -205,6 +372,43 @@ def build_trajectory_segments(region_rows):
                 segments.append((orig_id, current_rid, start, end))
 
     print(f"原始轨迹段数量: {len(segments)}")
+    return segments
+
+
+def build_chicago_vehicle_segments(rows, lon_min, lon_max, lat_min, lat_max):
+    step_lon = (lon_max - lon_min) / GRID_X_NUM
+    step_lat = (lat_max - lat_min) / GRID_Y_NUM
+    if step_lon <= 0 or step_lat <= 0:
+        raise ValueError("Chicago 网格步长无效，请检查边界或网格参数")
+
+    groups = defaultdict(list)
+    for orig_id, ts, lat, lon in rows:
+        groups[orig_id].append((ts, lat, lon))
+
+    segments = []
+    for orig_id, points in groups.items():
+        points.sort(key=lambda item: item[0])
+        start_time, lat_start, lon_start = points[0]
+
+        lon_clamped = min(max(lon_start, lon_min), lon_max)
+        lat_clamped = min(max(lat_start, lat_min), lat_max)
+        gx = int((lon_clamped - lon_min) // step_lon)
+        gy = int((lat_clamped - lat_min) // step_lat)
+        gx = min(max(gx, 0), GRID_X_NUM - 1)
+        gy = min(max(gy, 0), GRID_Y_NUM - 1)
+        region_id = gy * GRID_X_NUM + gx
+
+        duration = random.randint(
+            CHICAGO_MIN_DURATION_HOURS * SECONDS_PER_HOUR,
+            CHICAGO_MAX_DURATION_HOURS * SECONDS_PER_HOUR,
+        )
+        end_time = min(start_time + duration, MAX_DAY_SEC)
+        segments.append((orig_id, region_id, start_time, end_time))
+
+    print(
+        f"Chicago 为 {len(segments)} 辆车生成原始段"
+        f"（每辆车一个段，持续 {CHICAGO_MIN_DURATION_HOURS}-{CHICAGO_MAX_DURATION_HOURS} 小时）"
+    )
     return segments
 
 
@@ -373,36 +577,78 @@ def save_csv(segments, filepath):
 
 
 def plot_grid(lon_min, lon_max, lat_min, lat_max, all_points, grid_counts):
+    dataset_key, _ = resolve_dataset_config()
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
 
     if all_points:
         lons, lats = zip(*all_points)
-        ax1.scatter(lons, lats, s=POINT_SIZE, alpha=POINT_ALPHA, c="blue")
+        if dataset_key == "rome":
+            ax1.scatter(
+                lons,
+                lats,
+                s=5,
+                alpha=0.9,
+                c="navy",
+                edgecolors="cyan",
+                linewidth=0.2,
+            )
+            ax1.set_xlabel("Longitude")
+            ax1.set_ylabel("Latitude")
+            ax1.set_title("GPS Points")
+        elif dataset_key == "chicago":
+            ax1.scatter(lons, lats, s=POINT_SIZE, alpha=POINT_ALPHA, c="blue")
 
-    ax1.plot(
-        [lon_min, lon_max, lon_max, lon_min, lon_min],
-        [lat_min, lat_min, lat_max, lat_max, lat_min],
-        "k-",
-        linewidth=2,
-    )
+            ax1.plot(
+                [lon_min, lon_max, lon_max, lon_min, lon_min],
+                [lat_min, lat_min, lat_max, lat_max, lat_min],
+                "k-",
+                linewidth=2,
+            )
 
-    x_edges = np.linspace(lon_min, lon_max, GRID_X_NUM + 1)
-    y_edges = np.linspace(lat_min, lat_max, GRID_Y_NUM + 1)
-    for x in x_edges:
-        ax1.axvline(x=x, linestyle="--", color="gray", linewidth=0.8, alpha=0.7)
-    for y in y_edges:
-        ax1.axhline(y=y, linestyle="--", color="gray", linewidth=0.8, alpha=0.7)
+            x_edges = np.linspace(lon_min, lon_max, GRID_X_NUM + 1)
+            y_edges = np.linspace(lat_min, lat_max, GRID_Y_NUM + 1)
+            for x in x_edges:
+                ax1.axvline(x=x, linestyle="--", color="gray", linewidth=0.8, alpha=0.7)
+            for y in y_edges:
+                ax1.axhline(y=y, linestyle="--", color="gray", linewidth=0.8, alpha=0.7)
 
-    ax1.set_xlabel("Longitude")
-    ax1.set_ylabel("Latitude")
-    ax1.set_title(
-        f"Shifted dense region (d_lon={SHIFT_LON}, d_lat={SHIFT_LAT})\n"
-        f"{GRID_X_NUM}x{GRID_Y_NUM} grid"
-    )
-    ax1.set_xticks(x_edges)
-    ax1.set_yticks(y_edges)
-    ax1.set_xticklabels([f"{tick:.4f}" for tick in x_edges], rotation=45, fontsize=8)
-    ax1.set_yticklabels([f"{tick:.4f}" for tick in y_edges], fontsize=8)
+            ax1.set_xlabel("Longitude")
+            ax1.set_ylabel("Latitude")
+            ax1.set_title(
+                f"Chicago Points with {GRID_X_NUM}x{GRID_Y_NUM} grid\n"
+                f"{len(all_points)} points (first {CHICAGO_MAX_VEHICLES} vehicles)"
+            )
+            ax1.set_xticks(x_edges)
+            ax1.set_yticks(y_edges)
+            ax1.set_xticklabels([f"{tick:.4f}" for tick in x_edges], rotation=45, fontsize=8)
+            ax1.set_yticklabels([f"{tick:.4f}" for tick in y_edges], fontsize=8)
+        else:
+            ax1.scatter(lons, lats, s=POINT_SIZE, alpha=POINT_ALPHA, c="blue")
+
+            ax1.plot(
+                [lon_min, lon_max, lon_max, lon_min, lon_min],
+                [lat_min, lat_min, lat_max, lat_max, lat_min],
+                "k-",
+                linewidth=2,
+            )
+
+            x_edges = np.linspace(lon_min, lon_max, GRID_X_NUM + 1)
+            y_edges = np.linspace(lat_min, lat_max, GRID_Y_NUM + 1)
+            for x in x_edges:
+                ax1.axvline(x=x, linestyle="--", color="gray", linewidth=0.8, alpha=0.7)
+            for y in y_edges:
+                ax1.axhline(y=y, linestyle="--", color="gray", linewidth=0.8, alpha=0.7)
+
+            ax1.set_xlabel("Longitude")
+            ax1.set_ylabel("Latitude")
+            ax1.set_title(
+                f"Shifted dense region (d_lon={SHIFT_LON}, d_lat={SHIFT_LAT})\n"
+                f"{GRID_X_NUM}x{GRID_Y_NUM} grid"
+            )
+            ax1.set_xticks(x_edges)
+            ax1.set_yticks(y_edges)
+            ax1.set_xticklabels([f"{tick:.4f}" for tick in x_edges], rotation=45, fontsize=8)
+            ax1.set_yticklabels([f"{tick:.4f}" for tick in y_edges], fontsize=8)
 
     im = ax2.imshow(
         grid_counts,
@@ -449,12 +695,13 @@ def main():
     seeds = [RANDOM_SEED + i * SEED_STEP for i in range(NUM_EXPERIMENT_RUNS)]
     print(f"开始重复实验，共 {NUM_EXPERIMENT_RUNS} 次，随机种子: {seeds}")
 
+    dataset_key, _ = resolve_dataset_config()
     rows = read_input_data()
     if not rows:
         print("输入数据为空，程序结束")
         return
 
-    lon_min, lon_max, lat_min, lat_max = get_shifted_bbox(rows)
+    lon_min, lon_max, lat_min, lat_max = get_dataset_bbox(rows)
     region_rows, all_points, grid_counts = assign_region_ids(
         rows, lon_min, lon_max, lat_min, lat_max
     )
@@ -462,13 +709,20 @@ def main():
         print("矩形内无点，程序结束")
         return
 
-    segments = build_trajectory_segments(region_rows)
+    if dataset_key == "chicago":
+        set_random_seed(seeds[0])
+        segments = build_chicago_vehicle_segments(rows, lon_min, lon_max, lat_min, lat_max)
+    else:
+        segments = build_trajectory_segments(region_rows)
     if not segments:
         print("没有生成有效轨迹段，程序结束")
         return
 
-    merged_segments = merge_segments(segments)
-    slot_segments = split_by_slot(merged_segments)
+    if dataset_key == "chicago":
+        slot_segments = split_by_slot(segments)
+    else:
+        merged_segments = merge_segments(segments)
+        slot_segments = split_by_slot(merged_segments)
 
     all_summaries = []
     all_runs_summary = []
